@@ -1,5 +1,5 @@
 # Dependency Directories
-/node_modeles/
+/node_modules/
 **/node_modules/
 
 /dist/
