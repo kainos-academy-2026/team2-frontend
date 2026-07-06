@@ -1,6 +1,5 @@
-import app from "./app";
+export function greet(name: string): string {
+  return `Hello, ${name}!`;
+}
 
-const port = Number(process.env.PORT ?? 3000);
-app.listen(port, () => {
-  console.log(`Frontend running on http://localhost:${port}`);
-});
+console.log(greet("World"));
