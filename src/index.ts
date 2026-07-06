@@ -1,4 +1,6 @@
-import app from "./app";
+export function greet(name: string): string {
+  return `Hello, ${name}!`;
+}
 
 const PORT = Number(process.env.PORT) || 3000;
 
