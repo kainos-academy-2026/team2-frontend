@@ -7,7 +7,8 @@ const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-nunjucks.configure(path.join(__dirname, "views"), {
+const viewsPath = path.join(process.cwd(), "src", "views");
+nunjucks.configure(viewsPath, {
   autoescape: true,
   express: app,
 });
