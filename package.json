@@ -4,6 +4,9 @@
   "description": "Team2 Frontend",
   "main": "index.js",
   "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -16,5 +19,12 @@
   "bugs": {
     "url": "https://github.com/kainos-academy-2026/team2-frontend/issues"
   },
-  "homepage": "https://github.com/kainos-academy-2026/team2-frontend#readme"
+  "homepage": "https://github.com/kainos-academy-2026/team2-frontend#readme",
+  "dependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.0",
+    "@types/nunjucks": "^3.2.6",
+    "tsx": "^4.22.4",
+    "typescript": "^6.0.3"
+  }
 }
