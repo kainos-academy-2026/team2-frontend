@@ -31,3 +31,17 @@ describe("GET /", () => {
 		expect(response.headers["content-type"]).toMatch(/html/);
 	});
 });
+
+describe("GET /register", () => {
+	it("should return 200", async () => {
+		const response = await request(app).get("/register");
+
+		expect(response.status).toBe(200);
+	});
+
+	it("should return HTML content", async () => {
+		const response = await request(app).get("/register");
+
+		expect(response.headers["content-type"]).toMatch(/html/);
+	});
+});
