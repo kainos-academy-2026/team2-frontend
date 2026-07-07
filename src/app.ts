@@ -1,13 +1,15 @@
 import express from "express";
 import nunjucks from "nunjucks";
-import path from "path";
+import path, { dirname } from "path";
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-nunjucks.configure(path.join(__dirname, "views"), {
+const viewsPath = path.join(dirname(__filename), "views");
+
+nunjucks.configure(viewsPath, {
   autoescape: true,
   express: app,
 });
