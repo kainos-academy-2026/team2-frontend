@@ -1,6 +1,7 @@
+import path, { dirname } from "node:path";
 import express from "express";
 import nunjucks from "nunjucks";
-import path, { dirname } from "node:path";
+import { getJobRolesPage } from "./controllers/job-role-controller";
 
 const app = express();
 const publicPath = path.join(dirname(__filename), "..", "public");
@@ -21,9 +22,7 @@ app.get("/", (_req, res) => {
 	res.render("index");
 });
 
-app.get("/register", (_req, res) => {
-	res.render("register");
-});
+app.get("/job-roles", getJobRolesPage);
 
 app.get("/health", (_req, res) => {
 	res.json({

@@ -6,6 +6,19 @@ UI application built with TypeScript, Express, and Nunjucks templates.
 
 - Node.js 20+ (CI uses Node 20)
 - npm
+- Job roles backend API running (default expected endpoint: http://localhost:3001/job-roles)
+
+## Environment
+
+You can override the job roles API endpoint with an environment variable:
+
+```bash
+JOB_ROLES_API_URL=http://localhost:3001/job-roles npm run dev
+```
+
+If `JOB_ROLES_API_URL` is not set, the app uses `http://localhost:3001/job-roles`.
+
+The job roles page expects API items with `roleName`, `location`, `capability`, `band`, `closingDate`, and optional `status` fields. If `status` is missing, the frontend defaults it to `OPEN`.
 
 ## Install
 
