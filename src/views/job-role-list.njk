@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Job Role List</title>
+        <style>
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                margin: 2rem;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                border: 1px solid #d1d5db;
+            }
+
+            th,
+            td {
+                border: 1px solid #d1d5db;
+                padding: 0.75rem;
+                text-align: left;
+            }
+
+            thead th {
+                background-color: #f3f4f6;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>Job Role List</h1>
+        <!-- Expected jobRoles item shape: { name, location, capability, band, closingDate, status } -->
+        {% set hasOpenRoles = false %}
+        {% for jobRole in jobRoles %}
+            {% if (jobRole.status or "") | upper == "OPEN" %}
+                {% set hasOpenRoles = true %}
+            {% endif %}
+        {% endfor %}
+
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Role Name</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Capability</th>
+                    <th scope="col">Band</th>
+                    <th scope="col">Closing Date</th>
+                    <th scope="col">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if hasOpenRoles %}
+                    {% for jobRole in jobRoles %}
+                        {% if (jobRole.status or "") | upper == "OPEN" %}
+                            {% set rawClosingDate = jobRole.closingDate or "" %}
+                            {% set closingParts = rawClosingDate.split("-") %}
+                            {% if closingParts.length == 3 %}
+                                {% set formattedClosingDate = closingParts[2].slice(0, 2) + "/" + closingParts[1] + "/" + closingParts[0] %}
+                            {% else %}
+                                {% set formattedClosingDate = rawClosingDate or "-" %}
+                            {% endif %}
+                            <tr>
+                                <td>{{ jobRole.name or "-" }}</td>
+                                <td>{{ jobRole.location or "-" }}</td>
+                                <td>{{ jobRole.capability or "-" }}</td>
+                                <td>{{ jobRole.band or "-" }}</td>
+                                <td>{{ formattedClosingDate }}</td>
+                                <td>OPEN</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6">No open job roles are available right now.</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </body>
+</html>

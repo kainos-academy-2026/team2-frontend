@@ -1,6 +1,7 @@
+import path, { dirname } from "node:path";
 import express from "express";
 import nunjucks from "nunjucks";
-import path, { dirname } from "path";
+import { getJobRolesPage } from "./controllers/job-role-controller";
 
 const app = express();
 
@@ -18,6 +19,8 @@ app.set("view engine", "njk");
 app.get("/", (_req, res) => {
 	res.render("index");
 });
+
+app.get("/job-roles", getJobRolesPage);
 
 app.get("/health", (_req, res) => {
 	res.json({
