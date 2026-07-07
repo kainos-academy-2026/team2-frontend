@@ -9,41 +9,59 @@ const mockedAxios = vi.mocked(axios, true);
 
 const sampleApiJobRoles = [
 	{
+		id: "1",
 		roleName: "Software Engineer",
 		location: "Belfast",
 		capability: "Engineering",
 		band: "3",
 		closingDate: "2026-08-15",
 		status: "OPEN",
+		specification: "Build and maintain production software systems.",
 	},
 	{
+		id: "2",
 		roleName: "Test Engineer",
 		location: "London",
 		capability: "Quality Assurance",
 		band: "2",
 		closingDate: "2026-08-30",
 		status: "open",
+		specification: "Create and execute robust testing strategies.",
 	},
 	{
+		id: "3",
 		roleName: "Business Analyst",
 		location: "",
 		capability: "Consulting",
 		band: "3",
 		closingDate: "2026-09-01",
 		status: "OPEN",
+		specification: "Translate business needs into clear requirements.",
 	},
 	{
+		id: "4",
 		roleName: "Delivery Manager",
 		location: "Dublin",
 		capability: "Delivery",
 		band: "4",
 		closingDate: "2026-07-20",
 		status: "CLOSED",
+		specification: "Lead delivery plans and cross-team execution.",
 	},
 ];
 
 beforeEach(() => {
-	mockedAxios.get.mockResolvedValue({ data: sampleApiJobRoles });
+	mockedAxios.get.mockImplementation((url) => {
+		if (url === "http://localhost:3001/job-roles") {
+			return Promise.resolve({ data: sampleApiJobRoles });
+		}
+
+		if (url === "http://localhost:3001/job-roles/1") {
+			return Promise.resolve({ data: sampleApiJobRoles[0] });
+		}
+
+		return Promise.reject(new Error("Unexpected URL"));
+	});
 });
 
 describe("GET /health", () => {
@@ -98,6 +116,7 @@ describe("GET /job-roles", () => {
 		expect(response.text).toContain("Band");
 		expect(response.text).toContain("Closing Date");
 		expect(response.text).toContain("Status");
+		expect(response.text).toContain("Specification");
 	});
 
 	it("should only display open job roles", async () => {
@@ -108,6 +127,14 @@ describe("GET /job-roles", () => {
 		expect(response.text).toContain("Business Analyst");
 		expect(response.text).not.toContain("Delivery Manager");
 		expect(response.text).not.toContain("CLOSED");
+	});
+
+	it("should render role names as links to detail pages", async () => {
+		const response = await request(app).get("/job-roles");
+
+		expect(response.text).toContain('href="/job-roles/1"');
+		expect(response.text).toContain('href="/job-roles/2"');
+		expect(response.text).toContain('href="/job-roles/3"');
 	});
 
 	it("should render closing dates as DD/MM/YYYY", async () => {
@@ -141,5 +168,32 @@ describe("GET /job-roles", () => {
 		expect(response.text).toContain(
 			"No open job roles are available right now.",
 		);
+	});
+});
+
+describe("GET /job-roles/:id", () => {
+	it("should show job role details including specification", async () => {
+		const response = await request(app).get("/job-roles/1");
+
+		expect(response.status).toBe(200);
+		expect(response.headers["content-type"]).toMatch(/html/);
+		expect(response.text).toContain("Software Engineer");
+		expect(response.text).toContain("Specification");
+		expect(response.text).toContain(
+			"Build and maintain production software systems.",
+		);
+	});
+
+	it("should return 404 when role does not exist", async () => {
+		mockedAxios.get.mockRejectedValueOnce({
+			isAxiosError: true,
+			response: { status: 404 },
+			message: "Not Found",
+		});
+
+		const response = await request(app).get("/job-roles/999");
+
+		expect(response.status).toBe(404);
+		expect(response.text).toContain("Job role not found.");
 	});
 });

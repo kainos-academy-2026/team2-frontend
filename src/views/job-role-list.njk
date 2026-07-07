@@ -30,7 +30,7 @@
     </head>
     <body>
         <h1>Job Role List</h1>
-        <!-- Expected jobRoles item shape: { name, location, capability, band, closingDate, status } -->
+        <!-- Expected jobRoles item shape: { id, name, location, capability, band, closingDate, status, specification } -->
         {% set hasOpenRoles = false %}
         {% for jobRole in jobRoles %}
             {% if (jobRole.status or "") | upper == "OPEN" %}
@@ -47,6 +47,7 @@
                     <th scope="col">Band</th>
                     <th scope="col">Closing Date</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Specification</th>
                 </tr>
             </thead>
             <tbody>
@@ -61,18 +62,25 @@
                                 {% set formattedClosingDate = rawClosingDate or "-" %}
                             {% endif %}
                             <tr>
-                                <td>{{ jobRole.name or "-" }}</td>
+                                <td>
+                                    {% if jobRole.id %}
+                                        <a href="/job-roles/{{ jobRole.id }}">{{ jobRole.name or "-" }}</a>
+                                    {% else %}
+                                        {{ jobRole.name or "-" }}
+                                    {% endif %}
+                                </td>
                                 <td>{{ jobRole.location or "-" }}</td>
                                 <td>{{ jobRole.capability or "-" }}</td>
                                 <td>{{ jobRole.band or "-" }}</td>
                                 <td>{{ formattedClosingDate }}</td>
                                 <td>OPEN</td>
+                                <td>{{ jobRole.specification or "-" }}</td>
                             </tr>
                         {% endif %}
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="6">No open job roles are available right now.</td>
+                        <td colspan="7">No open job roles are available right now.</td>
                     </tr>
                 {% endif %}
             </tbody>

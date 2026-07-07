@@ -1,7 +1,10 @@
 import path, { dirname } from "node:path";
 import express from "express";
 import nunjucks from "nunjucks";
-import { getJobRolesPage } from "./controllers/job-role-controller";
+import {
+	getJobRoleDetailPage,
+	getJobRolesPage,
+} from "./controllers/job-role-controller";
 
 const app = express();
 
@@ -21,6 +24,7 @@ app.get("/", (_req, res) => {
 });
 
 app.get("/job-roles", getJobRolesPage);
+app.get("/job-roles/:id", getJobRoleDetailPage);
 
 app.get("/health", (_req, res) => {
 	res.json({
