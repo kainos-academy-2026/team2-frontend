@@ -4,9 +4,11 @@ import nunjucks from "nunjucks";
 import { getJobRolesPage } from "./controllers/job-role-controller";
 
 const app = express();
+const publicPath = path.join(dirname(__filename), "..", "public");
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use("/public", express.static(publicPath));
 
 const viewsPath = path.join(dirname(__filename), "views");
 

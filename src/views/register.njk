@@ -3,9 +3,380 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>User Registration</title>
+    <title>Create your account</title>
+    <style>
+      :root {
+        --page-background: #eef4f1;
+        --panel-surface: rgba(7, 44, 33, 0.94);
+        --card-surface: #ffffff;
+        --brand-primary: #007a53;
+        --brand-secondary: #0d5c47;
+        --brand-highlight: #8ae1bf;
+        --text-primary: #153126;
+        --text-muted: #61756d;
+        --border-soft: #d2dfd8;
+        --shadow-soft: 0 26px 60px rgba(13, 56, 43, 0.18);
+        --input-surface: #f8fbf9;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: "Aptos", "Segoe UI", sans-serif;
+        color: var(--text-primary);
+        background:
+          radial-gradient(circle at top left, rgba(138, 225, 191, 0.55), transparent 34%),
+          linear-gradient(135deg, #f4f9f6 0%, var(--page-background) 58%, #ddebe5 100%);
+      }
+
+      .page {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 32px 20px;
+      }
+
+      .shell {
+        width: min(1100px, 100%);
+        display: grid;
+        grid-template-columns: minmax(280px, 0.95fr) minmax(320px, 1.05fr);
+        border-radius: 28px;
+        overflow: hidden;
+        background: var(--card-surface);
+        box-shadow: var(--shadow-soft);
+      }
+
+      .brand-panel {
+        padding: 48px;
+        background:
+          linear-gradient(160deg, rgba(0, 122, 83, 0.96), rgba(7, 44, 33, 0.96)),
+          var(--panel-surface);
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        gap: 32px;
+      }
+
+      .brand-lockup {
+        display: inline-flex;
+        align-items: center;
+        gap: 14px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-size: 0.82rem;
+      }
+
+      .brand-logo {
+        display: block;
+        width: 150px;
+        max-width: 100%;
+        height: auto;
+      }
+
+      .brand-mark {
+        width: 46px;
+        height: 46px;
+        border-radius: 14px;
+        background: linear-gradient(135deg, #c4ffdf, var(--brand-highlight));
+        color: var(--brand-secondary);
+        display: grid;
+        place-items: center;
+        font-size: 1.05rem;
+        font-weight: 800;
+      }
+
+      .brand-copy h1 {
+        margin: 0;
+        font-size: clamp(2.1rem, 5vw, 3.35rem);
+        line-height: 1.05;
+      }
+
+      .brand-copy p {
+        margin: 16px 0 0;
+        max-width: 26rem;
+        font-size: 1rem;
+        line-height: 1.7;
+        color: rgba(255, 255, 255, 0.82);
+      }
+
+      .brand-notes {
+        display: grid;
+        gap: 14px;
+      }
+
+      .brand-note {
+        padding: 16px 18px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        border-radius: 18px;
+        background: rgba(255, 255, 255, 0.08);
+        backdrop-filter: blur(12px);
+      }
+
+      .brand-note strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 0.95rem;
+      }
+
+      .brand-note span {
+        color: rgba(255, 255, 255, 0.78);
+        font-size: 0.95rem;
+        line-height: 1.6;
+      }
+
+      .form-panel {
+        padding: 48px;
+        display: flex;
+        align-items: center;
+        background: linear-gradient(180deg, #ffffff 0%, #f9fcfb 100%);
+      }
+
+      .form-wrap {
+        width: min(100%, 440px);
+        margin: 0 auto;
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--brand-primary);
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .form-wrap h2 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 2.6rem);
+        line-height: 1.1;
+      }
+
+      .intro {
+        margin: 14px 0 30px;
+        color: var(--text-muted);
+        line-height: 1.7;
+      }
+
+      form {
+        display: grid;
+        gap: 18px;
+      }
+
+      .field {
+        display: grid;
+        gap: 8px;
+      }
+
+      label {
+        font-size: 0.95rem;
+        font-weight: 700;
+      }
+
+      input {
+        width: 100%;
+        border: 1px solid var(--border-soft);
+        border-radius: 16px;
+        padding: 15px 16px;
+        background: var(--input-surface);
+        color: var(--text-primary);
+        font: inherit;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+      }
+
+      input::placeholder {
+        color: #8a9a93;
+      }
+
+      input:focus {
+        outline: none;
+        border-color: var(--brand-primary);
+        box-shadow: 0 0 0 4px rgba(0, 122, 83, 0.15);
+        background: #ffffff;
+      }
+
+      .helper-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        font-size: 0.88rem;
+        color: var(--text-muted);
+      }
+
+      .helper-row span:last-child {
+        text-align: right;
+      }
+
+      .register-button {
+        border: none;
+        border-radius: 999px;
+        padding: 16px 20px;
+        background: linear-gradient(135deg, var(--brand-primary), var(--brand-secondary));
+        color: #ffffff;
+        font: inherit;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+        box-shadow: 0 20px 34px rgba(0, 122, 83, 0.22);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .register-button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 24px 40px rgba(0, 122, 83, 0.28);
+      }
+
+      .form-footer {
+        margin-top: 18px;
+        color: var(--text-muted);
+        font-size: 0.92rem;
+        line-height: 1.6;
+      }
+
+      .form-footer a {
+        color: var(--brand-primary);
+        font-weight: 700;
+        text-decoration: none;
+      }
+
+      @media (max-width: 860px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+
+        .brand-panel,
+        .form-panel {
+          padding: 36px 28px;
+        }
+      }
+
+      @media (max-width: 540px) {
+        .page {
+          padding: 16px;
+        }
+
+        .brand-panel,
+        .form-panel {
+          padding: 28px 22px;
+        }
+
+        .helper-row {
+          flex-direction: column;
+        }
+
+        .helper-row span:last-child {
+          text-align: left;
+        }
+      }
+    </style>
   </head>
   <body>
-    <h1>Register here!</h1>
+    <main class="page">
+      <section class="shell" aria-label="Registration page">
+        <aside class="brand-panel" aria-label="Brand information">
+          <div>
+            <div class="brand-lockup">
+              <img
+                class="brand-logo"
+                src="/public/icons/Kainos_Logo.png"
+                alt="Kainos logo"
+              />
+              <span>Approved Kainos Brand Area</span>
+            </div>
+
+            <div class="brand-copy">
+              <h1>Build your account with a confident first step.</h1>
+              <p>
+                A polished registration experience with a clean enterprise feel,
+                designed to support trusted digital journeys and future account flows.
+              </p>
+            </div>
+          </div>
+
+          <div class="brand-notes">
+            <div class="brand-note">
+              <strong>Approved asset placeholder</strong>
+              <span>Add your authorised logo, campaign mark, or supporting brand artwork here.</span>
+            </div>
+            <div class="brand-note">
+              <strong>Design direction</strong>
+              <span>Structured, modern, and calm, with green-led brand accents and clear form focus.</span>
+            </div>
+          </div>
+        </aside>
+
+        <section class="form-panel">
+          <div class="form-wrap">
+            <p class="eyebrow">Create account</p>
+            <h2>Register</h2>
+            <p class="intro">
+              Enter your details below to create an account. Submission logic can be connected later without changing the form structure.
+            </p>
+
+            <form method="post" action="/register">
+              <div class="field">
+                <label for="fullName">Full name</label>
+                <input
+                  id="fullName"
+                  name="fullName"
+                  type="text"
+                  autocomplete="name"
+                  placeholder="Jane Smith"
+                />
+              </div>
+
+              <div class="field">
+                <label for="email">Email address</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autocomplete="email"
+                  placeholder="jane.smith@example.com"
+                />
+              </div>
+
+              <div class="field">
+                <label for="password">Password</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="Create a secure password"
+                />
+              </div>
+
+              <div class="field">
+                <label for="confirmPassword">Confirm password</label>
+                <input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  autocomplete="new-password"
+                  placeholder="Re-enter your password"
+                />
+              </div>
+
+              <div class="helper-row" aria-hidden="true">
+                <span>Use at least 8 characters for future validation.</span>
+                <span>Confirmation messaging can be added later.</span>
+              </div>
+
+              <button class="register-button" type="submit">Register</button>
+            </form>
+
+            <p class="form-footer">
+              Already have access? <a href="/">Return to the home page</a>.
+            </p>
+          </div>
+        </section>
+      </section>
+    </main>
   </body>
 </html>
