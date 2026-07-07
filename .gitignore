@@ -1,0 +1,12 @@
+# Dependency Directories
+/node_modules/
+**/node_modules/
+
+/dist/
+**/dist/
+
+# Environment Files
+.env
+.env. *
+!.env.example
+

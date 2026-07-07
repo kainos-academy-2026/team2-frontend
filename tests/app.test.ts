@@ -1,0 +1,33 @@
+import { describe, it, expect } from "vitest";
+import request from "supertest";
+import app from "../src/app";
+
+describe("GET /health", () => {
+  it("should return 200 with status UP", async () => {
+    const response = await request(app).get("/health");
+
+    expect(response.status).toBe(200);
+    expect(response.body.status).toBe("UP");
+  });
+
+  it("should return a valid ISO timestamp in the time field", async () => {
+    const response = await request(app).get("/health");
+
+    expect(response.status).toBe(200);
+    expect(new Date(response.body.time).toISOString()).toBe(response.body.time);
+  });
+});
+
+describe("GET /", () => {
+  it("should return 200", async () => {
+    const response = await request(app).get("/");
+
+    expect(response.status).toBe(200);
+  });
+
+  it("should return HTML content", async () => {
+    const response = await request(app).get("/");
+
+    expect(response.headers["content-type"]).toMatch(/html/);
+  });
+});
