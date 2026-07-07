@@ -1,6 +1,6 @@
 import express from "express";
 import nunjucks from "nunjucks";
-import path, { dirname } from "path";
+import path, { dirname } from "node:path";
 
 const app = express();
 
