@@ -14,7 +14,7 @@ const toJobRole = (jobRole: JobRoleApiResponse): JobRole => ({
 	capability: jobRole.capability?.trim() || "",
 	band: jobRole.band?.trim() || "",
 	closingDate: jobRole.closingDate?.trim() || "",
-	status: jobRole.status?.trim() || "OPEN",
+	status: (jobRole.status?.trim() || "OPEN").toUpperCase(),
 });
 
 export const getJobRoles = async (): Promise<JobRole[]> => {
