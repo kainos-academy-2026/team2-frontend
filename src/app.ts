@@ -22,7 +22,9 @@ app.get("/", (_req, res) => {
 	res.render("index");
 });
 
-app.get("/job-roles", getJobRolesPage);
+app.get("/register", (_req, res) => {
+	res.render("register");
+});
 
 app.get("/health", (_req, res) => {
 	res.json({
