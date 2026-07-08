@@ -20,6 +20,12 @@ If `JOB_ROLES_API_URL` is not set, the app uses `http://localhost:3001/job-roles
 
 The job roles page expects API items with `roleName`, `location`, `capability`, `band`, `closingDate`, and optional `status` fields. If `status` is missing, the frontend defaults it to `OPEN`.
 
+## Authentication Middleware
+
+The app uses `cookie-parser` to read the `authSession` cookie for login redirect and protected-route checks.
+
+Authentication state checks are implemented in `src/middleware/auth-session.ts`, and middleware is registered in `src/app.ts`.
+
 ## Install
 
 ```bash

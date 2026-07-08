@@ -80,6 +80,15 @@ describe("Auth routes", () => {
 		expect(response.text).toContain('form action="/login" method="POST"');
 	});
 
+	it("GET /login should redirect authenticated users to /job-roles", async () => {
+		const response = await request(app)
+			.get("/login")
+			.set("Cookie", ["authSession=token"]);
+
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/job-roles");
+	});
+
 	it("POST /login should return 400 and show generic error for invalid input", async () => {
 		const response = await request(app)
 			.post("/login")
@@ -109,20 +118,33 @@ describe("Auth routes", () => {
 });
 
 describe("GET /job-roles", () => {
-	it("should return 200", async () => {
+	it("should redirect unauthenticated users to /login", async () => {
 		const response = await request(app).get("/job-roles");
+
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/login");
+	});
+
+	it("should return 200 for authenticated users", async () => {
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Cookie", ["authSession=token"]);
 
 		expect(response.status).toBe(200);
 	});
 
 	it("should return HTML content", async () => {
-		const response = await request(app).get("/job-roles");
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Cookie", ["authSession=token"]);
 
 		expect(response.headers["content-type"]).toMatch(/html/);
 	});
 
 	it("should render the job roles table headers", async () => {
-		const response = await request(app).get("/job-roles");
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Cookie", ["authSession=token"]);
 
 		expect(response.text).toContain("Role Name");
 		expect(response.text).toContain("Location");
@@ -133,7 +155,9 @@ describe("GET /job-roles", () => {
 	});
 
 	it("should only display open job roles", async () => {
-		const response = await request(app).get("/job-roles");
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Cookie", ["authSession=token"]);
 
 		expect(response.text).toContain("Software Engineer");
 		expect(response.text).toContain("Test Engineer");
@@ -143,7 +167,9 @@ describe("GET /job-roles", () => {
 	});
 
 	it("should render closing dates as DD/MM/YYYY", async () => {
-		const response = await request(app).get("/job-roles");
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Cookie", ["authSession=token"]);
 
 		expect(response.text).toContain("15/08/2026");
 		expect(response.text).toContain("30/08/2026");
@@ -151,13 +177,17 @@ describe("GET /job-roles", () => {
 	});
 
 	it("should render fallback placeholders for missing values", async () => {
-		const response = await request(app).get("/job-roles");
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Cookie", ["authSession=token"]);
 
 		expect(response.text).toContain("<td>-</td>");
 	});
 
 	it("should request job roles from the API service endpoint", async () => {
-		await request(app).get("/job-roles");
+		await request(app)
+			.get("/job-roles")
+			.set("Cookie", ["authSession=token"]);
 
 		expect(mockedAxios.get).toHaveBeenCalledWith(
 			"http://localhost:3001/job-roles",
@@ -167,7 +197,9 @@ describe("GET /job-roles", () => {
 	it("should render empty-state row when API call fails", async () => {
 		mockedAxios.get.mockRejectedValueOnce(new Error("API unavailable"));
 
-		const response = await request(app).get("/job-roles");
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Cookie", ["authSession=token"]);
 
 		expect(response.status).toBe(200);
 		expect(response.text).toContain(
