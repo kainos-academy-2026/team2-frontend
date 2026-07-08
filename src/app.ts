@@ -2,7 +2,11 @@ import path, { dirname } from "node:path";
 import express from "express";
 import nunjucks from "nunjucks";
 import { getJobRolesPage } from "./controllers/job-role-controller";
-import { getLoginPage, postLogin, postLogout } from "./controllers/login-controller";
+import {
+	getLoginPage,
+	postLogin,
+	postLogout,
+} from "./controllers/login-controller";
 
 const app = express();
 
