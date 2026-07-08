@@ -63,16 +63,48 @@ describe("GET /health", () => {
 });
 
 describe("GET /", () => {
-	it("should return 200", async () => {
+	it("should redirect to /login", async () => {
 		const response = await request(app).get("/");
+
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/login");
+	});
+});
+
+describe("Auth routes", () => {
+	it("GET /login should return 200 with login form", async () => {
+		const response = await request(app).get("/login");
 
 		expect(response.status).toBe(200);
+		expect(response.text).toContain("Sign In");
+		expect(response.text).toContain('form action="/login" method="POST"');
 	});
 
-	it("should return HTML content", async () => {
-		const response = await request(app).get("/");
+	it("POST /login should return 400 and show generic error for invalid input", async () => {
+		const response = await request(app)
+			.post("/login")
+			.type("form")
+			.send({ email: "invalid-email", password: "" });
 
-		expect(response.headers["content-type"]).toMatch(/html/);
+		expect(response.status).toBe(400);
+		expect(response.text).toContain("Invalid email or password.");
+	});
+
+	it("POST /login should redirect to /job-roles for valid input", async () => {
+		const response = await request(app)
+			.post("/login")
+			.type("form")
+			.send({ email: "candidate@example.com", password: "password123" });
+
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/job-roles");
+	});
+
+	it("POST /logout should redirect to login with loggedOut flag", async () => {
+		const response = await request(app).post("/logout");
+
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/login?loggedOut=1");
 	});
 });
 

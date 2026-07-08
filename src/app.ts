@@ -2,6 +2,7 @@ import path, { dirname } from "node:path";
 import express from "express";
 import nunjucks from "nunjucks";
 import { getJobRolesPage } from "./controllers/job-role-controller";
+import { getLoginPage, postLogin, postLogout } from "./controllers/login-controller";
 
 const app = express();
 
@@ -17,10 +18,14 @@ nunjucks.configure(viewsPath, {
 app.set("view engine", "njk");
 
 app.get("/", (_req, res) => {
-	res.render("index");
+	res.redirect("/login");
 });
 
 app.get("/job-roles", getJobRolesPage);
+
+app.get("/login", getLoginPage);
+app.post("/login", postLogin);
+app.post("/logout", postLogout);
 
 app.get("/health", (_req, res) => {
 	res.json({
