@@ -1,14 +1,13 @@
 import type { Request, Response } from "express";
+import { z } from "zod";
 import { authService } from "../services/auth-service";
 
 const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
 
+const emailSchema = z.string().email();
+
 const isValidEmail = (email: string) => {
-	return String(email)
-		.toLowerCase()
-		.match(
-			/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-		);
+	return emailSchema.safeParse(email).success;
 };
 
 export const getLoginPage = (req: Request, res: Response) => {
