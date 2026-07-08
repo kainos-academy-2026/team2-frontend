@@ -1,10 +1,11 @@
 import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getJobRoleById, getJobRoles } from "../src/services/job-role-service";
+import { JobRoleService } from "../src/services/job-role-service";
 
 vi.mock("axios");
 
 const mockedAxios = vi.mocked(axios, true);
+const jobRoleService = new JobRoleService();
 
 describe("getJobRoles", () => {
 	beforeEach(() => {
@@ -14,7 +15,7 @@ describe("getJobRoles", () => {
 	it("should fetch job roles from API endpoint", async () => {
 		mockedAxios.get.mockResolvedValue({ data: [] });
 
-		await getJobRoles();
+		await jobRoleService.getJobRoles();
 
 		expect(mockedAxios.get).toHaveBeenCalledWith(
 			"http://localhost:3001/job-roles",
@@ -32,7 +33,7 @@ describe("getJobRoles", () => {
 			],
 		});
 
-		const jobRoles = await getJobRoles();
+		const jobRoles = await jobRoleService.getJobRoles();
 
 		expect(jobRoles).toEqual([
 			{
@@ -63,7 +64,7 @@ describe("getJobRoles", () => {
 			],
 		});
 
-		const jobRoles = await getJobRoles();
+		const jobRoles = await jobRoleService.getJobRoles();
 
 		expect(jobRoles).toEqual([
 			{
@@ -94,7 +95,7 @@ describe("getJobRoleById", () => {
 			},
 		});
 
-		const jobRole = await getJobRoleById("11");
+		const jobRole = await jobRoleService.getJobRoleById("11");
 
 		expect(mockedAxios.get).toHaveBeenCalledWith(
 			"http://localhost:3001/job-roles/11",
@@ -118,7 +119,7 @@ describe("getJobRoleById", () => {
 			message: "Not found",
 		});
 
-		const jobRole = await getJobRoleById("missing");
+		const jobRole = await jobRoleService.getJobRoleById("missing");
 
 		expect(jobRole).toBeNull();
 	});

@@ -1,15 +1,17 @@
 import path, { dirname } from "node:path";
 import express from "express";
 import nunjucks from "nunjucks";
-import {
-	getJobRoleDetailPage,
-	getJobRolesPage,
-} from "./controllers/job-role-controller";
+import { createJobRoleController } from "./controllers/job-role-controller";
+import { JobRoleService } from "./services/job-role-service";
 
 const app = express();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+
+app.get("/styles.css", (_req, res) => {
+	res.sendFile(path.join(dirname(__filename), "styles.css"));
+});
 
 const viewsPath = path.join(dirname(__filename), "views");
 
@@ -23,8 +25,10 @@ app.get("/", (_req, res) => {
 	res.render("index");
 });
 
-app.get("/job-roles", getJobRolesPage);
-app.get("/job-roles/:id", getJobRoleDetailPage);
+const jobRoleController = createJobRoleController(new JobRoleService());
+
+app.get("/job-roles", jobRoleController.getJobRolesPage);
+app.get("/job-roles/:id", jobRoleController.getJobRoleDetailPage);
 
 app.get("/health", (_req, res) => {
 	res.json({
