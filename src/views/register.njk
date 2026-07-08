@@ -63,7 +63,8 @@
       }
 
       .brand-lockup {
-        display: inline-flex;
+        display: flex;
+        justify-content: center;
         align-items: center;
         gap: 14px;
         font-weight: 700;
@@ -72,11 +73,33 @@
         font-size: 0.82rem;
       }
 
+      .brand-blurb {
+        margin-top: 32px;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        opacity: 0.85;
+        color: #ffffff;
+      }
+
       .brand-logo {
         display: block;
         width: 150px;
         max-width: 100%;
         height: auto;
+        border-radius: 12px;
+        -webkit-mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 55%, transparent 100%);
+        mask-image: radial-gradient(ellipse 85% 85% at 50% 50%, black 55%, transparent 100%);
+      }
+
+      .brand-icon {
+        display: block;
+        width: 280px;
+        max-width: 100%;
+        height: auto;
+        margin-top: 120px;
+        border-radius: 16px;
+        -webkit-mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 50%, transparent 100%);
+        mask-image: radial-gradient(ellipse 80% 80% at 50% 50%, black 50%, transparent 100%);
       }
 
       .brand-mark {
@@ -286,8 +309,9 @@
                 src="/public/icons/Kainos_Logo.png"
                 alt="Kainos logo"
               />
-              <span>Approved Kainos Brand Area</span>
             </div>
+
+            <p class="brand-blurb">Join thousands of professionals finding their next opportunity. Create your account to get started.</p>
 
             <div class="brand-copy">
               <img 
