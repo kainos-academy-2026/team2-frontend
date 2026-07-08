@@ -1,35 +1,11 @@
 import axios from "axios";
-import { toOpenPositions } from "../mappers/job-role-mapper";
+import { toJobRole } from "../mappers/job-role-mapper";
 import {
 	JOB_ROLES_API_URL,
 	type JobRoleApiResponse,
 } from "../models/job-role-api";
-import { JobRoleStatus, type JobRole } from "../models/job-role";
 
-const toStatus = (status: string | undefined): JobRoleStatus => {
-	const normalizedStatus = status?.trim().toUpperCase();
 
-	if (normalizedStatus === JobRoleStatus.CLOSED) {
-		return JobRoleStatus.CLOSED;
-	}
-
-	return JobRoleStatus.OPEN;
-};
-
-const toJobRole = (jobRole: JobRoleApiResponse): JobRole => ({
-	id: String(jobRole.id ?? jobRole.roleId ?? ""),
-	name: jobRole.roleName?.trim() || "",
-	location: jobRole.location?.trim() || "",
-	capability: jobRole.capability?.trim() || "",
-	band: jobRole.band?.trim() || "",
-	closingDate: jobRole.closingDate?.trim() || "",
-	status: toStatus(jobRole.status),
-	description: jobRole.description?.trim() || "",
-	responsibilities: jobRole.responsibilities?.trim() || "",
-	sharepointUrl: jobRole.sharepointUrl?.trim() || "",
-	numberOfOpenPositions: toOpenPositions(jobRole.numberOfOpenPositions),
-	specification: jobRole.specification?.trim() || "",
-});
 
 export class JobRoleService {
 	async getJobRoles(): Promise<JobRole[]> {
