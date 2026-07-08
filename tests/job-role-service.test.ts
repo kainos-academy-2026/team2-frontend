@@ -63,7 +63,7 @@ describe("getJobRoles", () => {
 					description: " Builds internal platform capabilities. ",
 					responsibilities: " Supports teams and improves delivery flow. ",
 					sharepointUrl: " https://example.com/team-space ",
-					numberOfOpenPositions: "3",
+					numberOfOpenPositions: 3,
 				},
 			],
 		});

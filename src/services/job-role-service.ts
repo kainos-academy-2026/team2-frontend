@@ -1,19 +1,10 @@
 import axios from "axios";
+import { toOpenPositions } from "../mappers/job-role-mapper";
+import {
+	JOB_ROLES_API_URL,
+	type JobRoleApiResponse,
+} from "../models/job-role-api";
 import { JobRoleStatus, type JobRole } from "../models/job-role";
-
-const JOB_ROLES_API_URL =
-	process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles";
-
-type JobRoleApiResponse = Partial<JobRole> & {
-	id?: string | number;
-	roleId?: string | number;
-	roleName?: string;
-	specification?: string;
-	description?: string;
-	responsibilities?: string;
-	sharepointUrl?: string;
-	numberOfOpenPositions?: number | string;
-};
 
 const toStatus = (status: string | undefined): JobRoleStatus => {
 	const normalizedStatus = status?.trim().toUpperCase();
@@ -23,23 +14,6 @@ const toStatus = (status: string | undefined): JobRoleStatus => {
 	}
 
 	return JobRoleStatus.OPEN;
-};
-
-const toOpenPositions = (
-	numberOfOpenPositions: number | string | undefined,
-): number => {
-	if (typeof numberOfOpenPositions === "number") {
-		return Number.isFinite(numberOfOpenPositions) && numberOfOpenPositions > 0
-			? numberOfOpenPositions
-			: 0;
-	}
-
-	if (typeof numberOfOpenPositions === "string") {
-		const parsed = Number.parseInt(numberOfOpenPositions.trim(), 10);
-		return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
-	}
-
-	return 0;
 };
 
 const toJobRole = (jobRole: JobRoleApiResponse): JobRole => ({
