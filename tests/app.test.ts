@@ -111,9 +111,10 @@ describe("Auth routes", () => {
 	});
 
 	it("POST /login should call auth service with email and password", async () => {
-		const loginSpy = vi
-			.spyOn(authService, "login")
-			.mockResolvedValueOnce({ isAuthenticated: true, redirectTo: "/job-roles" });
+		const loginSpy = vi.spyOn(authService, "login").mockResolvedValueOnce({
+			isAuthenticated: true,
+			redirectTo: "/job-roles",
+		});
 
 		const response = await request(app)
 			.post("/login")
@@ -231,9 +232,7 @@ describe("GET /job-roles", () => {
 	});
 
 	it("should request job roles from the API service endpoint", async () => {
-		await request(app)
-			.get("/job-roles")
-			.set("Cookie", ["authSession=token"]);
+		await request(app).get("/job-roles").set("Cookie", ["authSession=token"]);
 
 		expect(mockedAxios.get).toHaveBeenCalledWith(
 			"http://localhost:3001/job-roles",

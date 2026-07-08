@@ -50,6 +50,18 @@ describe("auth session helper", () => {
 		expect(next).not.toHaveBeenCalled();
 	});
 
+	it("requireAuthenticatedUser allows authenticated requests", () => {
+		const req = { cookies: { authSession: "token" } } as unknown as Request;
+		const redirect = vi.fn();
+		const res = { redirect } as unknown as Response;
+		const next = vi.fn() as NextFunction;
+
+		requireAuthenticatedUser(req, res, next);
+
+		expect(next).toHaveBeenCalledTimes(1);
+		expect(redirect).not.toHaveBeenCalled();
+	});
+
 	it("redirectAuthenticatedUser redirects authenticated requests", () => {
 		const req = { cookies: { authSession: "token" } } as unknown as Request;
 		const redirect = vi.fn();
@@ -60,5 +72,17 @@ describe("auth session helper", () => {
 
 		expect(redirect).toHaveBeenCalledWith("/job-roles");
 		expect(next).not.toHaveBeenCalled();
+	});
+
+	it("redirectAuthenticatedUser allows unauthenticated requests", () => {
+		const req = { cookies: {} } as unknown as Request;
+		const redirect = vi.fn();
+		const res = { redirect } as unknown as Response;
+		const next = vi.fn() as NextFunction;
+
+		redirectAuthenticatedUser(req, res, next);
+
+		expect(next).toHaveBeenCalledTimes(1);
+		expect(redirect).not.toHaveBeenCalled();
 	});
 });
