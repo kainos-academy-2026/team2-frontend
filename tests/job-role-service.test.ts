@@ -1,5 +1,6 @@
 import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { JobRoleStatus } from "../src/models/job-role";
 import { JobRoleService } from "../src/services/job-role-service";
 
 vi.mock("axios");
@@ -43,23 +44,26 @@ describe("getJobRoles", () => {
 				capability: "",
 				band: "",
 				closingDate: "",
-				status: "OPEN",
+				status: JobRoleStatus.OPEN,
+				description: "",
+				responsibilities: "",
+				sharepointUrl: "",
+				numberOfOpenPositions: 0,
 				specification: "",
 			},
 		]);
 	});
 
-	it("should map roleName and default missing status to OPEN", async () => {
+	it("should map new fields and default missing status to OPEN", async () => {
 		mockedAxios.get.mockResolvedValue({
 			data: [
 				{
 					roleId: "77",
 					roleName: "  Platform Engineer  ",
-					location: " Dublin ",
-					capability: " Engineering ",
-					band: " Band 3 ",
-					closingDate: "2026-09-01T00:00:00.000Z",
-					specification: " Build APIs and platform tooling. ",
+					description: " Builds internal platform capabilities. ",
+					responsibilities: " Supports teams and improves delivery flow. ",
+					sharepointUrl: " https://example.com/team-space ",
+					numberOfOpenPositions: "3",
 				},
 			],
 		});
@@ -70,12 +74,16 @@ describe("getJobRoles", () => {
 			{
 				id: "77",
 				name: "Platform Engineer",
-				location: "Dublin",
-				capability: "Engineering",
-				band: "Band 3",
-				closingDate: "2026-09-01T00:00:00.000Z",
-				status: "OPEN",
-				specification: "Build APIs and platform tooling.",
+				location: "",
+				capability: "",
+				band: "",
+				closingDate: "",
+				status: JobRoleStatus.OPEN,
+				description: "Builds internal platform capabilities.",
+				responsibilities: "Supports teams and improves delivery flow.",
+				sharepointUrl: "https://example.com/team-space",
+				numberOfOpenPositions: 3,
+				specification: "",
 			},
 		]);
 	});
@@ -91,7 +99,10 @@ describe("getJobRoleById", () => {
 			data: {
 				id: "11",
 				roleName: "Test Engineer",
-				specification: "Owns quality strategy and test automation.",
+				description: "Owns quality strategy and test automation.",
+				responsibilities: "Defines quality gates and automation standards.",
+				sharepointUrl: "https://example.com/qa",
+				numberOfOpenPositions: 2,
 			},
 		});
 
@@ -107,8 +118,12 @@ describe("getJobRoleById", () => {
 			capability: "",
 			band: "",
 			closingDate: "",
-			status: "OPEN",
-			specification: "Owns quality strategy and test automation.",
+			status: JobRoleStatus.OPEN,
+			description: "Owns quality strategy and test automation.",
+			responsibilities: "Defines quality gates and automation standards.",
+			sharepointUrl: "https://example.com/qa",
+			numberOfOpenPositions: 2,
+			specification: "",
 		});
 	});
 

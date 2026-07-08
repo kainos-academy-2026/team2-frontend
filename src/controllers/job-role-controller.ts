@@ -1,17 +1,12 @@
 import type { Request, Response } from "express";
-import { JobRoleService } from "../services/job-role-service";
+import type { JobRoleService } from "../services/job-role-service";
 
-type JobRoleServiceContract = Pick<
-	JobRoleService,
-	"getJobRoles" | "getJobRoleById"
->;
+export class JobRoleController {
+	constructor(private jobRoleService: JobRoleService) {}
 
-export const createJobRoleController = (
-	jobRoleService: JobRoleServiceContract,
-) => {
-	const getJobRolesPage = async (_req: Request, res: Response) => {
+	getJobRolesPage = async (_req: Request, res: Response) => {
 		try {
-			const jobRoles = await jobRoleService.getJobRoles();
+			const jobRoles = await this.jobRoleService.getJobRoles();
 
 			res.render("job-role-list", {
 				jobRoles,
@@ -23,9 +18,9 @@ export const createJobRoleController = (
 		}
 	};
 
-	const getJobRoleDetailPage = async (req: Request, res: Response) => {
+	getJobRoleDetailPage = async (req: Request, res: Response) => {
 		try {
-			const jobRole = await jobRoleService.getJobRoleById(req.params.id);
+			const jobRole = await this.jobRoleService.getJobRoleById(req.params.id);
 
 			if (!jobRole) {
 				res.status(404).render("job-role-detail", {
@@ -46,14 +41,4 @@ export const createJobRoleController = (
 			});
 		}
 	};
-
-	return {
-		getJobRolesPage,
-		getJobRoleDetailPage,
-	};
-};
-
-const defaultJobRoleController = createJobRoleController(new JobRoleService());
-
-export const getJobRolesPage = defaultJobRoleController.getJobRolesPage;
-export const getJobRoleDetailPage = defaultJobRoleController.getJobRoleDetailPage;
+}

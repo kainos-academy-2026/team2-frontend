@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { JobRole } from "../models/job-role";
+import { JobRoleStatus, type JobRole } from "../models/job-role";
 
 const JOB_ROLES_API_URL =
 	process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles";
@@ -9,6 +9,37 @@ type JobRoleApiResponse = Partial<JobRole> & {
 	roleId?: string | number;
 	roleName?: string;
 	specification?: string;
+	description?: string;
+	responsibilities?: string;
+	sharepointUrl?: string;
+	numberOfOpenPositions?: number | string;
+};
+
+const toStatus = (status: string | undefined): JobRoleStatus => {
+	const normalizedStatus = status?.trim().toUpperCase();
+
+	if (normalizedStatus === JobRoleStatus.CLOSED) {
+		return JobRoleStatus.CLOSED;
+	}
+
+	return JobRoleStatus.OPEN;
+};
+
+const toOpenPositions = (
+	numberOfOpenPositions: number | string | undefined,
+): number => {
+	if (typeof numberOfOpenPositions === "number") {
+		return Number.isFinite(numberOfOpenPositions) && numberOfOpenPositions > 0
+			? numberOfOpenPositions
+			: 0;
+	}
+
+	if (typeof numberOfOpenPositions === "string") {
+		const parsed = Number.parseInt(numberOfOpenPositions.trim(), 10);
+		return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
+	}
+
+	return 0;
 };
 
 const toJobRole = (jobRole: JobRoleApiResponse): JobRole => ({
@@ -18,7 +49,11 @@ const toJobRole = (jobRole: JobRoleApiResponse): JobRole => ({
 	capability: jobRole.capability?.trim() || "",
 	band: jobRole.band?.trim() || "",
 	closingDate: jobRole.closingDate?.trim() || "",
-	status: (jobRole.status?.trim() || "OPEN").toUpperCase(),
+	status: toStatus(jobRole.status),
+	description: jobRole.description?.trim() || "",
+	responsibilities: jobRole.responsibilities?.trim() || "",
+	sharepointUrl: jobRole.sharepointUrl?.trim() || "",
+	numberOfOpenPositions: toOpenPositions(jobRole.numberOfOpenPositions),
 	specification: jobRole.specification?.trim() || "",
 });
 

@@ -1,7 +1,7 @@
 import path, { dirname } from "node:path";
 import express from "express";
 import nunjucks from "nunjucks";
-import { createJobRoleController } from "./controllers/job-role-controller";
+import { JobRoleController } from "./controllers/job-role-controller";
 import { JobRoleService } from "./services/job-role-service";
 
 const app = express();
@@ -25,7 +25,7 @@ app.get("/", (_req, res) => {
 	res.render("index");
 });
 
-const jobRoleController = createJobRoleController(new JobRoleService());
+const jobRoleController = new JobRoleController(new JobRoleService());
 
 app.get("/job-roles", jobRoleController.getJobRolesPage);
 app.get("/job-roles/:id", jobRoleController.getJobRoleDetailPage);

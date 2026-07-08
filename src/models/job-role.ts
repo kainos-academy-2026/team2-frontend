@@ -1,3 +1,8 @@
+export enum JobRoleStatus {
+	OPEN = "OPEN",
+	CLOSED = "CLOSED",
+}
+
 export type JobRole = {
 	id: string;
 	name: string;
@@ -5,6 +10,10 @@ export type JobRole = {
 	capability: string;
 	band: string;
 	closingDate: string;
-	status: string;
+	status: JobRoleStatus;
+	description: string;
+	responsibilities: string;
+	sharepointUrl: string;
+	numberOfOpenPositions: number;
 	specification: string;
 };

@@ -18,7 +18,9 @@ JOB_ROLES_API_URL=http://localhost:3001/job-roles npm run dev
 
 If `JOB_ROLES_API_URL` is not set, the app uses `http://localhost:3001/job-roles`.
 
-The job roles page expects API items with `roleName`, `location`, `capability`, `band`, `closingDate`, and optional `status` fields. If `status` is missing, the frontend defaults it to `OPEN`.
+The job roles page expects API items with `roleName`, `description`, `responsibilities`, `sharepointUrl`, `numberOfOpenPositions`, and `status` fields.
+
+`status` is stored and handled as a string value. In TypeScript, this app uses a string enum for status values.
 
 ## Install
 

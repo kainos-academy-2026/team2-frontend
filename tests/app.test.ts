@@ -11,42 +11,42 @@ const sampleApiJobRoles = [
 	{
 		id: "1",
 		roleName: "Software Engineer",
-		location: "Belfast",
-		capability: "Engineering",
-		band: "3",
-		closingDate: "2026-08-15",
-		status: "OPEN",
+		description: "Build and maintain production software systems.",
 		specification: "Build and maintain production software systems.",
+		responsibilities: "Design, build, and support core services.",
+		sharepointUrl: "https://example.com/software-engineer",
+		numberOfOpenPositions: 2,
+		status: "OPEN",
 	},
 	{
 		id: "2",
 		roleName: "Test Engineer",
-		location: "London",
-		capability: "Quality Assurance",
-		band: "2",
-		closingDate: "2026-08-30",
-		status: "open",
+		description: "Create and execute robust testing strategies.",
 		specification: "Create and execute robust testing strategies.",
+		responsibilities: "Own test automation and release confidence.",
+		sharepointUrl: "https://example.com/test-engineer",
+		numberOfOpenPositions: 1,
+		status: "OPEN",
 	},
 	{
 		id: "3",
 		roleName: "Business Analyst",
-		location: "",
-		capability: "Consulting",
-		band: "3",
-		closingDate: "2026-09-01",
-		status: "OPEN",
+		description: "Translate business needs into clear requirements.",
 		specification: "Translate business needs into clear requirements.",
+		responsibilities: "Facilitate workshops and define requirements.",
+		sharepointUrl: "",
+		numberOfOpenPositions: 3,
+		status: "OPEN",
 	},
 	{
 		id: "4",
 		roleName: "Delivery Manager",
-		location: "Dublin",
-		capability: "Delivery",
-		band: "4",
-		closingDate: "2026-07-20",
-		status: "CLOSED",
+		description: "Lead delivery plans and cross-team execution.",
 		specification: "Lead delivery plans and cross-team execution.",
+		responsibilities: "Coordinate plans and remove blockers.",
+		sharepointUrl: "https://example.com/delivery-manager",
+		numberOfOpenPositions: 1,
+		status: "CLOSED",
 	},
 ];
 
@@ -111,12 +111,11 @@ describe("GET /job-roles", () => {
 		const response = await request(app).get("/job-roles");
 
 		expect(response.text).toContain("Role Name");
-		expect(response.text).toContain("Location");
-		expect(response.text).toContain("Capability");
-		expect(response.text).toContain("Band");
-		expect(response.text).toContain("Closing Date");
 		expect(response.text).toContain("Status");
-		expect(response.text).toContain("Specification");
+		expect(response.text).toContain("Open Positions");
+		expect(response.text).toContain("Description");
+		expect(response.text).toContain("Responsibilities");
+		expect(response.text).toContain("SharePoint");
 	});
 
 	it("should only display open job roles", async () => {
@@ -137,18 +136,18 @@ describe("GET /job-roles", () => {
 		expect(response.text).toContain('href="/job-roles/3"');
 	});
 
-	it("should render closing dates as DD/MM/YYYY", async () => {
+	it("should render open position counts", async () => {
 		const response = await request(app).get("/job-roles");
 
-		expect(response.text).toContain("15/08/2026");
-		expect(response.text).toContain("30/08/2026");
-		expect(response.text).toContain("01/09/2026");
+		expect(response.text).toContain("<td>2</td>");
+		expect(response.text).toContain("<td>1</td>");
+		expect(response.text).toContain("<td>3</td>");
 	});
 
 	it("should render fallback placeholders for missing values", async () => {
 		const response = await request(app).get("/job-roles");
 
-		expect(response.text).toContain("<td>-</td>");
+		expect(response.text).toMatch(/<td>\s*-\s*<\/td>/);
 	});
 
 	it("should request job roles from the API service endpoint", async () => {
@@ -179,6 +178,9 @@ describe("GET /job-roles/:id", () => {
 		expect(response.headers["content-type"]).toMatch(/html/);
 		expect(response.text).toContain("Software Engineer");
 		expect(response.text).toContain("Specification");
+		expect(response.text).toContain("Description");
+		expect(response.text).toContain("Responsibilities");
+		expect(response.text).toContain("SharePoint");
 		expect(response.text).toContain(
 			"Build and maintain production software systems.",
 		);
