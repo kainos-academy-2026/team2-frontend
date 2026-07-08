@@ -76,6 +76,80 @@ describe("GET /", () => {
 	});
 });
 
+describe("GET /register", () => {
+	it("should return 200", async () => {
+		const response = await request(app).get("/register");
+
+		expect(response.status).toBe(200);
+	});
+
+	it("should return HTML content", async () => {
+		const response = await request(app).get("/register");
+
+		expect(response.headers["content-type"]).toMatch(/html/);
+	});
+});
+
+describe("POST /register", () => {
+	it("should return 400 when required fields are missing", async () => {
+		const response = await request(app).post("/register").send({
+			fullName: "",
+			email: "",
+			password: "",
+			confirmPassword: "",
+		});
+
+		expect(response.status).toBe(400);
+		expect(response.text).toContain("All fields are required.");
+	});
+
+	it("should return 400 when passwords do not match", async () => {
+		const response = await request(app).post("/register").send({
+			fullName: "Jane Smith",
+			email: "jane.smith@example.com",
+			password: "password123",
+			confirmPassword: "password456",
+		});
+
+		expect(response.status).toBe(400);
+		expect(response.text).toContain("Passwords do not match.");
+	});
+
+	it("should call backend registration API and return success message", async () => {
+		const response = await request(app).post("/register").send({
+			fullName: "Jane Smith",
+			email: "jane.smith@example.com",
+			password: "password123",
+			confirmPassword: "password123",
+		});
+
+		expect(response.status).toBe(201);
+		expect(response.text).toContain("Your account has been created.");
+		expect(mockedAxios.post).toHaveBeenCalledWith(
+			"http://localhost:3000/register",
+			{
+				fullName: "Jane Smith",
+				email: "jane.smith@example.com",
+				password: "password123",
+			},
+		);
+	});
+
+	it("should return 502 when backend registration fails", async () => {
+		mockedAxios.post.mockRejectedValueOnce(new Error("backend unavailable"));
+
+		const response = await request(app).post("/register").send({
+			fullName: "Jane Smith",
+			email: "jane.smith@example.com",
+			password: "password123",
+			confirmPassword: "password123",
+		});
+
+		expect(response.status).toBe(502);
+		expect(response.text).toContain("Registration failed. Please try again.");
+	});
+});
+
 describe("GET /job-roles", () => {
 	it("should return 200", async () => {
 		const response = await request(app).get("/job-roles");

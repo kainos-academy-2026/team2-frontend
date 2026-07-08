@@ -19,9 +19,9 @@ const toJobRole = (jobRole: JobRoleApiResponse): JobRole => ({
 
 export const getJobRoles = async (): Promise<JobRole[]> => {
 	try {
-	const response = await axios.get<JobRoleApiResponse[]>(JOB_ROLES_API_URL);
-	const jobRoles = Array.isArray(response.data) ? response.data : [];
-	return jobRoles.map(toJobRole);
+		const response = await axios.get<JobRoleApiResponse[]>(JOB_ROLES_API_URL);
+		const jobRoles = Array.isArray(response.data) ? response.data : [];
+		return jobRoles.map(toJobRole);
 	} catch (error) {
 		if (axios.isAxiosError(error)) {
 			throw new Error(`Failed to fetch job roles: ${error.message}`);
