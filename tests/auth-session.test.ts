@@ -1,3 +1,4 @@
+import type { NextFunction, Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
 import {
 	getAuthSessionState,
@@ -8,56 +9,56 @@ import {
 
 describe("auth session helper", () => {
 	it("treats a request with an auth session cookie as authenticated", () => {
-		const state = getAuthSessionState({
-			cookies: { authSession: "token" },
-		} as never);
+		const req = { cookies: { authSession: "token" } } as unknown as Request;
+		const state = getAuthSessionState(req);
 
 		expect(state.isAuthenticated).toBe(true);
-		expect(
-			requireAuthSession({ cookies: { authSession: "token" } } as never),
-		).toBe(true);
+		expect(requireAuthSession(req)).toBe(true);
 	});
 
 	it("treats a request without an auth session cookie as unauthenticated", () => {
-		const state = getAuthSessionState({ cookies: {} } as never);
+		const req = { cookies: {} } as unknown as Request;
+		const state = getAuthSessionState(req);
 
 		expect(state.isAuthenticated).toBe(false);
-		expect(requireAuthSession({ cookies: {} } as never)).toBe(false);
+		expect(requireAuthSession(req)).toBe(false);
 	});
 
 	it("treats a request with an empty auth session cookie as unauthenticated", () => {
 		const state = getAuthSessionState({
 			cookies: { authSession: "" },
-		} as never);
+		} as unknown as Request);
 
 		expect(state.isAuthenticated).toBe(false);
 	});
 
 	it("treats a request without parsed cookies as unauthenticated", () => {
-		const state = getAuthSessionState({} as never);
+		const state = getAuthSessionState({} as unknown as Request);
 
 		expect(state.isAuthenticated).toBe(false);
 	});
 
 	it("requireAuthenticatedUser redirects unauthenticated requests", () => {
-		const req = { cookies: {} } as never;
-		const res = { redirect: vi.fn() } as never;
-		const next = vi.fn();
+		const req = { cookies: {} } as unknown as Request;
+		const redirect = vi.fn();
+		const res = { redirect } as unknown as Response;
+		const next = vi.fn() as NextFunction;
 
 		requireAuthenticatedUser(req, res, next);
 
-		expect(res.redirect).toHaveBeenCalledWith("/login");
+		expect(redirect).toHaveBeenCalledWith("/login");
 		expect(next).not.toHaveBeenCalled();
 	});
 
 	it("redirectAuthenticatedUser redirects authenticated requests", () => {
-		const req = { cookies: { authSession: "token" } } as never;
-		const res = { redirect: vi.fn() } as never;
-		const next = vi.fn();
+		const req = { cookies: { authSession: "token" } } as unknown as Request;
+		const redirect = vi.fn();
+		const res = { redirect } as unknown as Response;
+		const next = vi.fn() as NextFunction;
 
 		redirectAuthenticatedUser(req, res, next);
 
-		expect(res.redirect).toHaveBeenCalledWith("/job-roles");
+		expect(redirect).toHaveBeenCalledWith("/job-roles");
 		expect(next).not.toHaveBeenCalled();
 	});
 });

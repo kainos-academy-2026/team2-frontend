@@ -2,6 +2,7 @@ import axios from "axios";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import app from "../src/app";
+import { authService } from "../src/services/auth-service";
 
 vi.mock("axios");
 
@@ -109,7 +110,52 @@ describe("Auth routes", () => {
 		expect(response.headers.location).toBe("/job-roles");
 	});
 
+	it("POST /login should call auth service with email and password", async () => {
+		const loginSpy = vi
+			.spyOn(authService, "login")
+			.mockResolvedValueOnce({ isAuthenticated: true, redirectTo: "/job-roles" });
+
+		const response = await request(app)
+			.post("/login")
+			.type("form")
+			.send({ email: "candidate@example.com", password: "password123" });
+
+		expect(response.status).toBe(302);
+		expect(loginSpy).toHaveBeenCalledWith({
+			email: "candidate@example.com",
+			password: "password123",
+		});
+	});
+
+	it("POST /login should show generic auth error when auth service denies login", async () => {
+		vi.spyOn(authService, "login").mockResolvedValueOnce({
+			isAuthenticated: false,
+			redirectTo: "/login",
+		});
+
+		const response = await request(app)
+			.post("/login")
+			.type("form")
+			.send({ email: "candidate@example.com", password: "wrong-password" });
+
+		expect(response.status).toBe(401);
+		expect(response.text).toContain("Invalid email or password.");
+	});
+
 	it("POST /logout should redirect to login with loggedOut flag", async () => {
+		const logoutSpy = vi.spyOn(authService, "logout").mockResolvedValueOnce();
+		const response = await request(app).post("/logout");
+
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/login?loggedOut=1");
+		expect(logoutSpy).toHaveBeenCalledTimes(1);
+	});
+
+	it("POST /logout should still redirect when auth service logout fails", async () => {
+		vi.spyOn(authService, "logout").mockRejectedValueOnce(
+			new Error("logout failed"),
+		);
+
 		const response = await request(app).post("/logout");
 
 		expect(response.status).toBe(302);
