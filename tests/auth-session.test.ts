@@ -7,6 +7,15 @@ import {
 	requireAuthSession,
 } from "../src/middleware/auth-session";
 
+const createJwtToken = (exp: number) => {
+	const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString(
+		"base64url",
+	);
+	const payload = Buffer.from(JSON.stringify({ exp })).toString("base64url");
+
+	return `${header}.${payload}.signature`;
+};
+
 describe("auth session helper", () => {
 	it("treats a request with an auth session cookie as authenticated", () => {
 		const req = { cookies: { authSession: "token" } } as unknown as Request;
@@ -36,6 +45,24 @@ describe("auth session helper", () => {
 		const state = getAuthSessionState({} as unknown as Request);
 
 		expect(state.isAuthenticated).toBe(false);
+	});
+
+	it("treats a request with an expired token as unauthenticated", () => {
+		const expiredToken = createJwtToken(Math.floor(Date.now() / 1000) - 60);
+		const state = getAuthSessionState({
+			cookies: { authSession: expiredToken },
+		} as unknown as Request);
+
+		expect(state.isAuthenticated).toBe(false);
+	});
+
+	it("treats a request with an unexpired token as authenticated", () => {
+		const validToken = createJwtToken(Math.floor(Date.now() / 1000) + 60);
+		const state = getAuthSessionState({
+			cookies: { authSession: validToken },
+		} as unknown as Request);
+
+		expect(state.isAuthenticated).toBe(true);
 	});
 
 	it("requireAuthenticatedUser redirects unauthenticated requests", () => {
