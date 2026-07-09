@@ -3,6 +3,7 @@ import express from "express";
 import nunjucks from "nunjucks";
 import { JobRoleController } from "./controllers/job-role-controller";
 import { JobRoleService } from "./services/job-role-service";
+import jobRoleRouter from "./routes/jobRoleRouter";
 
 const app = express();
 
@@ -25,10 +26,7 @@ app.get("/", (_req, res) => {
 	res.render("index");
 });
 
-const jobRoleController = new JobRoleController(new JobRoleService());
-
-app.get("/job-roles", jobRoleController.getJobRolesPage);
-app.get("/job-roles/:id", jobRoleController.getJobRoleDetailPage);
+app.use(jobRoleRouter);
 
 app.get("/health", (_req, res) => {
 	res.json({

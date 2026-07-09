@@ -6,7 +6,6 @@ export enum JobRoleStatus {
 export type JobRole = {
 	id: string;
 	name: string;
-	location: string;
 	capability: string;
 	band: string;
 	closingDate: string;
@@ -15,5 +14,4 @@ export type JobRole = {
 	responsibilities: string;
 	sharepointUrl: string;
 	numberOfOpenPositions: number;
-	specification: string;
 };
