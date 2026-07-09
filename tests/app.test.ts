@@ -1,7 +1,52 @@
 import axios from "axios";
+import axios from "axios";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import app from "../src/app";
+
+vi.mock("axios");
+
+const mockedAxios = vi.mocked(axios, true);
+
+const sampleApiJobRoles = [
+	{
+		roleName: "Software Engineer",
+		location: "Belfast",
+		capability: "Engineering",
+		band: "3",
+		closingDate: "2026-08-15",
+		status: "OPEN",
+	},
+	{
+		roleName: "Test Engineer",
+		location: "London",
+		capability: "Quality Assurance",
+		band: "2",
+		closingDate: "2026-08-30",
+		status: "open",
+	},
+	{
+		roleName: "Business Analyst",
+		location: "",
+		capability: "Consulting",
+		band: "3",
+		closingDate: "2026-09-01",
+		status: "OPEN",
+	},
+	{
+		roleName: "Delivery Manager",
+		location: "Dublin",
+		capability: "Delivery",
+		band: "4",
+		closingDate: "2026-07-20",
+		status: "CLOSED",
+	},
+];
+
+beforeEach(() => {
+	mockedAxios.get.mockResolvedValue({ data: sampleApiJobRoles });
+});
 
 vi.mock("axios");
 
