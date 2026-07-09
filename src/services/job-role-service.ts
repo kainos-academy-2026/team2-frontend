@@ -3,48 +3,16 @@ import JobRoleMapper from "../mappers/job-role-mapper";
 import { JobRole } from "../models/job-role";
 import { JobRoleApiResponse } from "../models/job-role-api";
 
-const normalizeText = (value: unknown): string =>
-	typeof value === "string" ? value.trim() : "";
-
-const normalizeNumber = (value: unknown): number =>
-	typeof value === "number" && Number.isFinite(value) ? value : 0;
-
-const normalizeApiJobRole = (
-	jobRole: JobRoleApiResponse & { roleId?: unknown },
-): JobRoleApiResponse => ({
-	id: String(jobRole.id ?? jobRole.roleId ?? ""),
-	roleName: normalizeText(jobRole.roleName),
-	location: "",
-	capability: normalizeText(jobRole.capability),
-	band: normalizeText(jobRole.band),
-	closingDate: normalizeText(jobRole.closingDate),
-	status: normalizeText(jobRole.status),
-	description: normalizeText(jobRole.description),
-	responsibilities: normalizeText(jobRole.responsibilities),
-	sharepointUrl: normalizeText(jobRole.sharepointUrl),
-	numberOfOpenPositions: normalizeNumber(jobRole.numberOfOpenPositions),
-});
-
 export class JobRoleService {
 	constructor(private jobRoleMapper: JobRoleMapper = new JobRoleMapper()) {}
 	
 	async getJobRoles(): Promise<JobRole[]> {
 		try {
-			const response = await axios.get<(JobRoleApiResponse & { roleId?: unknown })[]>(
+			const response = await axios.get<JobRoleApiResponse[]>(
 				`${process.env.BACKEND_URL ?? "http://localhost:3001"}/job-roles`,
 			);
-			const jobRoles = Array.isArray(response.data) ? response.data : [];
-			return jobRoles.map((jobRole) => {
-				const mappedJobRole = this.jobRoleMapper.toJobRole(
-					normalizeApiJobRole(jobRole),
-				);
 
-				return {
-					...mappedJobRole,
-					location: "",
-					specification: "",
-				} as JobRole;
-			});
+			return response.data.map(this.jobRoleMapper.toJobRole);
 		} catch (error) {
 			if (axios.isAxiosError(error)) {
 				throw new Error(`Failed to fetch job roles: ${error.message}`);
@@ -56,7 +24,7 @@ export class JobRoleService {
 
 	async getJobRoleById(id: string): Promise<JobRole | null> {
 		try {
-			const response = await axios.get<JobRoleApiResponse & { roleId?: unknown }>(
+			const response = await axios.get<JobRoleApiResponse>(
 				`${process.env.BACKEND_URL ?? "http://localhost:3001"}/job-roles/${id}`,
 			);
 
@@ -64,15 +32,7 @@ export class JobRoleService {
 				return null;
 			}
 
-			const mappedJobRole = this.jobRoleMapper.toJobRole(
-				normalizeApiJobRole(response.data),
-			);
-
-			return {
-				...mappedJobRole,
-				location: "",
-				specification: "",
-			} as JobRole;
+			return this.jobRoleMapper.toJobRole(response.data);
 		} catch (error) {
 			const errorWithStatus = error as { response?: { status?: number } };
 
