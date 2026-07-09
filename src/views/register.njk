@@ -75,10 +75,19 @@
 
       .brand-blurb {
         margin-top: 32px;
-        font-size: 0.95rem;
-        line-height: 1.6;
+        font-size: clamp(1.5rem, 2.2vw, 1.85rem);
+        line-height: 1.75;
+        font-weight: 600;
         opacity: 0.85;
         color: #ffffff;
+      }
+
+      .brand-blurb span {
+        display: block;
+      }
+
+      .brand-blurb span + span {
+        margin-top: 18px;
       }
 
       .brand-logo {
@@ -331,7 +340,10 @@
               />
             </div>
 
-            <p class="brand-blurb">Join thousands of professionals finding their next opportunity. Create your account to get started.</p>
+            <p class="brand-blurb">
+              <span>Join thousands of professionals finding their next opportunity.</span>
+              <span>Create your account to get started.</span>
+            </p>
 
             <div class="brand-copy">
               <img 
@@ -348,7 +360,7 @@
             <p class="eyebrow">Create account</p>
             <h2>Register</h2>
             <p class="intro">
-              Enter your details below to create an account. Submission logic can be connected later without changing the form structure.
+              Enter your details below to create an account.
             </p>
 
             {% if error %}
