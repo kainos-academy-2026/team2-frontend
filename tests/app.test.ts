@@ -101,6 +101,11 @@ describe("Auth routes", () => {
 	});
 
 	it("POST /login should redirect to /job-roles for valid input", async () => {
+		vi.spyOn(authService, "login").mockResolvedValueOnce({
+			isAuthenticated: true,
+			redirectTo: "/job-roles",
+		});
+
 		const response = await request(app)
 			.post("/login")
 			.type("form")
@@ -108,6 +113,7 @@ describe("Auth routes", () => {
 
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/job-roles");
+		expect(response.headers["set-cookie"]?.join(";")).toContain("authSession=");
 	});
 
 	it("POST /login should call auth service with email and password", async () => {
@@ -126,6 +132,21 @@ describe("Auth routes", () => {
 			email: "candidate@example.com",
 			password: "password123",
 		});
+	});
+
+	it("POST /login should return 401 for wrong dev credentials", async () => {
+		vi.spyOn(authService, "login").mockResolvedValueOnce({
+			isAuthenticated: false,
+			redirectTo: "/job-roles",
+		});
+
+		const response = await request(app)
+			.post("/login")
+			.type("form")
+			.send({ email: "dev@example.com", password: "wrong-password" });
+
+		expect(response.status).toBe(401);
+		expect(response.text).toContain("Invalid email or password.");
 	});
 
 	it("POST /login should show generic auth error when auth service denies login", async () => {
@@ -150,6 +171,9 @@ describe("Auth routes", () => {
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/login?loggedOut=1");
 		expect(logoutSpy).toHaveBeenCalledTimes(1);
+		expect(response.headers["set-cookie"]?.join(";")).toContain(
+			"authSession=;",
+		);
 	});
 
 	it("POST /logout should still redirect when auth service logout fails", async () => {

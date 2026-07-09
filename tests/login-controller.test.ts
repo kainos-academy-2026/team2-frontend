@@ -11,6 +11,8 @@ const createResponse = () => {
 	const response: Partial<Response> = {
 		status: vi.fn(),
 		render: vi.fn(),
+		cookie: vi.fn(),
+		clearCookie: vi.fn(),
 		redirect: vi.fn(),
 		send: vi.fn(),
 	};
@@ -62,8 +64,8 @@ describe("login controller", () => {
 	it("postLogin calls authService and redirects on successful login", async () => {
 		const req = {
 			body: {
-				email: "candidate@example.com",
-				password: "password123",
+				email: "dev@example.com",
+				password: "devpassword123",
 			},
 		} as Request;
 		const res = createResponse();
@@ -75,8 +77,12 @@ describe("login controller", () => {
 		await postLogin(req, res);
 
 		expect(loginSpy).toHaveBeenCalledWith({
-			email: "candidate@example.com",
-			password: "password123",
+			email: "dev@example.com",
+			password: "devpassword123",
+		});
+		expect(res.cookie).toHaveBeenCalledWith("authSession", "dev-session", {
+			httpOnly: true,
+			sameSite: "lax",
 		});
 		expect(res.redirect).toHaveBeenCalledWith("/job-roles");
 	});
@@ -90,6 +96,7 @@ describe("login controller", () => {
 
 		await postLogout(req, res);
 
+		expect(res.clearCookie).toHaveBeenCalledWith("authSession");
 		expect(res.redirect).toHaveBeenCalledWith("/login?loggedOut=1");
 	});
 });

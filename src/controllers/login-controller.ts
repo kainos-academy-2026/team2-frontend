@@ -46,6 +46,12 @@ export const postLogin = async (req: Request, res: Response) => {
 			});
 		}
 
+		// Temporary frontend-owned session marker for local dev auth flow.
+		res.cookie("authSession", "dev-session", {
+			httpOnly: true,
+			sameSite: "lax",
+		});
+
 		return res.redirect(loginResult.redirectTo);
 	} catch {
 		return res.status(500).render("login", {
@@ -65,6 +71,7 @@ export const postLogout = async (_req: Request, res: Response) => {
 			error: error instanceof Error ? error.message : "Unknown error",
 		});
 	} finally {
+		res.clearCookie("authSession");
 		res.redirect("/login?loggedOut=1");
 	}
 };

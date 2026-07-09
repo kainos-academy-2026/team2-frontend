@@ -26,6 +26,18 @@ The app uses `cookie-parser` to read the `authSession` cookie for login redirect
 
 Authentication state checks are implemented in `src/middleware/auth-session.ts`, and middleware is registered in `src/app.ts`.
 
+## Dev Login (Temporary)
+
+Until backend authentication is integrated, temporary dev login can be enabled with environment variables.
+
+Dev login is disabled by default and is automatically disabled in production.
+
+Enable it with:
+
+```bash
+ENABLE_DEV_LOGIN=true DEV_LOGIN_EMAIL=dev@example.com DEV_LOGIN_PASSWORD=devpassword123 npm run dev
+```
+
 ## Install
 
 ```bash
