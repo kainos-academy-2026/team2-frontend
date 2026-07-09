@@ -1,17 +1,11 @@
 import path, { dirname } from "node:path";
 import cookieParser from "cookie-parser";
+import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import nunjucks from "nunjucks";
-import { getJobRolesPage } from "./controllers/job-role-controller";
-import {
-	getLoginPage,
-	postLogin,
-	postLogout,
-} from "./controllers/login-controller";
-import {
-	redirectAuthenticatedUser,
-	requireAuthenticatedUser,
-} from "./middleware/auth-session";
+import { jobRoleController } from "./controllers/job-role-controller";
+import { requireAuthenticatedUser } from "./middleware/auth-session";
+import authRouter from "./routes/auth-router";
 
 const app = express();
 
@@ -24,6 +18,17 @@ app.use(express.static(publicPath));
 
 const viewsPath = path.join(dirname(__filename), "views");
 
+const renderErrorPage = (
+	res: Response,
+	statusCode: number,
+	message: string,
+) => {
+	return res.status(statusCode).render("error", {
+		statusCode,
+		message,
+	});
+};
+
 nunjucks.configure(viewsPath, {
 	autoescape: true,
 	express: app,
@@ -34,17 +39,43 @@ app.get("/", (_req, res) => {
 	res.redirect("/login");
 });
 
-app.get("/job-roles", requireAuthenticatedUser, getJobRolesPage);
+app.get(
+	"/job-roles",
+	requireAuthenticatedUser,
+	jobRoleController.getJobRolesPage,
+);
 
-app.get("/login", redirectAuthenticatedUser, getLoginPage);
-app.post("/login", postLogin);
-app.post("/logout", postLogout);
+app.use(authRouter);
 
 app.get("/health", (_req, res) => {
 	res.json({
 		status: "UP",
 		time: new Date().toISOString(),
 	});
+});
+
+app.use((_req: Request, res: Response) => {
+	return renderErrorPage(
+		res,
+		404,
+		"The page you requested could not be found.",
+	);
+});
+
+app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+	console.error("Unhandled application error", {
+		error: error instanceof Error ? error.message : "Unknown error",
+	});
+
+	if (res.headersSent) {
+		return;
+	}
+
+	return renderErrorPage(
+		res,
+		500,
+		"Something went wrong. Please try again later.",
+	);
 });
 
 export default app;

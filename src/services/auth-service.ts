@@ -1,29 +1,33 @@
-import type { AuthService } from "../types/auth";
+import type { AuthService, LoginCredentials, LoginResult } from "../types/auth";
 
-const isDevLoginEnabled =
-	process.env.ENABLE_DEV_LOGIN === "true" &&
-	process.env.NODE_ENV !== "production";
-
-const DEV_LOGIN_EMAIL = process.env.DEV_LOGIN_EMAIL?.trim().toLowerCase();
-const DEV_LOGIN_PASSWORD = process.env.DEV_LOGIN_PASSWORD;
 const DEV_SESSION_TOKEN = "dev-session";
+const MOCK_SESSION_TOKEN = "mock-session";
 
-const defaultAuthService: AuthService = {
-	async login(credentials) {
+const getDevLoginConfig = () => {
+	return {
+		isDevLoginEnabled:
+			process.env.ENABLE_DEV_LOGIN === "true" &&
+			process.env.NODE_ENV !== "production",
+		devLoginEmail: process.env.DEV_LOGIN_EMAIL?.trim().toLowerCase(),
+		devLoginPassword: process.env.DEV_LOGIN_PASSWORD,
+	};
+};
+
+export class DefaultAuthService implements AuthService {
+	async login(credentials: LoginCredentials): Promise<LoginResult> {
+		const { isDevLoginEnabled, devLoginEmail, devLoginPassword } =
+			getDevLoginConfig();
 		const normalizedEmail = credentials.email;
 		const password = credentials.password;
 
-		if (!isDevLoginEnabled || !DEV_LOGIN_EMAIL || !DEV_LOGIN_PASSWORD) {
+		if (!isDevLoginEnabled || !devLoginEmail || !devLoginPassword) {
 			return {
 				isAuthenticated: false,
 				redirectTo: "/job-roles",
 			};
 		}
 
-		if (
-			normalizedEmail === DEV_LOGIN_EMAIL &&
-			password === DEV_LOGIN_PASSWORD
-		) {
+		if (normalizedEmail === devLoginEmail && password === devLoginPassword) {
 			return {
 				isAuthenticated: true,
 				redirectTo: "/job-roles",
@@ -35,10 +39,32 @@ const defaultAuthService: AuthService = {
 			isAuthenticated: false,
 			redirectTo: "/job-roles",
 		};
-	},
+	}
+
 	async logout() {
 		return;
-	},
-};
+	}
+}
 
-export const authService = defaultAuthService;
+export class MockAuthService implements AuthService {
+	async login(credentials: LoginCredentials): Promise<LoginResult> {
+		if (!credentials.email || !credentials.password) {
+			return {
+				isAuthenticated: false,
+				redirectTo: "/job-roles",
+			};
+		}
+
+		return {
+			isAuthenticated: true,
+			redirectTo: "/job-roles",
+			authSession: MOCK_SESSION_TOKEN,
+		};
+	}
+
+	async logout() {
+		return;
+	}
+}
+
+export const authService: AuthService = new DefaultAuthService();

@@ -1,4 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
+import { getAllowedRedirectTarget } from "../auth/redirect-target";
+
+const POST_LOGIN_REDIRECT_COOKIE = "postLoginRedirect";
+const POST_LOGIN_REDIRECT_MAX_AGE_MS = 5 * 60 * 1000;
 
 const parseJwtPayload = (token: string): Record<string, unknown> | null => {
 	const tokenParts = token.split(".");
@@ -51,6 +55,16 @@ export const requireAuthenticatedUser = (
 	next: NextFunction,
 ) => {
 	if (!requireAuthSession(req)) {
+		const originalPath = getAllowedRedirectTarget(req.originalUrl);
+
+		if (originalPath) {
+			res.cookie(POST_LOGIN_REDIRECT_COOKIE, originalPath, {
+				httpOnly: true,
+				sameSite: "lax",
+				maxAge: POST_LOGIN_REDIRECT_MAX_AGE_MS,
+			});
+		}
+
 		return res.redirect("/login");
 	}
 

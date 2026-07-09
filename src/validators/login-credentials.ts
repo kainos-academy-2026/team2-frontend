@@ -2,7 +2,11 @@ import { z } from "zod";
 import type { LoginCredentials } from "../types/auth";
 
 const loginCredentialsSchema = z.object({
-	email: z.string().trim().email().transform((value) => value.toLowerCase()),
+	email: z
+		.string()
+		.trim()
+		.email()
+		.transform((value) => value.toLowerCase()),
 	password: z.string().min(1),
 });
 

@@ -8,9 +8,9 @@ import {
 } from "../src/middleware/auth-session";
 
 const createJwtToken = (exp: number) => {
-	const header = Buffer.from(JSON.stringify({ alg: "none", typ: "JWT" })).toString(
-		"base64url",
-	);
+	const header = Buffer.from(
+		JSON.stringify({ alg: "none", typ: "JWT" }),
+	).toString("base64url");
 	const payload = Buffer.from(JSON.stringify({ exp })).toString("base64url");
 
 	return `${header}.${payload}.signature`;
@@ -73,6 +73,47 @@ describe("auth session helper", () => {
 
 		requireAuthenticatedUser(req, res, next);
 
+		expect(redirect).toHaveBeenCalledWith("/login");
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it("stores allowlisted original path in temporary redirect cookie", () => {
+		const req = {
+			cookies: {},
+			originalUrl: "/job-roles",
+		} as unknown as Request;
+		const redirect = vi.fn();
+		const cookie = vi.fn();
+		const res = { redirect, cookie } as unknown as Response;
+		const next = vi.fn() as NextFunction;
+
+		requireAuthenticatedUser(req, res, next);
+
+		expect(cookie).toHaveBeenCalledWith(
+			"postLoginRedirect",
+			"/job-roles",
+			expect.objectContaining({
+				httpOnly: true,
+				sameSite: "lax",
+			}),
+		);
+		expect(redirect).toHaveBeenCalledWith("/login");
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it("does not store non-allowlisted original path in redirect cookie", () => {
+		const req = {
+			cookies: {},
+			originalUrl: "/admin",
+		} as unknown as Request;
+		const redirect = vi.fn();
+		const cookie = vi.fn();
+		const res = { redirect, cookie } as unknown as Response;
+		const next = vi.fn() as NextFunction;
+
+		requireAuthenticatedUser(req, res, next);
+
+		expect(cookie).not.toHaveBeenCalled();
 		expect(redirect).toHaveBeenCalledWith("/login");
 		expect(next).not.toHaveBeenCalled();
 	});

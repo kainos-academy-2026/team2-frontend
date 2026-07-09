@@ -2,7 +2,7 @@ import axios from "axios";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import app from "../src/app";
-import { authService } from "../src/services/auth-service";
+import { authService } from "../src/routes/auth-router";
 
 vi.mock("axios");
 
@@ -78,6 +78,17 @@ describe("GET /", () => {
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/login");
 	});
+
+	it("should render generic 404 page for unknown routes", async () => {
+		const response = await request(app).get("/missing-page");
+
+		expect(response.status).toBe(404);
+		expect(response.text).toContain("Something went wrong");
+		expect(response.text).toContain(
+			"The page you requested could not be found.",
+		);
+		expect(response.text).toContain("Error code: 404");
+	});
 });
 
 describe("Auth routes", () => {
@@ -130,6 +141,26 @@ describe("Auth routes", () => {
 		);
 	});
 
+	it("POST /login should use allowlisted post-login redirect cookie", async () => {
+		vi.spyOn(authService, "login").mockResolvedValueOnce({
+			isAuthenticated: true,
+			redirectTo: "/job-roles",
+			authSession: "test-session-token",
+		});
+
+		const response = await request(app)
+			.post("/login")
+			.set("Cookie", ["postLoginRedirect=/job-roles"])
+			.type("form")
+			.send({ email: "candidate@example.com", password: "password123" });
+
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/job-roles");
+		expect(getSetCookieHeader(response.headers["set-cookie"])).toContain(
+			"postLoginRedirect=;",
+		);
+	});
+
 	it("POST /login should call auth service with email and password", async () => {
 		const loginSpy = vi.spyOn(authService, "login").mockResolvedValueOnce({
 			isAuthenticated: true,
@@ -179,6 +210,24 @@ describe("Auth routes", () => {
 		expect(response.text).toContain("Invalid email or password.");
 	});
 
+	it("POST /login should render generic 500 page when auth service throws", async () => {
+		vi.spyOn(authService, "login").mockRejectedValueOnce(
+			new Error("auth provider down"),
+		);
+
+		const response = await request(app)
+			.post("/login")
+			.type("form")
+			.send({ email: "candidate@example.com", password: "password123" });
+
+		expect(response.status).toBe(500);
+		expect(response.text).toContain("Something went wrong");
+		expect(response.text).toContain(
+			"Something went wrong. Please try again later.",
+		);
+		expect(response.text).toContain("Error code: 500");
+	});
+
 	it("POST /logout should redirect to login with loggedOut flag", async () => {
 		const logoutSpy = vi.spyOn(authService, "logout").mockResolvedValueOnce();
 		const response = await request(app).post("/logout");
@@ -209,6 +258,9 @@ describe("GET /job-roles", () => {
 
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/login");
+		expect(getSetCookieHeader(response.headers["set-cookie"])).toContain(
+			"postLoginRedirect=%2Fjob-roles",
+		);
 	});
 
 	it("should return 200 for authenticated users", async () => {
