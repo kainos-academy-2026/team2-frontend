@@ -8,6 +8,14 @@ vi.mock("axios");
 
 const mockedAxios = vi.mocked(axios, true);
 
+const getSetCookieHeader = (header: string | string[] | undefined) => {
+	if (Array.isArray(header)) {
+		return header.join(";");
+	}
+
+	return header ?? "";
+};
+
 const sampleApiJobRoles = [
 	{
 		roleName: "Software Engineer",
@@ -90,20 +98,24 @@ describe("Auth routes", () => {
 		expect(response.headers.location).toBe("/job-roles");
 	});
 
-	it("POST /login should return 400 and show generic error for invalid input", async () => {
+	it("POST /login should return 400 and show field-level errors for invalid input", async () => {
 		const response = await request(app)
 			.post("/login")
 			.type("form")
 			.send({ email: "invalid-email", password: "" });
 
 		expect(response.status).toBe(400);
-		expect(response.text).toContain("Invalid email or password.");
+		expect(response.text).toContain("Invalid email address");
+		expect(response.text).toContain(
+			"Too small: expected string to have &gt;=1 characters",
+		);
 	});
 
 	it("POST /login should redirect to /job-roles for valid input", async () => {
 		vi.spyOn(authService, "login").mockResolvedValueOnce({
 			isAuthenticated: true,
 			redirectTo: "/job-roles",
+			authSession: "test-session-token",
 		});
 
 		const response = await request(app)
@@ -113,13 +125,16 @@ describe("Auth routes", () => {
 
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/job-roles");
-		expect(response.headers["set-cookie"]?.join(";")).toContain("authSession=");
+		expect(getSetCookieHeader(response.headers["set-cookie"])).toContain(
+			"authSession=",
+		);
 	});
 
 	it("POST /login should call auth service with email and password", async () => {
 		const loginSpy = vi.spyOn(authService, "login").mockResolvedValueOnce({
 			isAuthenticated: true,
 			redirectTo: "/job-roles",
+			authSession: "test-session-token",
 		});
 
 		const response = await request(app)
@@ -171,7 +186,7 @@ describe("Auth routes", () => {
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/login?loggedOut=1");
 		expect(logoutSpy).toHaveBeenCalledTimes(1);
-		expect(response.headers["set-cookie"]?.join(";")).toContain(
+		expect(getSetCookieHeader(response.headers["set-cookie"])).toContain(
 			"authSession=;",
 		);
 	});

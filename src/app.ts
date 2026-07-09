@@ -19,6 +19,9 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(cookieParser());
 
+const publicPath = path.join(dirname(__filename), "public");
+app.use(express.static(publicPath));
+
 const viewsPath = path.join(dirname(__filename), "views");
 
 nunjucks.configure(viewsPath, {

@@ -26,6 +26,7 @@ describe("authService dev login", () => {
 		});
 
 		expect(result.isAuthenticated).toBe(false);
+		expect(result).not.toHaveProperty("authSession");
 	});
 
 	it("authenticates when enabled and credentials match", async () => {
@@ -41,6 +42,9 @@ describe("authService dev login", () => {
 
 		expect(result.isAuthenticated).toBe(true);
 		expect(result.redirectTo).toBe("/job-roles");
+		if (result.isAuthenticated) {
+			expect(result.authSession).toBe("dev-session");
+		}
 	});
 
 	it("rejects login in production even when enabled", async () => {
@@ -56,5 +60,6 @@ describe("authService dev login", () => {
 		});
 
 		expect(result.isAuthenticated).toBe(false);
+		expect(result).not.toHaveProperty("authSession");
 	});
 });

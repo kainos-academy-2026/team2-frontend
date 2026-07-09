@@ -1,14 +1,8 @@
 import type { Request, Response } from "express";
-import { z } from "zod";
 import { authService } from "../services/auth-service";
+import { parseLoginCredentials } from "../validators/login-credentials";
 
 const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
-
-const emailSchema = z.string().email();
-
-const isValidEmail = (email: string) => {
-	return emailSchema.safeParse(email).success;
-};
 
 export const getLoginPage = (req: Request, res: Response) => {
 	try {
@@ -16,6 +10,7 @@ export const getLoginPage = (req: Request, res: Response) => {
 			loggedOut: req.query.loggedOut === "1",
 			error: undefined,
 			oldInput: {},
+			fieldErrors: {},
 		});
 	} catch {
 		res.status(500).send("An error occurred while rendering the login page.");
@@ -23,31 +18,32 @@ export const getLoginPage = (req: Request, res: Response) => {
 };
 
 export const postLogin = async (req: Request, res: Response) => {
-	const email = typeof req.body.email === "string" ? req.body.email.trim() : "";
-	const password =
-		typeof req.body.password === "string" ? req.body.password : "";
+	const parsedCredentials = parseLoginCredentials(req.body);
 
-	if (!isValidEmail(email) || password.length === 0) {
+	if (!parsedCredentials.success) {
 		return res.status(400).render("login", {
 			loggedOut: false,
-			error: INVALID_CREDENTIALS_MESSAGE,
-			oldInput: { email },
+			oldInput: { email: parsedCredentials.submittedEmail },
+			fieldErrors: parsedCredentials.fieldErrors,
 		});
 	}
 
+	const email = parsedCredentials.credentials.email;
+
 	try {
-		const loginResult = await authService.login({ email, password });
+		const loginResult = await authService.login(parsedCredentials.credentials);
 
 		if (!loginResult.isAuthenticated) {
 			return res.status(401).render("login", {
 				loggedOut: false,
 				error: INVALID_CREDENTIALS_MESSAGE,
 				oldInput: { email },
+				fieldErrors: {},
 			});
 		}
 
 		// Temporary frontend-owned session marker for local dev auth flow.
-		res.cookie("authSession", "dev-session", {
+		res.cookie("authSession", loginResult.authSession, {
 			httpOnly: true,
 			sameSite: "lax",
 		});
@@ -58,6 +54,7 @@ export const postLogin = async (req: Request, res: Response) => {
 			loggedOut: false,
 			error: "Unable to sign in right now. Please try again.",
 			oldInput: { email },
+			fieldErrors: {},
 		});
 	}
 };

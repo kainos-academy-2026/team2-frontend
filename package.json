@@ -5,7 +5,7 @@
 	"main": "dist/index.js",
 	"scripts": {
 		"dev": "tsx watch src/index.ts",
-		"build": "tsc && node -e \"require('fs').cpSync('src/views','dist/views',{recursive:true});\"",
+		"build": "tsc && node -e \"const fs=require('fs');fs.cpSync('src/views','dist/views',{recursive:true});fs.cpSync('src/public','dist/public',{recursive:true});\"",
 		"start": "node dist/index.js",
 		"test": "vitest run",
 		"test:watch": "vitest",

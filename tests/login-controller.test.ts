@@ -39,10 +39,11 @@ describe("login controller", () => {
 			loggedOut: true,
 			error: undefined,
 			oldInput: {},
+			fieldErrors: {},
 		});
 	});
 
-	it("postLogin returns 400 with generic error for invalid input", async () => {
+	it("postLogin returns 400 with field errors for invalid input", async () => {
 		const req = {
 			body: {
 				email: "invalid-email",
@@ -56,8 +57,12 @@ describe("login controller", () => {
 		expect(res.status).toHaveBeenCalledWith(400);
 		expect(res.render).toHaveBeenCalledWith("login", {
 			loggedOut: false,
-			error: "Invalid email or password.",
+			error: undefined,
 			oldInput: { email: "invalid-email" },
+			fieldErrors: {
+				email: "Invalid email address",
+				password: "Too small: expected string to have >=1 characters",
+			},
 		});
 	});
 
@@ -72,6 +77,7 @@ describe("login controller", () => {
 		const loginSpy = vi.spyOn(authService, "login").mockResolvedValueOnce({
 			isAuthenticated: true,
 			redirectTo: "/job-roles",
+			authSession: "dev-session",
 		});
 
 		await postLogin(req, res);
