@@ -35,6 +35,13 @@ const hasExpiredJwtToken = (token: string): boolean => {
 
 export const getAuthSessionState = (req: Request) => {
 	const sessionCookie = req.cookies?.authSession;
+
+	if (sessionCookie == null) {
+		return {
+			isAuthenticated: false,
+		};
+	}
+
 	const hasSessionCookie =
 		typeof sessionCookie === "string" && sessionCookie.trim().length > 0;
 	const hasExpiredSessionToken =
@@ -45,16 +52,12 @@ export const getAuthSessionState = (req: Request) => {
 	};
 };
 
-export const requireAuthSession = (req: Request) => {
-	return getAuthSessionState(req).isAuthenticated;
-};
-
 export const requireAuthenticatedUser = (
 	req: Request,
 	res: Response,
 	next: NextFunction,
 ) => {
-	if (!requireAuthSession(req)) {
+	if (!getAuthSessionState(req).isAuthenticated) {
 		const originalPath = getAllowedRedirectTarget(req.originalUrl);
 
 		if (originalPath) {
@@ -76,7 +79,7 @@ export const redirectAuthenticatedUser = (
 	res: Response,
 	next: NextFunction,
 ) => {
-	if (requireAuthSession(req)) {
+	if (getAuthSessionState(req).isAuthenticated) {
 		return res.redirect("/job-roles");
 	}
 

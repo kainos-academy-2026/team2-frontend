@@ -4,7 +4,6 @@ import {
 	getAuthSessionState,
 	redirectAuthenticatedUser,
 	requireAuthenticatedUser,
-	requireAuthSession,
 } from "../src/middleware/auth-session";
 
 const createJwtToken = (exp: number) => {
@@ -22,7 +21,6 @@ describe("auth session helper", () => {
 		const state = getAuthSessionState(req);
 
 		expect(state.isAuthenticated).toBe(true);
-		expect(requireAuthSession(req)).toBe(true);
 	});
 
 	it("treats a request without an auth session cookie as unauthenticated", () => {
@@ -30,12 +28,19 @@ describe("auth session helper", () => {
 		const state = getAuthSessionState(req);
 
 		expect(state.isAuthenticated).toBe(false);
-		expect(requireAuthSession(req)).toBe(false);
 	});
 
 	it("treats a request with an empty auth session cookie as unauthenticated", () => {
 		const state = getAuthSessionState({
 			cookies: { authSession: "" },
+		} as unknown as Request);
+
+		expect(state.isAuthenticated).toBe(false);
+	});
+
+	it("treats a request with a null auth session cookie as unauthenticated", () => {
+		const state = getAuthSessionState({
+			cookies: { authSession: null },
 		} as unknown as Request);
 
 		expect(state.isAuthenticated).toBe(false);
