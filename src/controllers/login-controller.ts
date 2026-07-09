@@ -1,6 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
 import { resolveRedirectTarget } from "../auth/redirect-target";
-import { authService } from "../services/auth-service";
 import type { AuthService } from "../types/auth";
 import type { LoginControllerDeps } from "../types/controller-deps";
 import { parseLoginCredentials } from "../validators/login-credentials";
@@ -83,5 +82,3 @@ export class LoginController {
 		}
 	};
 }
-
-export const loginController = new LoginController({ authService });

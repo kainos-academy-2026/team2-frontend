@@ -17,7 +17,7 @@ export class DefaultAuthService implements AuthService {
 	async login(credentials: LoginCredentials): Promise<LoginResult> {
 		const { isDevLoginEnabled, devLoginEmail, devLoginPassword } =
 			getDevLoginConfig();
-		const normalizedEmail = credentials.email;
+		const normalizedEmail = credentials.email.trim().toLowerCase();
 		const password = credentials.password;
 
 		if (!isDevLoginEnabled || !devLoginEmail || !devLoginPassword) {

@@ -279,6 +279,15 @@ describe("GET /job-roles", () => {
 		expect(response.headers["content-type"]).toMatch(/html/);
 	});
 
+	it("should render a logout form for authenticated users", async () => {
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Cookie", ["authSession=token"]);
+
+		expect(response.text).toContain('form action="/logout" method="POST"');
+		expect(response.text).toContain("Log Out");
+	});
+
 	it("should render the job roles table headers", async () => {
 		const response = await request(app)
 			.get("/job-roles")
