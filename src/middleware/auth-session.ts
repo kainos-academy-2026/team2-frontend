@@ -34,21 +34,12 @@ const hasExpiredJwtToken = (token: string): boolean => {
 };
 
 export const getAuthSessionState = (req: Request) => {
-	const sessionCookie = req.cookies?.authSession;
-
-	if (sessionCookie == null) {
-		return {
-			isAuthenticated: false,
-		};
-	}
-
-	const hasSessionCookie =
-		typeof sessionCookie === "string" && sessionCookie.trim().length > 0;
-	const hasExpiredSessionToken =
-		hasSessionCookie && hasExpiredJwtToken(sessionCookie);
-
+	const token = req.cookies?.authSession;
 	return {
-		isAuthenticated: hasSessionCookie && !hasExpiredSessionToken,
+		isAuthenticated:
+			typeof token === "string" &&
+			token.trim().length > 0 &&
+			!hasExpiredJwtToken(token),
 	};
 };
 
