@@ -8,7 +8,6 @@ import {
 	registrationService,
 } from "../services/registration-service";
 
-
 export default class RegistrationController {
 	constructor(
 		private readonly service: RegistrationService = registrationService,

@@ -8,7 +8,9 @@ import registrationRoutes from "./routes/registration-routes";
 const app = express();
 const distPublicPath = path.join(dirname(__filename), "public");
 const sourcePublicPath = path.join(dirname(__filename), "..", "public");
-const publicPath = existsSync(distPublicPath) ? distPublicPath : sourcePublicPath;
+const publicPath = existsSync(distPublicPath)
+	? distPublicPath
+	: sourcePublicPath;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
