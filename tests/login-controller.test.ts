@@ -134,7 +134,7 @@ describe("login controller", () => {
 		await controller.postLogin(req, res, next);
 
 		expect(res.clearCookie).toHaveBeenCalledWith("postLoginRedirect");
-		expect(res.redirect).toHaveBeenCalledWith("/job-roles");
+		expect(res.redirect).toHaveBeenCalledWith("/");
 		expect(next).not.toHaveBeenCalled();
 	});
 

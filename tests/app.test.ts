@@ -135,7 +135,7 @@ describe("Auth routes", () => {
 			.send({ email: "candidate@example.com", password: "password123" });
 
 		expect(response.status).toBe(302);
-		expect(response.headers.location).toBe("/job-roles");
+		expect(response.headers.location).toBe("/");
 		expect(getSetCookieHeader(response.headers["set-cookie"])).toContain(
 			"authSession=",
 		);
