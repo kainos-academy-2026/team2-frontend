@@ -2,7 +2,7 @@ import { existsSync } from "node:fs";
 import path, { dirname } from "node:path";
 import express from "express";
 import nunjucks from "nunjucks";
-import { getJobRolesPage } from "./controllers/job-role-controller";
+import jobRoleRoutes from "./routes/job-role-routes";
 import registrationRoutes from "./routes/registration-routes";
 
 const app = express();
@@ -26,8 +26,7 @@ app.get("/", (_req, res) => {
 	res.render("index");
 });
 
-app.get("/job-roles", getJobRolesPage);
-
+app.use(jobRoleRoutes);
 app.use(registrationRoutes);
 
 app.get("/health", (_req, res) => {

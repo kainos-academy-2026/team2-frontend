@@ -22,5 +22,4 @@ export class JobRoleController {
 	};
 }
 
-export const jobRoleController = new JobRoleController();
-export const getJobRolesPage = jobRoleController.getJobRolesPage;
+

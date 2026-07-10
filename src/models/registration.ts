@@ -16,8 +16,13 @@ export interface RegistrationValues {
 	email: string;
 }
 
+export type RegistrationFieldErrorMap = Partial<
+	Record<keyof RegistrationInput, string[]>
+>;
+
 export interface RegistrationViewState {
 	values: RegistrationValues;
+	fieldErrors?: RegistrationFieldErrorMap;
 	error?: string;
 	success?: string;
 }

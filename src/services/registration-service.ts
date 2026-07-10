@@ -6,11 +6,7 @@ export class RegistrationService {
 	private readonly registrationEndpoint = getBackendUrl("/register");
 
 	async registerUser(payload: RegistrationPayload): Promise<void> {
-		try {
-			await axios.post(this.registrationEndpoint, payload);
-		} catch (error) {
-			throw error;
-		}
+		await axios.post(this.registrationEndpoint, payload);
 	}
 }
 

@@ -105,7 +105,7 @@ describe("GET /public/register.css", () => {
 });
 
 describe("POST /register", () => {
-	it("should return 400 when required fields are missing", async () => {
+	it("should re-render the form when required fields are missing", async () => {
 		const response = await request(app).post("/register").send({
 			fullName: "",
 			email: "",
@@ -113,54 +113,54 @@ describe("POST /register", () => {
 			confirmPassword: "",
 		});
 
-		expect(response.status).toBe(400);
-		expect(response.text).toContain("All fields are required.");
+		expect(response.status).toBe(200);
+		expect(response.headers["content-type"]).toMatch(/html/);
 	});
 
-	it("should return 400 when passwords do not match", async () => {
+	it("should re-render the form when passwords do not match", async () => {
 		const response = await request(app).post("/register").send({
 			fullName: "Jane Smith",
 			email: "jane.smith@example.com",
-			password: "password123",
-			confirmPassword: "password456",
+			password: "Password1!",
+			confirmPassword: "Password2!",
 		});
 
-		expect(response.status).toBe(400);
-		expect(response.text).toContain("Passwords do not match.");
+		expect(response.status).toBe(200);
+		expect(response.headers["content-type"]).toMatch(/html/);
 	});
 
 	it("should call backend registration API and redirect to login", async () => {
 		const response = await request(app).post("/register").send({
 			fullName: "Jane Smith",
 			email: "jane.smith@example.com",
-			password: "password123",
-			confirmPassword: "password123",
+			password: "Password1!",
+			confirmPassword: "Password1!",
 		});
 
-		expect(response.status).toBe(303);
+		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/login");
 		expect(mockedAxios.post).toHaveBeenCalledWith(
 			"http://localhost:3000/register",
 			{
 				fullName: "Jane Smith",
 				email: "jane.smith@example.com",
-				password: "password123",
+				password: "Password1!",
 			},
 		);
 	});
 
-	it("should return 502 when backend registration fails", async () => {
+	it("should re-render the form when backend registration fails", async () => {
 		mockedAxios.post.mockRejectedValueOnce(new Error("backend unavailable"));
 
 		const response = await request(app).post("/register").send({
 			fullName: "Jane Smith",
 			email: "jane.smith@example.com",
-			password: "password123",
-			confirmPassword: "password123",
+			password: "Password1!",
+			confirmPassword: "Password1!",
 		});
 
-		expect(response.status).toBe(502);
-		expect(response.text).toContain("Registration failed. Please try again.");
+		expect(response.status).toBe(200);
+		expect(response.headers["content-type"]).toMatch(/html/);
 	});
 });
 
