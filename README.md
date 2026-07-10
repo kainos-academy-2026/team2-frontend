@@ -38,6 +38,14 @@ Enable it with:
 ENABLE_DEV_LOGIN=true DEV_LOGIN_EMAIL=dev@example.com DEV_LOGIN_PASSWORD=devpassword123 npm run dev
 ```
 
+To test backend password verification (including backend Argon2 checks), run the app with backend auth enabled:
+
+```bash
+ENABLE_DEV_LOGIN=false AUTH_LOGIN_API_URL=http://localhost:3001/login npm run dev
+```
+
+This sends the plaintext password entered in the login form to the backend login endpoint for verification.
+
 ## Install
 
 ```bash
