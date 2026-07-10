@@ -57,5 +57,7 @@ const server = http.createServer((req, res) => {
 
 server.listen(PORT, () => {
 	console.log(`Seed server running at http://localhost:${PORT}`);
-	console.log(`Set JOB_ROLES_API_URL=http://localhost:${PORT}/job-roles in your environment`);
+	console.log(
+		`Set JOB_ROLES_API_URL=http://localhost:${PORT}/job-roles in your environment`,
+	);
 });
