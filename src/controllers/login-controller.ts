@@ -57,7 +57,6 @@ export class LoginController {
 
 			const redirectTarget = resolveRedirectTarget(
 				req.cookies?.[POST_LOGIN_REDIRECT_COOKIE],
-				loginResult.redirectTo,
 			);
 			res.clearCookie(POST_LOGIN_REDIRECT_COOKIE);
 

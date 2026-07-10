@@ -1,4 +1,4 @@
-export const DEFAULT_REDIRECT_TARGET = "/job-roles";
+export const DEFAULT_REDIRECT_TARGET = "/";
 
 const ALLOWED_PREFIXES = ["/job-roles"] as const;
 
@@ -9,19 +9,7 @@ const isAllowedRedirectTarget = (value: unknown): value is string =>
 export const getAllowedRedirectTarget = (value: unknown): string | null =>
 	isAllowedRedirectTarget(value) ? value : null;
 
-export const resolveRedirectTarget = (
-	attemptedTarget: unknown,
-	fallbackTarget: unknown = DEFAULT_REDIRECT_TARGET,
-): string => {
+export const resolveRedirectTarget = (attemptedTarget: unknown): string => {
 	const allowedAttemptedTarget = getAllowedRedirectTarget(attemptedTarget);
-	if (allowedAttemptedTarget) {
-		return allowedAttemptedTarget;
-	}
-
-	const allowedFallbackTarget = getAllowedRedirectTarget(fallbackTarget);
-	if (allowedFallbackTarget) {
-		return allowedFallbackTarget;
-	}
-
-	return DEFAULT_REDIRECT_TARGET;
+	return allowedAttemptedTarget ?? DEFAULT_REDIRECT_TARGET;
 };
