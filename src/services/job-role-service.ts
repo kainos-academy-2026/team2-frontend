@@ -1,32 +1,38 @@
 import axios from "axios";
-import type { JobRole } from "../models/job-role";
+import { getBackendUrl } from "../config/backend";
+import type { JobRole, JobRoleApiResponse } from "../models/job-role";
 
-const JOB_ROLES_API_URL =
-	process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles";
+export class JobRoleService {
+	private readonly jobRolesEndpoint = getBackendUrl("/job-roles");
 
-type JobRoleApiResponse = Partial<JobRole> & {
-	roleName?: string;
-};
+	async getJobRoles(): Promise<JobRole[]> {
+		try {
+			const response = await axios.get<JobRoleApiResponse[]>(
+				this.jobRolesEndpoint,
+			);
+			const jobRoles = Array.isArray(response.data) ? response.data : [];
 
-const toJobRole = (jobRole: JobRoleApiResponse): JobRole => ({
-	name: jobRole.roleName?.trim() || "",
-	location: jobRole.location?.trim() || "",
-	capability: jobRole.capability?.trim() || "",
-	band: jobRole.band?.trim() || "",
-	closingDate: jobRole.closingDate?.trim() || "",
-	status: (jobRole.status?.trim() || "OPEN").toUpperCase(),
-});
+			return jobRoles.map((jobRole) => this.toJobRole(jobRole));
+		} catch (error) {
+			if (axios.isAxiosError(error)) {
+				throw new Error(`Failed to fetch job roles: ${error.message}`);
+			}
 
-export const getJobRoles = async (): Promise<JobRole[]> => {
-	try {
-		const response = await axios.get<JobRoleApiResponse[]>(JOB_ROLES_API_URL);
-		const jobRoles = Array.isArray(response.data) ? response.data : [];
-		return jobRoles.map(toJobRole);
-	} catch (error) {
-		if (axios.isAxiosError(error)) {
-			throw new Error(`Failed to fetch job roles: ${error.message}`);
-		} else {
 			throw new Error("An unexpected error occurred while fetching job roles.");
 		}
 	}
-};
+
+	private toJobRole(jobRole: JobRoleApiResponse): JobRole {
+		return {
+			name: jobRole.roleName?.trim() || "",
+			location: jobRole.location?.trim() || "",
+			capability: jobRole.capability?.trim() || "",
+			band: jobRole.band?.trim() || "",
+			closingDate: jobRole.closingDate?.trim() || "",
+			status: (jobRole.status?.trim() || "OPEN").toUpperCase(),
+		};
+	}
+}
+
+export const jobRoleService = new JobRoleService();
+export const getJobRoles = jobRoleService.getJobRoles.bind(jobRoleService);

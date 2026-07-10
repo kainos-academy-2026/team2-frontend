@@ -1,24 +1,19 @@
 import axios from "axios";
+import { getBackendUrl } from "../config/backend";
 import type { RegistrationPayload } from "../models/registration";
 
-const REGISTRATION_API_URL =
-	process.env.REGISTRATION_API_URL || "http://localhost:3000/register";
+export class RegistrationService {
+	private readonly registrationEndpoint = getBackendUrl("/register");
 
-export const registerUser = async (
-	payload: RegistrationPayload,
-): Promise<void> => {
-	try {
-		await axios.post(REGISTRATION_API_URL, payload);
-	} catch (error) {
-		if (axios.isAxiosError(error)) {
-			const apiMessage =
-				typeof error.response?.data === "object" && error.response?.data
-					? (error.response.data as { message?: string }).message
-					: undefined;
-
-			throw new Error(apiMessage || "Registration failed. Please try again.");
+	async registerUser(payload: RegistrationPayload): Promise<void> {
+		try {
+			await axios.post(this.registrationEndpoint, payload);
+		} catch (error) {
+			throw error;
 		}
-
-		throw new Error("Registration failed. Please try again.");
 	}
-};
+}
+
+export const registrationService = new RegistrationService();
+export const registerUser =
+	registrationService.registerUser.bind(registrationService);

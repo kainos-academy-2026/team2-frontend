@@ -1,16 +1,26 @@
 import type { Request, Response } from "express";
-import { getJobRoles } from "../services/job-role-service";
+import {
+	type JobRoleService,
+	jobRoleService,
+} from "../services/job-role-service";
 
-export const getJobRolesPage = async (_req: Request, res: Response) => {
-	try {
-		const jobRoles = await getJobRoles();
+export class JobRoleController {
+	constructor(private readonly service: JobRoleService = jobRoleService) {}
 
-		res.render("job-role-list", {
-			jobRoles,
-		});
-	} catch {
-		res.render("job-role-list", {
-			jobRoles: [],
-		});
-	}
-};
+	getJobRolesPage = async (_req: Request, res: Response) => {
+		try {
+			const jobRoles = await this.service.getJobRoles();
+
+			res.render("job-role-list", {
+				jobRoles,
+			});
+		} catch {
+			res.render("job-role-list", {
+				jobRoles: [],
+			});
+		}
+	};
+}
+
+export const jobRoleController = new JobRoleController();
+export const getJobRolesPage = jobRoleController.getJobRolesPage;

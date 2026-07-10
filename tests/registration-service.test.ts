@@ -30,14 +30,8 @@ describe("registerUser", () => {
 		);
 	});
 
-	it("should surface API message when available", async () => {
-		const apiError = {
-			isAxiosError: true,
-			response: {
-				data: { message: "Email already exists" },
-			},
-		};
-		mockedAxios.isAxiosError.mockReturnValueOnce(true);
+	it("should rethrow API errors", async () => {
+		const apiError = new Error("Email already exists");
 
 		mockedAxios.post.mockRejectedValue(apiError);
 
@@ -50,7 +44,7 @@ describe("registerUser", () => {
 		).rejects.toThrow("Email already exists");
 	});
 
-	it("should return fallback message on unknown errors", async () => {
+	it("should rethrow unknown errors", async () => {
 		mockedAxios.post.mockRejectedValue(new Error("boom"));
 
 		await expect(
@@ -59,6 +53,6 @@ describe("registerUser", () => {
 				email: "jane.smith@example.com",
 				password: "password123",
 			}),
-		).rejects.toThrow("Registration failed. Please try again.");
+		).rejects.toThrow("boom");
 	});
 });

@@ -17,7 +17,7 @@ describe("getJobRoles", () => {
 		await getJobRoles();
 
 		expect(mockedAxios.get).toHaveBeenCalledWith(
-			"http://localhost:3001/job-roles",
+			"http://localhost:3000/job-roles",
 		);
 	});
 

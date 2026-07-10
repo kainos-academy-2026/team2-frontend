@@ -1,7 +1,5 @@
 import axios from "axios";
-import axios from "axios";
 import request from "supertest";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import app from "../src/app";
 
@@ -45,50 +43,12 @@ const sampleApiJobRoles = [
 ];
 
 beforeEach(() => {
+	mockedAxios.get.mockReset();
+	mockedAxios.post.mockReset();
+	mockedAxios.isAxiosError.mockReset();
 	mockedAxios.get.mockResolvedValue({ data: sampleApiJobRoles });
-});
-
-vi.mock("axios");
-
-const mockedAxios = vi.mocked(axios, true);
-
-const sampleApiJobRoles = [
-	{
-		roleName: "Software Engineer",
-		location: "Belfast",
-		capability: "Engineering",
-		band: "3",
-		closingDate: "2026-08-15",
-		status: "OPEN",
-	},
-	{
-		roleName: "Test Engineer",
-		location: "London",
-		capability: "Quality Assurance",
-		band: "2",
-		closingDate: "2026-08-30",
-		status: "open",
-	},
-	{
-		roleName: "Business Analyst",
-		location: "",
-		capability: "Consulting",
-		band: "3",
-		closingDate: "2026-09-01",
-		status: "OPEN",
-	},
-	{
-		roleName: "Delivery Manager",
-		location: "Dublin",
-		capability: "Delivery",
-		band: "4",
-		closingDate: "2026-07-20",
-		status: "CLOSED",
-	},
-];
-
-beforeEach(() => {
-	mockedAxios.get.mockResolvedValue({ data: sampleApiJobRoles });
+	mockedAxios.post.mockResolvedValue({ data: {} });
+	mockedAxios.isAxiosError.mockReturnValue(false);
 });
 
 describe("GET /health", () => {
@@ -135,6 +95,15 @@ describe("GET /register", () => {
 	});
 });
 
+describe("GET /public/register.css", () => {
+	it("should serve static assets", async () => {
+		const response = await request(app).get("/public/register.css");
+
+		expect(response.status).toBe(200);
+		expect(response.headers["content-type"]).toMatch(/text\/css/);
+	});
+});
+
 describe("POST /register", () => {
 	it("should return 400 when required fields are missing", async () => {
 		const response = await request(app).post("/register").send({
@@ -160,7 +129,7 @@ describe("POST /register", () => {
 		expect(response.text).toContain("Passwords do not match.");
 	});
 
-	it("should call backend registration API and return success message", async () => {
+	it("should call backend registration API and redirect to login", async () => {
 		const response = await request(app).post("/register").send({
 			fullName: "Jane Smith",
 			email: "jane.smith@example.com",
@@ -168,8 +137,8 @@ describe("POST /register", () => {
 			confirmPassword: "password123",
 		});
 
-		expect(response.status).toBe(201);
-		expect(response.text).toContain("Your account has been created.");
+		expect(response.status).toBe(303);
+		expect(response.headers.location).toBe("/login");
 		expect(mockedAxios.post).toHaveBeenCalledWith(
 			"http://localhost:3000/register",
 			{
@@ -247,7 +216,7 @@ describe("GET /job-roles", () => {
 		await request(app).get("/job-roles");
 
 		expect(mockedAxios.get).toHaveBeenCalledWith(
-			"http://localhost:3001/job-roles",
+			"http://localhost:3000/job-roles",
 		);
 	});
 
