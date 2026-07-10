@@ -34,7 +34,7 @@ const createAuthService = (): AuthService => {
 describe("login controller", () => {
 	it("getLoginPage renders loggedOut state from query", () => {
 		const authService = createAuthService();
-		const controller = new LoginController({ authService });
+		const controller = new LoginController(authService);
 		const req = { query: { loggedOut: "1" } } as unknown as Request;
 		const res = createResponse();
 
@@ -50,7 +50,7 @@ describe("login controller", () => {
 
 	it("postLogin returns 400 with field errors for invalid input", async () => {
 		const authService = createAuthService();
-		const controller = new LoginController({ authService });
+		const controller = new LoginController(authService);
 		const req = {
 			body: {
 				email: "invalid-email",
@@ -77,7 +77,7 @@ describe("login controller", () => {
 
 	it("postLogin calls authService and redirects on successful login", async () => {
 		const authService = createAuthService();
-		const controller = new LoginController({ authService });
+		const controller = new LoginController(authService);
 		const req = {
 			body: {
 				email: "dev@example.com",
@@ -112,7 +112,7 @@ describe("login controller", () => {
 
 	it("postLogin falls back to service redirect for unsafe cookie redirect", async () => {
 		const authService = createAuthService();
-		const controller = new LoginController({ authService });
+		const controller = new LoginController(authService);
 		const req = {
 			body: {
 				email: "dev@example.com",
@@ -140,7 +140,7 @@ describe("login controller", () => {
 
 	it("postLogin forwards unexpected errors to global error handler", async () => {
 		const authService = createAuthService();
-		const controller = new LoginController({ authService });
+		const controller = new LoginController(authService);
 		const req = {
 			body: {
 				email: "dev@example.com",
@@ -166,7 +166,7 @@ describe("login controller", () => {
 
 	it("postLogout redirects even if authService.logout fails", async () => {
 		const authService = createAuthService();
-		const controller = new LoginController({ authService });
+		const controller = new LoginController(authService);
 		const req = {} as Request;
 		const res = createResponse();
 		vi.mocked(authService.logout).mockRejectedValueOnce(

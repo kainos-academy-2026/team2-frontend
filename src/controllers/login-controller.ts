@@ -1,7 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { resolveRedirectTarget } from "../auth/redirect-target";
 import type { AuthService } from "../types/auth";
-import type { LoginControllerDeps } from "../types/controller-deps";
 import { parseLoginCredentials } from "../validators/login-credentials";
 
 const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
@@ -10,8 +9,8 @@ const POST_LOGIN_REDIRECT_COOKIE = "postLoginRedirect";
 export class LoginController {
 	private readonly authService: AuthService;
 
-	constructor(deps: LoginControllerDeps) {
-		this.authService = deps.authService;
+	constructor(authService: AuthService) {
+		this.authService = authService;
 	}
 
 	getLoginPage = (req: Request, res: Response) => {

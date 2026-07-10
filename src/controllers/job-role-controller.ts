@@ -1,20 +1,16 @@
 import type { Request, Response } from "express";
-import { getJobRoles } from "../services/job-role-service";
-
-type JobRoleControllerDeps = {
-	getJobRoles: typeof getJobRoles;
-};
+import type { JobRoleService } from "../services/job-role-service";
 
 export class JobRoleController {
-	private readonly getJobRolesService: typeof getJobRoles;
+	private readonly jobRoleService: JobRoleService;
 
-	constructor(deps: JobRoleControllerDeps) {
-		this.getJobRolesService = deps.getJobRoles;
+	constructor(jobRoleService: JobRoleService) {
+		this.jobRoleService = jobRoleService;
 	}
 
 	getJobRolesPage = async (_req: Request, res: Response) => {
 		try {
-			const jobRoles = await this.getJobRolesService();
+			const jobRoles = await this.jobRoleService.getJobRoles();
 
 			res.render("job-role-list", {
 				jobRoles,
@@ -26,5 +22,3 @@ export class JobRoleController {
 		}
 	};
 }
-
-export const jobRoleController = new JobRoleController({ getJobRoles });

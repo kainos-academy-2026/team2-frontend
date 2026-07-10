@@ -3,9 +3,10 @@ import cookieParser from "cookie-parser";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import nunjucks from "nunjucks";
-import { jobRoleController } from "./controllers/job-role-controller";
+import { JobRoleController } from "./controllers/job-role-controller";
 import { requireAuthenticatedUser } from "./middleware/auth-session";
 import authRouter from "./routes/auth-router";
+import { JobRoleService } from "./services/job-role-service";
 
 const app = express();
 
@@ -34,6 +35,11 @@ nunjucks.configure(viewsPath, {
 	express: app,
 });
 app.set("view engine", "njk");
+
+const jobRoleService = new JobRoleService(
+	process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles",
+);
+const jobRoleController = new JobRoleController(jobRoleService);
 
 app.get("/", (_req, res) => {
 	res.redirect("/login");
