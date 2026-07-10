@@ -41,14 +41,16 @@ export const parseLoginCredentials = (
 	const parsed = loginCredentialsSchema.safeParse(input);
 
 	if (!parsed.success) {
-		const { fieldErrors } = parsed.error.flatten();
+		const errorTree = z.treeifyError(parsed.error);
+		const emailError = errorTree.properties?.email?.errors?.[0];
+		const passwordError = errorTree.properties?.password?.errors?.[0];
 
 		return {
 			success: false,
 			submittedEmail: getSubmittedEmail(input),
 			fieldErrors: {
-				email: fieldErrors.email?.[0],
-				password: fieldErrors.password?.[0],
+				email: emailError,
+				password: passwordError,
 			},
 		};
 	}
