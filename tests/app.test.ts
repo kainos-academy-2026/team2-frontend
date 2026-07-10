@@ -262,6 +262,8 @@ describe("GET /register", () => {
 		const response = await request(app).get("/register");
 
 		expect(response.status).toBe(200);
+		expect(response.text).toContain("Sign In");
+		expect(response.text).toContain('form action="/login" method="POST"');
 	});
 
 	it("should return HTML content", async () => {
