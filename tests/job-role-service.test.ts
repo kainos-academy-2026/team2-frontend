@@ -1,20 +1,24 @@
 import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { getJobRoles } from "../src/services/job-role-service";
+import { JobRoleService } from "../src/services/job-role-service";
 
 vi.mock("axios");
 
 const mockedAxios = vi.mocked(axios, true);
+const TEST_API_URL = "http://localhost:3001/job-roles";
 
-describe("getJobRoles", () => {
+describe("JobRoleService", () => {
+	let service: JobRoleService;
+
 	beforeEach(() => {
+		service = new JobRoleService(TEST_API_URL);
 		mockedAxios.get.mockReset();
 	});
 
 	it("should fetch job roles from API endpoint", async () => {
 		mockedAxios.get.mockResolvedValue({ data: [] });
 
-		await getJobRoles();
+		await service.getJobRoles();
 
 		expect(mockedAxios.get).toHaveBeenCalledWith(
 			"http://localhost:3001/job-roles",
@@ -31,7 +35,7 @@ describe("getJobRoles", () => {
 			],
 		});
 
-		const jobRoles = await getJobRoles();
+		const jobRoles = await service.getJobRoles();
 
 		expect(jobRoles).toEqual([
 			{
@@ -58,7 +62,7 @@ describe("getJobRoles", () => {
 			],
 		});
 
-		const jobRoles = await getJobRoles();
+		const jobRoles = await service.getJobRoles();
 
 		expect(jobRoles).toEqual([
 			{
