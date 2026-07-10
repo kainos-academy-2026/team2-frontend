@@ -20,7 +20,7 @@ export const resolveRedirectTarget = (
 
 	const allowedFallbackTarget = getAllowedRedirectTarget(fallbackTarget);
 	if (allowedFallbackTarget) {
-		return "/";
+		return allowedFallbackTarget;
 	}
 
 	return DEFAULT_REDIRECT_TARGET;
