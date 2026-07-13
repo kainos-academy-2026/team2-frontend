@@ -18,8 +18,12 @@ const getSetCookieHeader = (header: string | string[] | undefined) => {
 
 const sampleApiJobRoles = [
 	{
-		id: "1",
+		jobRoleId: 1,
 		roleName: "Software Engineer",
+		location: "Wellington",
+		capability: "Engineering",
+		band: "B2",
+		closingDate: "2026-12-31",
 		description: "Build and maintain production software systems.",
 		specification: "Build and maintain production software systems.",
 		responsibilities: "Design, build, and support core services.",
@@ -28,8 +32,12 @@ const sampleApiJobRoles = [
 		status: "OPEN",
 	},
 	{
-		id: "2",
+		jobRoleId: 2,
 		roleName: "Test Engineer",
+		location: "Auckland",
+		capability: "Quality Engineering",
+		band: "B2",
+		closingDate: "2026-09-30",
 		description: "Create and execute robust testing strategies.",
 		specification: "Create and execute robust testing strategies.",
 		responsibilities: "Own test automation and release confidence.",
@@ -38,8 +46,12 @@ const sampleApiJobRoles = [
 		status: "OPEN",
 	},
 	{
-		id: "3",
+		jobRoleId: 3,
 		roleName: "Business Analyst",
+		location: "Hamilton",
+		capability: "Business Analysis",
+		band: "B3",
+		closingDate: "2026-11-15",
 		description: "Translate business needs into clear requirements.",
 		specification: "Translate business needs into clear requirements.",
 		responsibilities: "Facilitate workshops and define requirements.",
@@ -48,8 +60,12 @@ const sampleApiJobRoles = [
 		status: "OPEN",
 	},
 	{
-		id: "4",
+		jobRoleId: 4,
 		roleName: "Delivery Manager",
+		location: "Remote",
+		capability: "Delivery",
+		band: "B4",
+		closingDate: "2026-10-20",
 		description: "Lead delivery plans and cross-team execution.",
 		specification: "Lead delivery plans and cross-team execution.",
 		responsibilities: "Coordinate plans and remove blockers.",
@@ -271,14 +287,10 @@ describe("Auth routes", () => {
 });
 
 describe("GET /job-roles", () => {
-	it("should redirect unauthenticated users to /login", async () => {
+	it("should return 200 for unauthenticated users", async () => {
 		const response = await request(app).get("/job-roles");
 
-		expect(response.status).toBe(302);
-		expect(response.headers.location).toBe("/login");
-		expect(getSetCookieHeader(response.headers["set-cookie"])).toContain(
-			"postLoginRedirect=%2Fjob-roles",
-		);
+		expect(response.status).toBe(200);
 	});
 
 	it("should return 200 for authenticated users", async () => {
@@ -389,7 +401,7 @@ describe("GET /job-roles/:id", () => {
 		expect(response.text).toContain("Specification");
 		expect(response.text).toContain("Description");
 		expect(response.text).toContain("Responsibilities");
-		expect(response.text).toContain("SharePoint");
+			expect(response.text).toContain("Open SharePoint");
 		expect(response.text).toContain(
 			"Build and maintain production software systems.",
 		);

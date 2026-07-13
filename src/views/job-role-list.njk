@@ -33,7 +33,7 @@
             <button type="submit">Log Out</button>
         </form>
         <h1>Job Role List</h1>
-        <!-- Expected jobRoles item shape: { id, name, status, description, responsibilities, sharepointUrl, numberOfOpenPositions } -->
+        <!-- Expected jobRoles item shape: { id, name, location, capability, band, closingDate, status } -->
         {% set hasOpenRoles = false %}
         {% for jobRole in jobRoles %}
             {% if (jobRole.status or "") | upper == "OPEN" %}
@@ -45,11 +45,10 @@
             <thead>
                 <tr>
                     <th scope="col">Role Name</th>
-                    <th scope="col">Status</th>
-                    <th scope="col">Open Positions</th>
-                    <th scope="col">Description</th>
-                    <th scope="col">Responsibilities</th>
-                    <th scope="col">SharePoint</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Capability</th>
+                    <th scope="col">Band</th>
+                    <th scope="col">Closing Date</th>
                 </tr>
             </thead>
             <tbody>
@@ -64,23 +63,16 @@
                                         {{ jobRole.name or "-" }}
                                     {% endif %}
                                 </td>
-                                <td>OPEN</td>
-                                <td>{{ jobRole.numberOfOpenPositions or 0 }}</td>
-                                <td>{{ jobRole.description or "-" }}</td>
-                                <td>{{ jobRole.responsibilities or "-" }}</td>
-                                <td>
-                                    {% if jobRole.sharepointUrl %}
-                                        <a href="{{ jobRole.sharepointUrl }}" target="_blank" rel="noopener noreferrer">View</a>
-                                    {% else %}
-                                        -
-                                    {% endif %}
-                                </td>
+                                <td>{{ jobRole.location or "-" }}</td>
+                                <td>{{ jobRole.capability or "-" }}</td>
+                                <td>{{ jobRole.band or "-" }}</td>
+                                <td>{{ jobRole.closingDate or "-" }}</td>
                             </tr>
                         {% endif %}
                     {% endfor %}
                 {% else %}
                     <tr>
-                        <td colspan="6">No open job roles are available right now.</td>
+                        <td colspan="5">No open job roles are available right now.</td>
                     </tr>
                 {% endif %}
             </tbody>

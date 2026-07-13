@@ -15,24 +15,27 @@
                 Status: {{ jobRole.status or "-" }} | Open positions: {{ jobRole.numberOfOpenPositions or 0 }}
             </p>
             <section class="card">
+                <h2>Role information</h2>
+                <p>Location: {{ jobRole.location or "-" }}</p>
+                <p>Capability: {{ jobRole.capability or "-" }}</p>
+                <p>Band: {{ jobRole.band or "-" }}</p>
+                <p>Closing date: {{ jobRole.closingDate or "-" }}</p>
+            </section>
+            <section class="card">
                 <h2>Description</h2>
                 <p>{{ jobRole.description or "No description available." }}</p>
             </section>
             <section class="card">
                 <h2>Specification</h2>
-                <p>{{ jobRole.specification or "No specification available." }}</p>
+                {% if jobRole.sharepointUrl %}
+                    <p><a href="{{ jobRole.sharepointUrl }}" target="_blank" rel="noopener noreferrer">Open SharePoint</a></p>
+                {% else %}
+                    <p>No specification available.</p>
+                {% endif %}
             </section>
             <section class="card">
                 <h2>Responsibilities</h2>
                 <p>{{ jobRole.responsibilities or "No responsibilities available." }}</p>
-            </section>
-            <section class="card">
-                <h2>SharePoint</h2>
-                {% if jobRole.sharepointUrl %}
-                    <p><a href="{{ jobRole.sharepointUrl }}" target="_blank" rel="noopener noreferrer">Open role workspace</a></p>
-                {% else %}
-                    <p>No SharePoint URL available.</p>
-                {% endif %}
             </section>
         {% else %}
             <h1>Role detail unavailable</h1>

@@ -14,8 +14,9 @@ export default class JobRoleMapper {
 
 	public toJobRole(jobRole: JobRoleApiResponse): JobRole {
 		return {
-			id: jobRole.id,
+			id: String(jobRole.jobRoleId),
 			name: jobRole.roleName,
+			location: jobRole.location,
 			capability: jobRole.capability,
 			band: jobRole.band,
 			closingDate: jobRole.closingDate,

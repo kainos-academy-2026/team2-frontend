@@ -30,8 +30,9 @@ describe("JobRoleService", () => {
 		mockedAxios.get.mockResolvedValue({
 			data: [
 				{
-					id: "42",
+					jobRoleId: 42,
 					roleName: "Software Engineer",
+					location: "Wellington",
 					capability: "Engineering",
 					band: "B2",
 					closingDate: "2026-12-31",
@@ -50,6 +51,7 @@ describe("JobRoleService", () => {
 			{
 				id: "42",
 				name: "Software Engineer",
+				location: "Wellington",
 				capability: "Engineering",
 				band: "B2",
 				closingDate: "2026-12-31",
@@ -66,8 +68,9 @@ describe("JobRoleService", () => {
 		mockedAxios.get.mockResolvedValue({
 			data: [
 				{
-					id: "77",
+					jobRoleId: 77,
 					roleName: "Platform Engineer",
+					location: "Auckland",
 					capability: "Platform",
 					band: "B3",
 					closingDate: "2026-10-01",
@@ -85,6 +88,7 @@ describe("JobRoleService", () => {
 			{
 				id: "77",
 				name: "Platform Engineer",
+				location: "Auckland",
 				capability: "Platform",
 				band: "B3",
 				closingDate: "2026-10-01",
@@ -100,8 +104,9 @@ describe("JobRoleService", () => {
 	it("should fetch a single job role by id", async () => {
 		mockedAxios.get.mockResolvedValue({
 			data: {
-				id: "11",
+				jobRoleId: 11,
 				roleName: "Test Engineer",
+				location: "Christchurch",
 				capability: "QA",
 				band: "B2",
 				closingDate: "2026-08-15",
@@ -121,6 +126,7 @@ describe("JobRoleService", () => {
 		expect(jobRole).toEqual({
 			id: "11",
 			name: "Test Engineer",
+			location: "Christchurch",
 			capability: "QA",
 			band: "B2",
 			closingDate: "2026-08-15",

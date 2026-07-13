@@ -1,5 +1,5 @@
 export interface JobRoleApiResponse {
-	id: string;
+	jobRoleId: number;
 	roleName: string;
 	location: string;
 	capability: string;
