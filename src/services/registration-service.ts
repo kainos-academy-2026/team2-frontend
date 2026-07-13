@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getBackendUrl } from "../config/backend";
-import type { RegistrationPayload } from "../models/registration";
+import type { RegistrationPayload } from "../types/registration";
 
 export class RegistrationService {
 	private readonly registrationEndpoint = getBackendUrl("/register");

@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getBackendUrl } from "../config/backend";
-import type { JobRole, JobRoleApiResponse } from "../models/job-role";
+import type { JobRole, JobRoleApiResponse } from "../types/job-role";
 
 export class JobRoleService {
 	private readonly jobRolesEndpoint = getBackendUrl("/job-roles");

@@ -2,7 +2,7 @@ import type { Request, Response } from "express";
 import type {
 	RegistrationInput,
 	RegistrationViewState,
-} from "../models/registration";
+} from "../types/registration";
 import {
 	type RegistrationService,
 	registrationService,
