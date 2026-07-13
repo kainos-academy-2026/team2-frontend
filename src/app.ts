@@ -3,19 +3,19 @@ import cookieParser from "cookie-parser";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import nunjucks from "nunjucks";
-import { JobRoleController } from "./controllers/job-role-controller";
-import { requireAuthenticatedUser } from "./middleware/auth-session";
 import authRouter from "./routes/auth-router";
-import { JobRoleService } from "./services/job-role-service";
+import jobRoleRoutes from "./routes/job-role-routes";
+import registrationRoutes from "./routes/registration-routes";
 
 const app = express();
+const distPublicPath = path.join(dirname(__filename), "public");
+const rootPublicPath = path.join(dirname(__filename), "..", "public");
 
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(cookieParser());
-
-const publicPath = path.join(dirname(__filename), "public");
-app.use(express.static(publicPath));
+app.use("/public", express.static(distPublicPath));
+app.use("/public", express.static(rootPublicPath));
 
 const viewsPath = path.join(dirname(__filename), "views");
 
@@ -36,21 +36,12 @@ nunjucks.configure(viewsPath, {
 });
 app.set("view engine", "njk");
 
-const jobRoleService = new JobRoleService(
-	process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles",
-);
-const jobRoleController = new JobRoleController(jobRoleService);
-
 app.get("/", (_req, res) => {
 	res.redirect("/login");
 });
 
-app.get(
-	"/job-roles",
-	requireAuthenticatedUser,
-	jobRoleController.getJobRolesPage,
-);
-
+app.use(jobRoleRoutes);
+app.use(registrationRoutes);
 app.use(authRouter);
 
 app.get("/health", (_req, res) => {

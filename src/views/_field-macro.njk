@@ -1,0 +1,20 @@
+{% macro field(fieldName, label, type, placeholder, value, errors, autocomplete) %}
+  <div class="field">
+    <label for="{{ fieldName }}">{{ label }}</label>
+    {% if errors and errors[fieldName] %}
+      {% for message in errors[fieldName] %}
+        <p class="field-error" id="{{ fieldName }}-error-{{ loop.index }}">{{ message }}</p>
+      {% endfor %}
+    {% endif %}
+    <input
+      id="{{ fieldName }}"
+      name="{{ fieldName }}"
+      type="{{ type }}"
+      {% if autocomplete %}autocomplete="{{ autocomplete }}"{% endif %}
+      placeholder="{{ placeholder }}"
+      {% if value %}value="{{ value }}"{% endif %}
+      class="{% if errors and errors[fieldName] %}input-error{% endif %}"
+      {% if errors and errors[fieldName] %}aria-invalid="true" aria-describedby="{{ fieldName }}-error-1"{% endif %}
+    />
+  </div>
+{% endmacro %}

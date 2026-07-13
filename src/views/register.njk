@@ -1,0 +1,75 @@
+{% import '_field-macro.njk' as formMacro %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create your account</title>
+    <link rel="stylesheet" href="/public/register.css" />
+  </head>
+  <body>
+    <main class="page">
+      <section class="shell" aria-label="Registration page">
+        <aside class="brand-panel" aria-label="Brand information">
+          <div>
+            <div class="brand-lockup">
+              <img
+                class="brand-logo"
+                src="/public/icons/Kainos_Logo.png"
+                alt="Kainos logo"
+              />
+            </div>
+
+            <p class="brand-blurb">
+              <span>Join thousands of professionals finding their next opportunity.</span>
+              <span>Create your account to get started.</span>
+            </p>
+
+            <div class="brand-copy">
+              <img
+                class="brand-icon"
+                src="/public/icons/Register_Icon.png"
+                alt="Icon"
+              />
+            </div>
+          </div>
+        </aside>
+
+        <section class="form-panel">
+          <div class="form-wrap">
+            <p class="eyebrow">Create account</p>
+            <h2>Register</h2>
+            <p class="intro">
+              Enter your details below to create an account.
+            </p>
+
+            {% if error %}
+              <div class="alert alert-error" role="alert">{{ error }}</div>
+            {% endif %}
+
+            {% if success %}
+              <div class="alert alert-success" role="status">{{ success }}</div>
+            {% endif %}
+
+            <form method="post" action="/register" novalidate>
+              {{ formMacro.field('fullName', 'Full name', 'text', 'Jane Smith', values.fullName or '', errors, 'name') }}
+              {{ formMacro.field('email', 'Email address', 'text', 'jane.smith@example.com', values.email or '', errors, 'email') }}
+              {{ formMacro.field('password', 'Password', 'password', 'Create a secure password', '', errors, 'new-password') }}
+              {{ formMacro.field('confirmPassword', 'Confirm password', 'password', 'Re-enter your password', '', errors, 'new-password') }}
+
+              <div class="helper-row" aria-hidden="true">
+                <span>Passwords must be at least 8 characters long and include at least one upper case, lower case and special character.</span>
+              </div>
+
+              <button class="register-button" type="submit">Register</button>
+            </form>
+
+            <p class="form-footer">
+              Already have access? <a href="/">Return to the home page</a>.
+            </p>
+          </div>
+        </section>
+      </section>
+    </main>
+  </body>
+</html>
