@@ -4,11 +4,10 @@ import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import nunjucks from "nunjucks";
 import { JobRoleController } from "./controllers/job-role-controller";
-import { JobRoleService } from "./services/job-role-service";
-import jobRoleRouter from "./routes/jobRoleRouter";
 import { requireAuthenticatedUser } from "./middleware/auth-session";
 import authRouter from "./routes/auth-router";
-
+import jobRoleRouter from "./routes/jobRoleRouter";
+import { JobRoleService } from "./services/job-role-service";
 
 const app = express();
 

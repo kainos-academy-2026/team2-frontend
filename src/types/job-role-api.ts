@@ -10,4 +10,4 @@ export interface JobRoleApiResponse {
 	responsibilities: string;
 	sharepointUrl: string;
 	numberOfOpenPositions: number;
-};
+}

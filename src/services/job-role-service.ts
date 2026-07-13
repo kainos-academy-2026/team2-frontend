@@ -8,8 +8,8 @@ export class JobRoleService {
 	private readonly jobRoleMapper: JobRoleMapper;
 
 	constructor(
-		apiUrlOrMapper: string | JobRoleMapper =
-			process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles",
+		apiUrlOrMapper: string | JobRoleMapper = process.env.JOB_ROLES_API_URL ||
+			"http://localhost:3001/job-roles",
 		jobRoleMapper: JobRoleMapper = new JobRoleMapper(),
 	) {
 		if (typeof apiUrlOrMapper === "string") {
@@ -22,7 +22,7 @@ export class JobRoleService {
 			process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles";
 		this.jobRoleMapper = apiUrlOrMapper;
 	}
-	
+
 	async getJobRoles(): Promise<JobRole[]> {
 		try {
 			const response = await axios.get<JobRoleApiResponse[]>(this.apiUrl);

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { JobRoleStatus } from "../src/types/job-role";
 import { JobRoleService } from "../src/services/job-role-service";
+import { JobRoleStatus } from "../src/types/job-role";
 
 vi.mock("axios");
 

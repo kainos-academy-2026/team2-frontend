@@ -418,7 +418,7 @@ describe("GET /job-roles/:id", () => {
 		expect(response.text).toContain("Specification");
 		expect(response.text).toContain("Description");
 		expect(response.text).toContain("Responsibilities");
-			expect(response.text).toContain("Open SharePoint");
+		expect(response.text).toContain("Open SharePoint");
 		expect(response.text).toContain(
 			"Build and maintain production software systems.",
 		);

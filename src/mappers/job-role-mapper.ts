@@ -1,4 +1,4 @@
-import { JobRoleStatus, type JobRole } from "../types/job-role";
+import { type JobRole, JobRoleStatus } from "../types/job-role";
 import type { JobRoleApiResponse } from "../types/job-role-api";
 
 export default class JobRoleMapper {

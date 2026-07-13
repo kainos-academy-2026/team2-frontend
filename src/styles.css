@@ -1,22 +1,22 @@
 /* Base stylesheet for the app */
 body {
-        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-        margin: 2rem;
-    }
+	font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+	margin: 2rem;
+}
 
 .meta {
-        color: #4b5563;
-        margin-bottom: 1.5rem;
-    }
+	color: #4b5563;
+	margin-bottom: 1.5rem;
+}
 
 .card {
-        border: 1px solid #d1d5db;
-        border-radius: 0.5rem;
-        padding: 1rem;
-        max-width: 800px;
-    }
+	border: 1px solid #d1d5db;
+	border-radius: 0.5rem;
+	padding: 1rem;
+	max-width: 800px;
+}
 
 a {
-    display: inline-block;
-     margin-bottom: 1rem;
-    }
+	display: inline-block;
+	margin-bottom: 1rem;
+}
