@@ -6,17 +6,17 @@
     <title>Create your account</title>
     <style>
       :root {
-        --page-background: #eef4f1;
-        --panel-surface: rgba(7, 44, 33, 0.94);
+        --page-background: #e8eef8;
+        --panel-surface: rgba(10, 20, 60, 0.96);
         --card-surface: #ffffff;
-        --brand-primary: #007a53;
-        --brand-secondary: #0d5c47;
-        --brand-highlight: #8ae1bf;
-        --text-primary: #153126;
-        --text-muted: #61756d;
-        --border-soft: #d2dfd8;
-        --shadow-soft: 0 26px 60px rgba(13, 56, 43, 0.18);
-        --input-surface: #f8fbf9;
+        --brand-primary: #00a651;
+        --brand-secondary: #0d1b3e;
+        --brand-highlight: #7ee8b0;
+        --text-primary: #0d1b3e;
+        --text-muted: #4a5a7a;
+        --border-soft: #c8d4e8;
+        --shadow-soft: 0 26px 60px rgba(10, 20, 60, 0.22);
+        --input-surface: #f4f7fc;
       }
 
       * {
@@ -29,8 +29,8 @@
         font-family: "Aptos", "Segoe UI", sans-serif;
         color: var(--text-primary);
         background:
-          radial-gradient(circle at top left, rgba(138, 225, 191, 0.55), transparent 34%),
-          linear-gradient(135deg, #f4f9f6 0%, var(--page-background) 58%, #ddebe5 100%);
+          radial-gradient(circle at top left, rgba(0, 166, 81, 0.18), transparent 40%),
+          linear-gradient(135deg, #eaf0fb 0%, var(--page-background) 60%, #dce8f5 100%);
       }
 
       .page {
@@ -52,9 +52,7 @@
 
       .brand-panel {
         padding: 48px;
-        background:
-          linear-gradient(160deg, rgba(0, 122, 83, 0.96), rgba(7, 44, 33, 0.96)),
-          var(--panel-surface);
+        background: linear-gradient(160deg, #0d1b3e 0%, #0a3d62 45%, #00a651 100%);
         color: #ffffff;
         display: flex;
         flex-direction: column;
@@ -75,10 +73,18 @@
 
       .brand-blurb {
         margin-top: 32px;
-        font-size: 0.95rem;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+      }
+
+      .brand-blurb p {
+        margin: 0;
+        font-size: 1.25rem;
         line-height: 1.6;
-        opacity: 0.85;
+        opacity: 0.9;
         color: #ffffff;
+        font-weight: 500;
       }
 
       .brand-logo {
@@ -331,7 +337,10 @@
               />
             </div>
 
-            <p class="brand-blurb">Join thousands of professionals finding their next opportunity. Create your account to get started.</p>
+            <div class="brand-blurb">
+              <p>Join thousands of professionals finding their next opportunity.</p>
+              <p>Create your account to get started.</p>
+            </div>
 
             <div class="brand-copy">
               <img 
@@ -413,8 +422,7 @@
               </div>
 
               <div class="helper-row" aria-hidden="true">
-                <span>Use at least 8 characters for future validation.</span>
-                <span>Confirmation messaging can be added later.</span>
+                <span>Use at least 8 characters.</span>
               </div>
 
               <button class="register-button" type="submit">Register</button>
