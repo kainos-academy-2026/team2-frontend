@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sign In</title>
+  </head>
+  <body>
+    <main>
+      <h1>Sign In</h1>
+
+      {% if loggedOut %}
+        <p role="status">You have been logged out.</p>
+      {% endif %}
+
+      {% if error %}
+        <div class="error-alert" role="alert" aria-live="assertive">
+          {{ error }}
+        </div>
+      {% endif %}
+
+      <form action="/login" method="POST">
+        {% if csrfToken %}
+          <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+        {% endif %}
+
+        <div class="form-group">
+          <label for="email">Email Address</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value="{{ oldInput.email | default('') }}"
+            autocomplete="username"
+            inputmode="email"
+            spellcheck="false"
+            aria-invalid="{{ 'true' if fieldErrors.email else 'false' }}"
+            {% if fieldErrors.email %}aria-describedby="email-error"{% endif %}
+            required
+          />
+          {% if fieldErrors.email %}
+            <p id="email-error" role="alert">{{ fieldErrors.email }}</p>
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input
+            type="password"
+            id="password"
+            name="password"
+            autocomplete="current-password"
+            aria-invalid="{{ 'true' if fieldErrors.password else 'false' }}"
+            {% if fieldErrors.password %}aria-describedby="password-error"{% endif %}
+            required
+          />
+          {% if fieldErrors.password %}
+            <p id="password-error" role="alert">{{ fieldErrors.password }}</p>
+          {% endif %}
+        </div>
+
+        <button type="submit" data-loading-text="Signing In...">Sign In</button>
+      </form>
+    </main>
+
+    <script src="/login-form.js"></script>
+  </body>
+</html>

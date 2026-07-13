@@ -7,6 +7,9 @@
         <link rel="stylesheet" href="/public/job-role-list.css" />
     </head>
     <body>
+        <form action="/logout" method="POST" style="margin-bottom: 1rem;">
+            <button type="submit">Log Out</button>
+        </form>
         <h1>Job Role List</h1>
         <!-- Expected jobRoles item shape: { name, location, capability, band, closingDate, status } -->
         {% set hasOpenRoles = false %}
