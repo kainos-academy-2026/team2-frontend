@@ -1,17 +1,16 @@
 import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { JobRoleMapper } from "../src/mappers/job-role-mapper";
 import { JobRoleService } from "../src/services/job-role-service";
 
 vi.mock("axios");
 
 const mockedAxios = vi.mocked(axios, true);
-const TEST_API_URL = "http://localhost:3001/job-roles";
-
 describe("JobRoleService", () => {
 	let service: JobRoleService;
 
 	beforeEach(() => {
-		service = new JobRoleService(TEST_API_URL);
+		service = new JobRoleService(new JobRoleMapper());
 		mockedAxios.get.mockReset();
 	});
 

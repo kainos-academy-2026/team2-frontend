@@ -1,20 +1,23 @@
 import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { registerUser } from "../src/services/registration-service";
+import { RegistrationService } from "../src/services/registration-service";
 
 vi.mock("axios");
 
 const mockedAxios = vi.mocked(axios, true);
 
 describe("registerUser", () => {
+	let service: RegistrationService;
+
 	beforeEach(() => {
+		service = new RegistrationService();
 		mockedAxios.post.mockReset();
 	});
 
 	it("should post registration payload to configured endpoint", async () => {
 		mockedAxios.post.mockResolvedValue({ data: {} });
 
-		await registerUser({
+		await service.registerUser({
 			fullName: "Jane Smith",
 			email: "jane.smith@example.com",
 			password: "password123",
@@ -36,7 +39,7 @@ describe("registerUser", () => {
 		mockedAxios.post.mockRejectedValue(apiError);
 
 		await expect(
-			registerUser({
+			service.registerUser({
 				fullName: "Jane Smith",
 				email: "jane.smith@example.com",
 				password: "password123",
@@ -48,7 +51,7 @@ describe("registerUser", () => {
 		mockedAxios.post.mockRejectedValue(new Error("boom"));
 
 		await expect(
-			registerUser({
+			service.registerUser({
 				fullName: "Jane Smith",
 				email: "jane.smith@example.com",
 				password: "password123",

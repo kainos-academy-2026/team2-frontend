@@ -1,3 +1,4 @@
+{% import '_field-macro.njk' as formMacro %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -51,79 +52,10 @@
             {% endif %}
 
             <form method="post" action="/register" novalidate>
-              <div class="field">
-                <label for="fullName">Full name</label>
-                {% if errors and errors.fullName %}
-                  {% for message in errors.fullName %}
-                    <p class="field-error" id="fullName-error-{{ loop.index }}">{{ message }}</p>
-                  {% endfor %}
-                {% endif %}
-                <input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  autocomplete="name"
-                  placeholder="Jane Smith"
-                  value="{{ values.fullName or '' }}"
-                  class="{% if errors and errors.fullName %}input-error{% endif %}"
-                  {% if errors and errors.fullName %}aria-invalid="true" aria-describedby="fullName-error-1"{% endif %}
-                />
-              </div>
-
-              <div class="field">
-                <label for="email">Email address</label>
-                {% if errors and errors.email %}
-                  {% for message in errors.email %}
-                    <p class="field-error" id="email-error-{{ loop.index }}">{{ message }}</p>
-                  {% endfor %}
-                {% endif %}
-                <input
-                  id="email"
-                  name="email"
-                  type="text"
-                  autocomplete="email"
-                  placeholder="jane.smith@example.com"
-                  value="{{ values.email or '' }}"
-                  class="{% if errors and errors.email %}input-error{% endif %}"
-                  {% if errors and errors.email %}aria-invalid="true" aria-describedby="email-error-1"{% endif %}
-                />
-              </div>
-
-              <div class="field">
-                <label for="password">Password</label>
-                {% if errors and errors.password %}
-                  {% for message in errors.password %}
-                    <p class="field-error" id="password-error-{{ loop.index }}">{{ message }}</p>
-                  {% endfor %}
-                {% endif %}
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autocomplete="new-password"
-                  placeholder="Create a secure password"
-                  class="{% if errors and errors.password %}input-error{% endif %}"
-                  {% if errors and errors.password %}aria-invalid="true" aria-describedby="password-error-1"{% endif %}
-                />
-              </div>
-
-              <div class="field">
-                <label for="confirmPassword">Confirm password</label>
-                {% if errors and errors.confirmPassword %}
-                  {% for message in errors.confirmPassword %}
-                    <p class="field-error" id="confirmPassword-error-{{ loop.index }}">{{ message }}</p>
-                  {% endfor %}
-                {% endif %}
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autocomplete="new-password"
-                  placeholder="Re-enter your password"
-                  class="{% if errors and errors.confirmPassword %}input-error{% endif %}"
-                  {% if errors and errors.confirmPassword %}aria-invalid="true" aria-describedby="confirmPassword-error-1"{% endif %}
-                />
-              </div>
+              {{ formMacro.field('fullName', 'Full name', 'text', 'Jane Smith', values.fullName or '', errors, 'name') }}
+              {{ formMacro.field('email', 'Email address', 'text', 'jane.smith@example.com', values.email or '', errors, 'email') }}
+              {{ formMacro.field('password', 'Password', 'password', 'Create a secure password', '', errors, 'new-password') }}
+              {{ formMacro.field('confirmPassword', 'Confirm password', 'password', 'Re-enter your password', '', errors, 'new-password') }}
 
               <div class="helper-row" aria-hidden="true">
                 <span>Passwords must be at least 8 characters long and include at least one upper case, lower case and special character.</span>

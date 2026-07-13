@@ -9,7 +9,3 @@ export class RegistrationService {
 		await axios.post(this.registrationEndpoint, payload);
 	}
 }
-
-export const registrationService = new RegistrationService();
-export const registerUser =
-	registrationService.registerUser.bind(registrationService);
