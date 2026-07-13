@@ -3,7 +3,7 @@ export enum JobRoleStatus {
 	CLOSED = "CLOSED",
 }
 
-export type JobRole = {
+export interface JobRole {
 	id: string;
 	name: string;
 	location: string;
@@ -15,4 +15,13 @@ export type JobRole = {
 	responsibilities: string;
 	sharepointUrl: string;
 	numberOfOpenPositions: number;
-};
+}
+
+export interface JobRoleApiResponse {
+	roleName?: string;
+	location?: string;
+	capability?: string;
+	band?: string;
+	closingDate?: string;
+	status?: string;
+}

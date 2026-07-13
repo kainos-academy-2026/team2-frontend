@@ -1,7 +1,7 @@
 import { type JobRole, JobRoleStatus } from "../types/job-role";
 import type { JobRoleApiResponse } from "../types/job-role-api";
 
-export default class JobRoleMapper {
+export class JobRoleMapper {
 	private toStatus = (status: string): JobRoleStatus => {
 		const normalizedStatus = status?.trim().toUpperCase();
 
@@ -28,3 +28,5 @@ export default class JobRoleMapper {
 		};
 	}
 }
+
+export default JobRoleMapper;

@@ -87,6 +87,12 @@ beforeEach(() => {
 
 		return Promise.reject(new Error("Unexpected URL"));
 	});
+	mockedAxios.get.mockReset();
+	mockedAxios.post.mockReset();
+	mockedAxios.isAxiosError.mockReset();
+	mockedAxios.get.mockResolvedValue({ data: sampleApiJobRoles });
+	mockedAxios.post.mockResolvedValue({ data: {} });
+	mockedAxios.isAxiosError.mockReturnValue(false);
 });
 
 describe("GET /health", () => {
@@ -283,6 +289,89 @@ describe("Auth routes", () => {
 
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/login?loggedOut=1");
+	});
+});
+
+describe("GET /register", () => {
+	it("should return 200", async () => {
+		const response = await request(app).get("/register");
+
+		expect(response.status).toBe(200);
+	});
+
+	it("should return HTML content", async () => {
+		const response = await request(app).get("/register");
+
+		expect(response.headers["content-type"]).toMatch(/html/);
+	});
+});
+
+describe("GET /public/register.css", () => {
+	it("should serve static assets", async () => {
+		const response = await request(app).get("/public/register.css");
+
+		expect(response.status).toBe(200);
+		expect(response.headers["content-type"]).toMatch(/text\/css/);
+	});
+});
+
+describe("POST /register", () => {
+	it("should re-render the form when required fields are missing", async () => {
+		const response = await request(app).post("/register").send({
+			fullName: "",
+			email: "",
+			password: "",
+			confirmPassword: "",
+		});
+
+		expect(response.status).toBe(200);
+		expect(response.headers["content-type"]).toMatch(/html/);
+	});
+
+	it("should re-render the form when passwords do not match", async () => {
+		const response = await request(app).post("/register").send({
+			fullName: "Jane Smith",
+			email: "jane.smith@example.com",
+			password: "Password1!",
+			confirmPassword: "Password2!",
+		});
+
+		expect(response.status).toBe(200);
+		expect(response.headers["content-type"]).toMatch(/html/);
+	});
+
+	it("should call backend registration API and redirect to login", async () => {
+		const response = await request(app).post("/register").send({
+			fullName: "Jane Smith",
+			email: "jane.smith@example.com",
+			password: "Password1!",
+			confirmPassword: "Password1!",
+		});
+
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/login");
+		expect(mockedAxios.post).toHaveBeenCalledWith(
+			"http://localhost:3000/register",
+			{
+				fullName: "Jane Smith",
+				email: "jane.smith@example.com",
+				password: "Password1!",
+			},
+		);
+	});
+
+	it("should re-render the form when backend registration fails", async () => {
+		mockedAxios.post.mockRejectedValueOnce(new Error("backend unavailable"));
+
+		const response = await request(app).post("/register").send({
+			fullName: "Jane Smith",
+			email: "jane.smith@example.com",
+			password: "Password1!",
+			confirmPassword: "Password1!",
+		});
+
+		expect(response.status).toBe(200);
+		expect(response.headers["content-type"]).toMatch(/html/);
 	});
 });
 

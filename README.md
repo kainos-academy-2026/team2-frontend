@@ -21,6 +21,15 @@ If `JOB_ROLES_API_URL` is not set, the app uses `http://localhost:3001/job-roles
 The job roles page expects API items with `roleName`, `description`, `responsibilities`, `sharepointUrl`, `numberOfOpenPositions`, and `status` fields.
 
 `status` is stored and handled as a string value. In TypeScript, this app uses a string enum for status values.
+You can also override the registration API endpoint:
+
+```bash
+REGISTRATION_API_URL=http://localhost:3000/register npm run dev
+```
+
+If `REGISTRATION_API_URL` is not set, the app uses `http://localhost:3000/register`.
+
+The job roles page expects API items with `roleName`, `location`, `capability`, `band`, `closingDate`, and optional `status` fields. If `status` is missing, the frontend defaults it to `OPEN`.
 
 ## Authentication Middleware
 

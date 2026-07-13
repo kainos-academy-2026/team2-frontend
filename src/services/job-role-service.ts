@@ -5,6 +5,7 @@ import type { JobRoleApiResponse } from "../types/job-role-api";
 
 export class JobRoleService {
 	private readonly apiUrl: string;
+	private readonly jobRolesEndpoint: string;
 	private readonly jobRoleMapper: JobRoleMapper;
 
 	constructor(
@@ -14,18 +15,22 @@ export class JobRoleService {
 	) {
 		if (typeof apiUrlOrMapper === "string") {
 			this.apiUrl = apiUrlOrMapper;
+			this.jobRolesEndpoint = apiUrlOrMapper;
 			this.jobRoleMapper = jobRoleMapper;
 			return;
 		}
 
 		this.apiUrl =
 			process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles";
+		this.jobRolesEndpoint = this.apiUrl;
 		this.jobRoleMapper = apiUrlOrMapper;
 	}
 
 	async getJobRoles(): Promise<JobRole[]> {
 		try {
-			const response = await axios.get<JobRoleApiResponse[]>(this.apiUrl);
+			const response = await axios.get<JobRoleApiResponse[]>(
+				this.jobRolesEndpoint,
+			);
 			const jobRoles = Array.isArray(response.data) ? response.data : [];
 
 			return jobRoles.map((jobRole) => this.jobRoleMapper.toJobRole(jobRole));
@@ -40,15 +45,18 @@ export class JobRoleService {
 
 	async getJobRoleById(id: string): Promise<JobRole | null> {
 		try {
-			const response = await axios.get<JobRoleApiResponse>(
+			const response = await axios.get<JobRoleApiResponse | JobRoleApiResponse[]>(
 				`${this.apiUrl}/${id}`,
 			);
+			const jobRoleData = Array.isArray(response.data)
+				? response.data[0]
+				: response.data;
 
-			if (!response.data) {
+			if (!jobRoleData) {
 				return null;
 			}
 
-			return this.jobRoleMapper.toJobRole(response.data);
+			return this.jobRoleMapper.toJobRole(jobRoleData);
 		} catch (error) {
 			const errorWithStatus = error as { response?: { status?: number } };
 

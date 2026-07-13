@@ -15,7 +15,7 @@ export const authService: AuthService = isMockedAuthenticationEnabled
 	? new MockAuthService()
 	: new DefaultAuthService({ loginApiUrl });
 
-export const authController = new LoginController(authService);
+const authController = new LoginController(authService);
 
 router.get("/login", redirectAuthenticatedUser, authController.getLoginPage);
 router.post("/login", authController.postLogin);
