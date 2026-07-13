@@ -1,11 +1,11 @@
-const DEFAULT_BACKEND_URL = "http://localhost:3000";
+import axios from "axios";
 
-export const BACKEND_URL = process.env.BACKEND_URL || DEFAULT_BACKEND_URL;
+const apiURL = axios.create({
+	baseURL: process.env.BACKEND_URL || "http://localhost:3001",
+	headers: {
+		"content-type": "application/json",
+	},
+	timeout: 5000,
+});
 
-export const getBackendUrl = (endpoint: string): string => {
-	if (endpoint.startsWith("/")) {
-		return `${BACKEND_URL}${endpoint}`;
-	}
-
-	return `${BACKEND_URL}/${endpoint}`;
-};
+export default apiURL;
