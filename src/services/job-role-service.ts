@@ -45,9 +45,9 @@ export class JobRoleService {
 
 	async getJobRoleById(id: string): Promise<JobRole | null> {
 		try {
-			const response = await axios.get<JobRoleApiResponse | JobRoleApiResponse[]>(
-				`${this.apiUrl}/${id}`,
-			);
+			const response = await axios.get<
+				JobRoleApiResponse | JobRoleApiResponse[]
+			>(`${this.apiUrl}/${id}`);
 			const jobRoleData = Array.isArray(response.data)
 				? response.data[0]
 				: response.data;

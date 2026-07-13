@@ -5,8 +5,8 @@ import express from "express";
 import nunjucks from "nunjucks";
 import authRouter from "./routes/auth-router";
 import jobRoleRouter from "./routes/jobRoleRouter";
-import { JobRoleService } from "./services/job-role-service";
 import registrationRoutes from "./routes/registration-routes";
+import { JobRoleService } from "./services/job-role-service";
 
 const app = express();
 const distPublicPath = path.join(dirname(__filename), "public");
