@@ -2,11 +2,19 @@ import axios from "axios";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import app from "../src/app";
+import apiURL from "../src/config/backend";
 import { authService } from "../src/routes/auth-router";
 
 vi.mock("axios");
+vi.mock("../src/config/backend", () => ({
+	default: {
+		get: vi.fn(),
+		post: vi.fn(),
+	},
+}));
 
 const mockedAxios = vi.mocked(axios, true);
+const mockedApiURL = vi.mocked(apiURL, true);
 
 const getSetCookieHeader = (header: string | string[] | undefined) => {
 	if (Array.isArray(header)) {
@@ -55,8 +63,10 @@ beforeEach(() => {
 	mockedAxios.get.mockReset();
 	mockedAxios.post.mockReset();
 	mockedAxios.isAxiosError.mockReset();
-	mockedAxios.get.mockResolvedValue({ data: sampleApiJobRoles });
-	mockedAxios.post.mockResolvedValue({ data: {} });
+	mockedApiURL.get.mockReset();
+	mockedApiURL.post.mockReset();
+	mockedApiURL.get.mockResolvedValue({ data: sampleApiJobRoles });
+	mockedApiURL.post.mockResolvedValue({ data: {} });
 	mockedAxios.isAxiosError.mockReturnValue(false);
 });
 
@@ -315,18 +325,15 @@ describe("POST /register", () => {
 
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/login");
-		expect(mockedAxios.post).toHaveBeenCalledWith(
-			"http://localhost:3000/register",
-			{
-				fullName: "Jane Smith",
-				email: "jane.smith@example.com",
-				password: "Password1!",
-			},
-		);
+		expect(mockedApiURL.post).toHaveBeenCalledWith("/register", {
+			fullName: "Jane Smith",
+			email: "jane.smith@example.com",
+			password: "Password1!",
+		});
 	});
 
 	it("should re-render the form when backend registration fails", async () => {
-		mockedAxios.post.mockRejectedValueOnce(new Error("backend unavailable"));
+		mockedApiURL.post.mockRejectedValueOnce(new Error("backend unavailable"));
 
 		const response = await request(app).post("/register").send({
 			fullName: "Jane Smith",
@@ -422,13 +429,11 @@ describe("GET /job-roles", () => {
 	it("should request job roles from the API service endpoint", async () => {
 		await request(app).get("/job-roles").set("Cookie", ["authSession=token"]);
 
-		expect(mockedAxios.get).toHaveBeenCalledWith(
-			"http://localhost:3000/job-roles",
-		);
+		expect(mockedApiURL.get).toHaveBeenCalledWith("/job-roles");
 	});
 
 	it("should render empty-state row when API call fails", async () => {
-		mockedAxios.get.mockRejectedValueOnce(new Error("API unavailable"));
+		mockedApiURL.get.mockRejectedValueOnce(new Error("API unavailable"));
 
 		const response = await request(app)
 			.get("/job-roles")
