@@ -1,6 +1,5 @@
 import { existsSync } from "node:fs";
 import path, { dirname } from "node:path";
-import cookieParser from "cookie-parser";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import nunjucks from "nunjucks";
@@ -40,7 +39,7 @@ app.set("view engine", "njk");
 const jobRoleService = new JobRoleService(
 	process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles",
 );
-const jobRoleController = new JobRoleController(jobRoleService);
+const _jobRoleController = new JobRoleController(jobRoleService);
 
 app.get("/", (_req, res) => {
 	res.redirect("/login");
