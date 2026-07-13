@@ -1,39 +1,27 @@
 import axios from "axios";
-import type { JobRole } from "../types/job-role";
-
-type JobRoleApiResponse = Partial<JobRole> & {
-	roleName?: string;
-};
-
-const toJobRole = (jobRole: JobRoleApiResponse): JobRole => ({
-	name: jobRole.roleName?.trim() || "",
-	location: jobRole.location?.trim() || "",
-	capability: jobRole.capability?.trim() || "",
-	band: jobRole.band?.trim() || "",
-	closingDate: jobRole.closingDate?.trim() || "",
-	status: (jobRole.status?.trim() || "OPEN").toUpperCase(),
-});
+import { getBackendUrl } from "../config/backend";
+import type { JobRoleMapper } from "../mappers/job-role-mapper";
+import type { JobRole, JobRoleApiResponse } from "../types/job-role";
 
 export class JobRoleService {
-	private readonly apiUrl: string;
+	private readonly jobRolesEndpoint = getBackendUrl("/job-roles");
 
-	constructor(apiUrl: string) {
-		this.apiUrl = apiUrl;
-	}
+	constructor(private readonly mapper: JobRoleMapper) {}
 
 	async getJobRoles(): Promise<JobRole[]> {
 		try {
-			const response = await axios.get<JobRoleApiResponse[]>(this.apiUrl);
+			const response = await axios.get<JobRoleApiResponse[]>(
+				this.jobRolesEndpoint,
+			);
 			const jobRoles = Array.isArray(response.data) ? response.data : [];
-			return jobRoles.map(toJobRole);
+
+			return jobRoles.map((jobRole) => this.mapper.toJobRole(jobRole));
 		} catch (error) {
 			if (axios.isAxiosError(error)) {
 				throw new Error(`Failed to fetch job roles: ${error.message}`);
-			} else {
-				throw new Error(
-					"An unexpected error occurred while fetching job roles.",
-				);
 			}
+
+			throw new Error("An unexpected error occurred while fetching job roles.");
 		}
 	}
 }
