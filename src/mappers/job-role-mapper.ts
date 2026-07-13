@@ -1,5 +1,5 @@
-import { JobRoleStatus, type JobRole } from "../models/job-role";
-import type { JobRoleApiResponse } from "../models/job-role-api";
+import { JobRoleStatus, type JobRole } from "../types/job-role";
+import type { JobRoleApiResponse } from "../types/job-role-api";
 
 export default class JobRoleMapper {
 	private toStatus = (status: string): JobRoleStatus => {

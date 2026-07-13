@@ -1,97 +1,100 @@
 import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { JobRoleStatus } from "../src/models/job-role";
+import { JobRoleStatus } from "../src/types/job-role";
 import { JobRoleService } from "../src/services/job-role-service";
 
 vi.mock("axios");
 
 const mockedAxios = vi.mocked(axios, true);
-const jobRoleService = new JobRoleService();
+const TEST_API_URL = "http://localhost:3001/job-roles";
 
-describe("getJobRoles", () => {
+describe("JobRoleService", () => {
+	let service: JobRoleService;
+
 	beforeEach(() => {
+		service = new JobRoleService(TEST_API_URL);
 		mockedAxios.get.mockReset();
 	});
 
 	it("should fetch job roles from API endpoint", async () => {
 		mockedAxios.get.mockResolvedValue({ data: [] });
 
-		await jobRoleService.getJobRoles();
+		await service.getJobRoles();
 
 		expect(mockedAxios.get).toHaveBeenCalledWith(
 			"http://localhost:3001/job-roles",
 		);
 	});
 
-	it("should normalize missing fields to empty strings", async () => {
+	it("should map job roles using the mapper", async () => {
 		mockedAxios.get.mockResolvedValue({
 			data: [
 				{
-					id: 42,
-					roleName: "  Software Engineer  ",
-					status: " OPEN ",
+					id: "42",
+					roleName: "Software Engineer",
+					capability: "Engineering",
+					band: "B2",
+					closingDate: "2026-12-31",
+					status: " CLOSED ",
+					description: "Build systems",
+					responsibilities: "Deliver features",
+					sharepointUrl: "https://example.com/software-engineer",
+					numberOfOpenPositions: 2,
 				},
 			],
 		});
 
-		const jobRoles = await jobRoleService.getJobRoles();
+		const jobRoles = await service.getJobRoles();
 
 		expect(jobRoles).toEqual([
 			{
 				id: "42",
 				name: "Software Engineer",
-				location: "",
-				capability: "",
-				band: "",
-				closingDate: "",
-				status: JobRoleStatus.OPEN,
-				description: "",
-				responsibilities: "",
-				sharepointUrl: "",
-				numberOfOpenPositions: 0,
-				specification: "",
+				capability: "Engineering",
+				band: "B2",
+				closingDate: "2026-12-31",
+				status: JobRoleStatus.CLOSED,
+				description: "Build systems",
+				responsibilities: "Deliver features",
+				sharepointUrl: "https://example.com/software-engineer",
+				numberOfOpenPositions: 2,
 			},
 		]);
 	});
 
-	it("should map new fields and default missing status to OPEN", async () => {
+	it("should default missing status to OPEN", async () => {
 		mockedAxios.get.mockResolvedValue({
 			data: [
 				{
-					roleId: "77",
-					roleName: "  Platform Engineer  ",
-					description: " Builds internal platform capabilities. ",
-					responsibilities: " Supports teams and improves delivery flow. ",
-					sharepointUrl: " https://example.com/team-space ",
+					id: "77",
+					roleName: "Platform Engineer",
+					capability: "Platform",
+					band: "B3",
+					closingDate: "2026-10-01",
+					description: "Builds internal platform capabilities.",
+					responsibilities: "Supports teams and improves delivery flow.",
+					sharepointUrl: "https://example.com/team-space",
 					numberOfOpenPositions: 3,
 				},
 			],
 		});
 
-		const jobRoles = await jobRoleService.getJobRoles();
+		const jobRoles = await service.getJobRoles();
 
 		expect(jobRoles).toEqual([
 			{
 				id: "77",
 				name: "Platform Engineer",
-				location: "",
-				capability: "",
-				band: "",
-				closingDate: "",
+				capability: "Platform",
+				band: "B3",
+				closingDate: "2026-10-01",
 				status: JobRoleStatus.OPEN,
 				description: "Builds internal platform capabilities.",
 				responsibilities: "Supports teams and improves delivery flow.",
 				sharepointUrl: "https://example.com/team-space",
 				numberOfOpenPositions: 3,
-				specification: "",
 			},
 		]);
-	});
-});
-
-describe("getJobRoleById", () => {
-	beforeEach(() => {
-		mockedAxios.get.mockReset();
 	});
 
 	it("should fetch a single job role by id", async () => {
@@ -99,6 +102,10 @@ describe("getJobRoleById", () => {
 			data: {
 				id: "11",
 				roleName: "Test Engineer",
+				capability: "QA",
+				band: "B2",
+				closingDate: "2026-08-15",
+				status: "OPEN",
 				description: "Owns quality strategy and test automation.",
 				responsibilities: "Defines quality gates and automation standards.",
 				sharepointUrl: "https://example.com/qa",
@@ -106,7 +113,7 @@ describe("getJobRoleById", () => {
 			},
 		});
 
-		const jobRole = await jobRoleService.getJobRoleById("11");
+		const jobRole = await service.getJobRoleById("11");
 
 		expect(mockedAxios.get).toHaveBeenCalledWith(
 			"http://localhost:3001/job-roles/11",
@@ -114,16 +121,14 @@ describe("getJobRoleById", () => {
 		expect(jobRole).toEqual({
 			id: "11",
 			name: "Test Engineer",
-			location: "",
-			capability: "",
-			band: "",
-			closingDate: "",
+			capability: "QA",
+			band: "B2",
+			closingDate: "2026-08-15",
 			status: JobRoleStatus.OPEN,
 			description: "Owns quality strategy and test automation.",
 			responsibilities: "Defines quality gates and automation standards.",
 			sharepointUrl: "https://example.com/qa",
 			numberOfOpenPositions: 2,
-			specification: "",
 		});
 	});
 
@@ -134,7 +139,7 @@ describe("getJobRoleById", () => {
 			message: "Not found",
 		});
 
-		const jobRole = await jobRoleService.getJobRoleById("missing");
+		const jobRole = await service.getJobRoleById("missing");
 
 		expect(jobRole).toBeNull();
 	});

@@ -29,6 +29,9 @@
         </style>
     </head>
     <body>
+        <form action="/logout" method="POST" style="margin-bottom: 1rem;">
+            <button type="submit">Log Out</button>
+        </form>
         <h1>Job Role List</h1>
         <!-- Expected jobRoles item shape: { id, name, status, description, responsibilities, sharepointUrl, numberOfOpenPositions } -->
         {% set hasOpenRoles = false %}

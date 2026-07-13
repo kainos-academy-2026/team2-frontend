@@ -1,18 +1,34 @@
 import axios from "axios";
 import JobRoleMapper from "../mappers/job-role-mapper";
-import { JobRole } from "../models/job-role";
-import { JobRoleApiResponse } from "../models/job-role-api";
+import type { JobRole } from "../types/job-role";
+import type { JobRoleApiResponse } from "../types/job-role-api";
 
 export class JobRoleService {
-	constructor(private jobRoleMapper: JobRoleMapper = new JobRoleMapper()) {}
+	private readonly apiUrl: string;
+	private readonly jobRoleMapper: JobRoleMapper;
+
+	constructor(
+		apiUrlOrMapper: string | JobRoleMapper =
+			process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles",
+		jobRoleMapper: JobRoleMapper = new JobRoleMapper(),
+	) {
+		if (typeof apiUrlOrMapper === "string") {
+			this.apiUrl = apiUrlOrMapper;
+			this.jobRoleMapper = jobRoleMapper;
+			return;
+		}
+
+		this.apiUrl =
+			process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles";
+		this.jobRoleMapper = apiUrlOrMapper;
+	}
 	
 	async getJobRoles(): Promise<JobRole[]> {
 		try {
-			const response = await axios.get<JobRoleApiResponse[]>(
-				`${process.env.BACKEND_URL ?? "http://localhost:3001"}/job-roles`,
-			);
+			const response = await axios.get<JobRoleApiResponse[]>(this.apiUrl);
+			const jobRoles = Array.isArray(response.data) ? response.data : [];
 
-			return response.data.map(this.jobRoleMapper.toJobRole);
+			return jobRoles.map((jobRole) => this.jobRoleMapper.toJobRole(jobRole));
 		} catch (error) {
 			if (axios.isAxiosError(error)) {
 				throw new Error(`Failed to fetch job roles: ${error.message}`);
@@ -25,7 +41,7 @@ export class JobRoleService {
 	async getJobRoleById(id: string): Promise<JobRole | null> {
 		try {
 			const response = await axios.get<JobRoleApiResponse>(
-				`${process.env.BACKEND_URL ?? "http://localhost:3001"}/job-roles/${id}`,
+				`${this.apiUrl}/${id}`,
 			);
 
 			if (!response.data) {

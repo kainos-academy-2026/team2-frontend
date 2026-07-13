@@ -22,6 +22,32 @@ The job roles page expects API items with `roleName`, `description`, `responsibi
 
 `status` is stored and handled as a string value. In TypeScript, this app uses a string enum for status values.
 
+## Authentication Middleware
+
+The app uses `cookie-parser` to read the `authSession` cookie for login redirect and protected-route checks.
+
+Authentication state checks are implemented in `src/middleware/auth-session.ts`, and middleware is registered in `src/app.ts`.
+
+## Dev Login (Temporary)
+
+Until backend authentication is integrated, temporary dev login can be enabled with environment variables.
+
+Dev login is disabled by default and is automatically disabled in production.
+
+Enable it with:
+
+```bash
+ENABLE_DEV_LOGIN=true DEV_LOGIN_EMAIL=dev@example.com DEV_LOGIN_PASSWORD=devpassword123 npm run dev
+```
+
+To test backend password verification (including backend Argon2 checks), run the app with backend auth enabled:
+
+```bash
+ENABLE_DEV_LOGIN=false AUTH_LOGIN_API_URL=http://localhost:3001/login npm run dev
+```
+
+This sends the plaintext password entered in the login form to the backend login endpoint for verification.
+
 ## Install
 
 ```bash
