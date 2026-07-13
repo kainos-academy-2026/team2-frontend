@@ -1,12 +1,12 @@
 import type { Request, Response } from "express";
-import type {
-	RegistrationInput,
-	RegistrationViewState,
-} from "../types/registration";
 import {
 	type RegistrationService,
 	registrationService,
 } from "../services/registration-service";
+import type {
+	RegistrationInput,
+	RegistrationViewState,
+} from "../types/registration";
 
 export default class RegistrationController {
 	constructor(

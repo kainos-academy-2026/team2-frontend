@@ -7,6 +7,10 @@ const jobRoleController = new JobRoleController(jobRoleService);
 
 const jobRoleRoutes = Router();
 
-jobRoleRoutes.get("/job-roles", requireAuthenticatedUser, jobRoleController.getJobRolesPage);
+jobRoleRoutes.get(
+	"/job-roles",
+	requireAuthenticatedUser,
+	jobRoleController.getJobRolesPage,
+);
 
 export default jobRoleRoutes;

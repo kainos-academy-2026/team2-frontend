@@ -3,9 +3,9 @@ import cookieParser from "cookie-parser";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import nunjucks from "nunjucks";
+import authRouter from "./routes/auth-router";
 import jobRoleRoutes from "./routes/job-role-routes";
 import registrationRoutes from "./routes/registration-routes";
-import authRouter from "./routes/auth-router";
 
 const app = express();
 const distPublicPath = path.join(dirname(__filename), "public");
