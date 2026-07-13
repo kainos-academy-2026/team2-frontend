@@ -324,11 +324,10 @@ describe("GET /job-roles", () => {
 			.set("Cookie", ["authSession=token"]);
 
 		expect(response.text).toContain("Role Name");
-		expect(response.text).toContain("Status");
-		expect(response.text).toContain("Open Positions");
-		expect(response.text).toContain("Description");
-		expect(response.text).toContain("Responsibilities");
-		expect(response.text).toContain("SharePoint");
+		expect(response.text).toContain("Location");
+		expect(response.text).toContain("Capability");
+		expect(response.text).toContain("Band");
+		expect(response.text).toContain("Closing Date");
 	});
 
 	it("should only display open job roles", async () => {
@@ -353,15 +352,33 @@ describe("GET /job-roles", () => {
 		expect(response.text).toContain('href="/job-roles/3"');
 	});
 
-	it("should render open position counts", async () => {
+	it("should render closing dates for open roles", async () => {
 		const response = await request(app).get("/job-roles");
 
-		expect(response.text).toContain("<td>2</td>");
-		expect(response.text).toContain("<td>1</td>");
-		expect(response.text).toContain("<td>3</td>");
+		expect(response.text).toContain("<td>2026-12-31</td>");
+		expect(response.text).toContain("<td>2026-09-30</td>");
+		expect(response.text).toContain("<td>2026-11-15</td>");
 	});
 
 	it("should render fallback placeholders for missing values", async () => {
+		mockedAxios.get.mockResolvedValueOnce({
+			data: [
+				{
+					jobRoleId: 5,
+					roleName: "Data Analyst",
+					location: "",
+					capability: "",
+					band: "",
+					closingDate: "",
+					description: "",
+					responsibilities: "",
+					sharepointUrl: "",
+					numberOfOpenPositions: 0,
+					status: "OPEN",
+				},
+			],
+		});
+
 		const response = await request(app)
 			.get("/job-roles")
 			.set("Cookie", ["authSession=token"]);
