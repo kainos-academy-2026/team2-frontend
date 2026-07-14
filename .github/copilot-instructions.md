@@ -39,5 +39,23 @@
 - If any of these commands fail, fix the issue if it is caused by the current change.
 - If a failure is unrelated to the current change, clearly report it to the user.
 
+## When creating a pull request do the following:
+
+## Add details:
+### What does this PR do?
+
+Briefly describe the change and why it was made. 
+Include the ticket number or description in the PR title and description - e.g. '[ABC-123] Add new feature to handle user authentication'.
+
+## The type of change
+
+- [ ] New feature / functionality
+- [ ] Bug fix
+- [ ] Refactor (no functional change)
+- [ ] Other: <!-- describe -->
+
+### Testing done for this change (unit tests, integration tests)
+Confirm what tests you added and what paths were tested, even if already ran in the CI/CD pipeline
+
 ## Completion Checklist
 - At the end, summarise what changed in a concise way, and call out any remaining issues or next steps.
