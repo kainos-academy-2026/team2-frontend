@@ -22,7 +22,8 @@
 - Pass complete view models when rendering forms.
 - Use user-friendly, plain english and specific error messages.
 - Do not introduce new patterns unless necessary.
-
+- IMPORTANT: Read any /instructions/*.instructions.md files before starting work on a new feature or bug fix.
+- IMPORTANT: Do not add any co-authors to your commits. Do not add any line beginning with "Co-authored-by: Copilot" in your commits.
 ## Testing Standards
 
 - Add or update tests when behavior changes.
