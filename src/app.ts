@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import nunjucks from "nunjucks";
+import applicationRoutes from "./routes/application-routes";
 import { ForbiddenError } from "./errors/forbidden-error";
 import authRouter from "./routes/auth-router";
 import jobRoleRoutes from "./routes/job-role-routes";
@@ -46,6 +47,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use(jobRoleRoutes);
+app.use(applicationRoutes);
 
 app.use(registrationRoutes);
 app.use(authRouter);

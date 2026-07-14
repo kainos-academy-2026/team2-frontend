@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Application submitted</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <h1>Application submitted</h1>
+
+    {% if jobRole %}
+      <p>Your application for <strong>{{ jobRole.name }}</strong> has been successfully submitted.</p>
+    {% else %}
+      <p>Your application has been successfully submitted.</p>
+    {% endif %}
+
+    <p>We will be in touch with next steps.</p>
+
+    <a href="/job-roles">Back to job roles</a>
+  </body>
+</html>
