@@ -2,9 +2,11 @@
   <div class="field">
     <label for="{{ fieldName }}">{{ label }}</label>
     {% if errors and errors[fieldName] %}
-      {% for message in errors[fieldName] %}
-        <p class="field-error" id="{{ fieldName }}-error-{{ loop.index }}">{{ message }}</p>
-      {% endfor %}
+      <div class="field-errors">
+        {% for message in errors[fieldName] %}
+          <p class="field-error" id="{{ fieldName }}-error-{{ loop.index }}">{{ message }}</p>
+        {% endfor %}
+      </div>
     {% endif %}
     <input
       id="{{ fieldName }}"

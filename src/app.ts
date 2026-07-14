@@ -1,8 +1,6 @@
 import path, { dirname } from "node:path";
 import cookieParser from "cookie-parser";
 import type { NextFunction, Request, Response } from "express";
-import cookieParser from "cookie-parser";
-import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import nunjucks from "nunjucks";
 import authRouter from "./routes/auth-router";
@@ -32,17 +30,6 @@ const renderErrorPage = (
 	});
 };
 
-const renderErrorPage = (
-	res: Response,
-	statusCode: number,
-	message: string,
-) => {
-	return res.status(statusCode).render("error", {
-		statusCode,
-		message,
-	});
-};
-
 nunjucks.configure(viewsPath, {
 	autoescape: true,
 	express: app,
@@ -50,7 +37,6 @@ nunjucks.configure(viewsPath, {
 app.set("view engine", "njk");
 
 app.get("/", (_req, res) => {
-	res.redirect("/login");
 	res.redirect("/login");
 });
 

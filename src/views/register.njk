@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Create your account</title>
+    {% import '_field-macro.njk' as _field %}
     <style>
       :root {
         --page-background: #e8eef8;
@@ -229,6 +230,36 @@
         background: #ffffff;
       }
 
+      .field-errors {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .field-error {
+        margin: 0 0 6px 0;
+        font-size: 0.85rem;
+        font-weight: 600;
+        line-height: 1.45;
+        color: #d32f2f;
+        display: block;
+      }
+
+      input.input-error {
+        border-color: #d32f2f;
+        box-shadow: 
+          0 0 0 4px rgba(211, 47, 47, 0.15),
+          0 0 12px rgba(211, 47, 47, 0.3);
+        background: #ffebee;
+      }
+
+      input.input-error:focus {
+        border-color: #d32f2f;
+        box-shadow: 
+          0 0 0 4px rgba(211, 47, 47, 0.25),
+          0 0 16px rgba(211, 47, 47, 0.4);
+      }
+
       .helper-row {
         display: flex;
         justify-content: space-between;
@@ -357,7 +388,7 @@
             <p class="eyebrow">Create account</p>
             <h2>Register</h2>
             <p class="intro">
-              Enter your details below to create an account. Submission logic can be connected later without changing the form structure.
+              Enter your details below to create an account.
             </p>
 
             {% if error %}
@@ -369,57 +400,10 @@
             {% endif %}
 
             <form method="post" action="/register">
-              <div class="field">
-                <label for="fullName">Full name</label>
-                <input
-                  id="fullName"
-                  name="fullName"
-                  type="text"
-                  autocomplete="name"
-                  placeholder="Jane Smith"
-                  value="{{ values.fullName or '' }}"
-                  required
-                />
-              </div>
-
-              <div class="field">
-                <label for="email">Email address</label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autocomplete="email"
-                  placeholder="jane.smith@example.com"
-                  value="{{ values.email or '' }}"
-                  required
-                />
-              </div>
-
-              <div class="field">
-                <label for="password">Password</label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autocomplete="new-password"
-                  placeholder="Create a secure password"
-                  minlength="8"
-                  required
-                />
-              </div>
-
-              <div class="field">
-                <label for="confirmPassword">Confirm password</label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  autocomplete="new-password"
-                  placeholder="Re-enter your password"
-                  minlength="8"
-                  required
-                />
-              </div>
+              {{ _field.field('fullName', 'Full name', 'text', 'Jane Smith', values.fullName, fieldErrors, 'name') }}
+              {{ _field.field('email', 'Email address', 'email', 'jane.smith@example.com', values.email, fieldErrors, 'email') }}
+              {{ _field.field('password', 'Password', 'password', 'Create a secure password', values.password, fieldErrors, 'new-password') }}
+              {{ _field.field('confirmPassword', 'Confirm password', 'password', 'Re-enter your password', values.confirmPassword, fieldErrors, 'new-password') }}
 
               <div class="helper-row" aria-hidden="true">
                 <span>Use at least 8 characters.</span>
