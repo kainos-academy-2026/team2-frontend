@@ -383,10 +383,11 @@ describe("POST /register", () => {
 });
 
 describe("GET /job-roles", () => {
-	it("should return 200 for unauthenticated users", async () => {
+	it("should redirect unauthenticated users to login", async () => {
 		const response = await request(app).get("/job-roles");
 
-		expect(response.status).toBe(200);
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/login");
 	});
 
 	it("should return 200 for authenticated users", async () => {
@@ -449,7 +450,9 @@ describe("GET /job-roles", () => {
 	});
 
 	it("should render closing dates for open roles", async () => {
-		const response = await request(app).get("/job-roles");
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Cookie", ["authSession=token"]);
 
 		expect(response.text).toContain("<td>2026-12-31</td>");
 		expect(response.text).toContain("<td>2026-09-30</td>");
@@ -504,7 +507,9 @@ describe("GET /job-roles", () => {
 
 describe("GET /job-roles/:id", () => {
 	it("should show job role details including specification", async () => {
-		const response = await request(app).get("/job-roles/1");
+		const response = await request(app)
+			.get("/job-roles/1")
+			.set("Cookie", ["authSession=token"]);
 
 		expect(response.status).toBe(200);
 		expect(response.headers["content-type"]).toMatch(/html/);
@@ -525,7 +530,9 @@ describe("GET /job-roles/:id", () => {
 			message: "Not Found",
 		});
 
-		const response = await request(app).get("/job-roles/999");
+		const response = await request(app)
+			.get("/job-roles/999")
+			.set("Cookie", ["authSession=token"]);
 
 		expect(response.status).toBe(404);
 		expect(response.text).toContain("Job role not found.");
