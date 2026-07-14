@@ -12,13 +12,15 @@
 - Keep controllers focused on HTTP and rendering.
 - Keep services focused on data and API logic.
 - Put mapping logic in mappers or helpers.
-- Use zod for all validation.
-- Keep production code in src and tests in tests.
+- Use Zod for all request validation in Express route handlers and middleware.
+- All source code lives in `src/`.
+- All tests live in `tests/`, mirroring the `src/` folder structure.
+- Test files use the naming convention `<filename>.test.ts`.
 - Keep CSS and JavaScript in separate files.
 - Use one BACKEND_URL and append paths as needed.
 - Keep config access in config modules.
 - Pass complete view models when rendering forms.
-- Use friendly, specific error messages.
+- Use user-friendly, plain english and specific error messages.
 - Do not introduce new patterns unless necessary.
 
 ## Testing Standards
@@ -30,9 +32,9 @@
 
 ## Post-Change Validation
 - After each completed code change run:
-  - npm run lint:fix
-  - npm run lint
-  - npm run test
+  - `npm run lint:fix`
+  - `npm run lint`
+  - `npm run test`
 - Do not consider the task complete until all tests pass and linting is clean.
 - If any of these commands fail, fix the issue if it is caused by the current change.
 - If a failure is unrelated to the current change, clearly report it to the user.
