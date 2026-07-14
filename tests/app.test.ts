@@ -457,7 +457,7 @@ describe("GET /job-roles", () => {
 	});
 
 	it("should render fallback placeholders for missing values", async () => {
-		mockedAxios.get.mockResolvedValueOnce({
+		mockedApiURL.get.mockResolvedValueOnce({
 			data: [
 				{
 					jobRoleId: 5,
@@ -519,7 +519,7 @@ describe("GET /job-roles/:id", () => {
 	});
 
 	it("should return 404 when role does not exist", async () => {
-		mockedAxios.get.mockRejectedValueOnce({
+		mockedApiURL.get.mockRejectedValueOnce({
 			isAxiosError: true,
 			response: { status: 404 },
 			message: "Not Found",

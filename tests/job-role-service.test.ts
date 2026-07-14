@@ -31,6 +31,7 @@ describe("JobRoleService", () => {
 		mockedApiURL.get.mockResolvedValue({
 			data: [
 				{
+					jobRoleId: 42,
 					roleName: "Software Engineer",
 					location: "Belfast",
 					capability: "Engineering",
@@ -52,6 +53,10 @@ describe("JobRoleService", () => {
 				band: "3",
 				closingDate: "2026-08-15",
 				status: "OPEN",
+				description: undefined,
+				responsibilities: undefined,
+				sharepointUrl: undefined,
+				numberOfOpenPositions: 0,
 			},
 		]);
 	});
@@ -63,7 +68,7 @@ describe("JobRoleService", () => {
 	});
 
 	it("should fetch a single job role by id", async () => {
-		mockedAxios.get.mockResolvedValue({
+		mockedApiURL.get.mockResolvedValueOnce({
 			data: {
 				jobRoleId: 11,
 				roleName: "Test Engineer",
@@ -81,9 +86,7 @@ describe("JobRoleService", () => {
 
 		const jobRole = await service.getJobRoleById("11");
 
-		expect(mockedAxios.get).toHaveBeenCalledWith(
-			"http://localhost:3001/job-roles/11",
-		);
+		expect(mockedApiURL.get).toHaveBeenCalledWith("/job-roles/11");
 		expect(jobRole).toEqual({
 			id: "11",
 			name: "Test Engineer",
@@ -100,7 +103,7 @@ describe("JobRoleService", () => {
 	});
 
 	it("should return null when API responds with 404", async () => {
-		mockedAxios.get.mockRejectedValue({
+		mockedApiURL.get.mockRejectedValueOnce({
 			isAxiosError: true,
 			response: { status: 404 },
 			message: "Not found",
