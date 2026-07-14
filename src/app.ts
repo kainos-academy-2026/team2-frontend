@@ -17,6 +17,10 @@ app.use(express.json());
 app.use("/public", express.static(distPublicPath));
 app.use("/public", express.static(rootPublicPath));
 
+app.get("/styles.css", (_req, res) => {
+	res.sendFile(path.join(dirname(__filename), "styles.css"));
+});
+
 const viewsPath = path.join(dirname(__filename), "views");
 
 const renderErrorPage = (
@@ -41,6 +45,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use(jobRoleRoutes);
+
 app.use(registrationRoutes);
 app.use(authRouter);
 

@@ -21,4 +21,28 @@ export class JobRoleController {
 			});
 		}
 	};
+
+	getJobRoleDetailPage = async (req: Request, res: Response) => {
+		try {
+			const jobRole = await this.jobRoleService.getJobRoleById(req.params.id);
+
+			if (!jobRole) {
+				res.status(404).render("job-role-detail", {
+					jobRole: null,
+					message: "Job role not found.",
+				});
+				return;
+			}
+
+			res.render("job-role-detail", {
+				jobRole,
+				message: "",
+			});
+		} catch {
+			res.status(502).render("job-role-detail", {
+				jobRole: null,
+				message: "Could not load this job role right now.",
+			});
+		}
+	};
 }

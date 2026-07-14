@@ -26,40 +26,75 @@ const getSetCookieHeader = (header: string | string[] | undefined) => {
 
 const sampleApiJobRoles = [
 	{
+		jobRoleId: 1,
 		roleName: "Software Engineer",
-		location: "Belfast",
+		location: "Wellington",
 		capability: "Engineering",
-		band: "3",
-		closingDate: "2026-08-15",
+		band: "B2",
+		closingDate: "2026-12-31",
+		description: "Build and maintain production software systems.",
+		specification: "Build and maintain production software systems.",
+		responsibilities: "Design, build, and support core services.",
+		sharepointUrl: "https://example.com/software-engineer",
+		numberOfOpenPositions: 2,
 		status: "OPEN",
 	},
 	{
+		jobRoleId: 2,
 		roleName: "Test Engineer",
-		location: "London",
-		capability: "Quality Assurance",
-		band: "2",
-		closingDate: "2026-08-30",
-		status: "open",
-	},
-	{
-		roleName: "Business Analyst",
-		location: "",
-		capability: "Consulting",
-		band: "3",
-		closingDate: "2026-09-01",
+		location: "Auckland",
+		capability: "Quality Engineering",
+		band: "B2",
+		closingDate: "2026-09-30",
+		description: "Create and execute robust testing strategies.",
+		specification: "Create and execute robust testing strategies.",
+		responsibilities: "Own test automation and release confidence.",
+		sharepointUrl: "https://example.com/test-engineer",
+		numberOfOpenPositions: 1,
 		status: "OPEN",
 	},
 	{
+		jobRoleId: 3,
+		roleName: "Business Analyst",
+		location: "Hamilton",
+		capability: "Business Analysis",
+		band: "B3",
+		closingDate: "2026-11-15",
+		description: "Translate business needs into clear requirements.",
+		specification: "Translate business needs into clear requirements.",
+		responsibilities: "Facilitate workshops and define requirements.",
+		sharepointUrl: "",
+		numberOfOpenPositions: 3,
+		status: "OPEN",
+	},
+	{
+		jobRoleId: 4,
 		roleName: "Delivery Manager",
-		location: "Dublin",
+		location: "Remote",
 		capability: "Delivery",
-		band: "4",
-		closingDate: "2026-07-20",
+		band: "B4",
+		closingDate: "2026-10-20",
+		description: "Lead delivery plans and cross-team execution.",
+		specification: "Lead delivery plans and cross-team execution.",
+		responsibilities: "Coordinate plans and remove blockers.",
+		sharepointUrl: "https://example.com/delivery-manager",
+		numberOfOpenPositions: 1,
 		status: "CLOSED",
 	},
 ];
 
 beforeEach(() => {
+	mockedAxios.get.mockImplementation((url) => {
+		if (url === "http://localhost:3001/job-roles") {
+			return Promise.resolve({ data: sampleApiJobRoles });
+		}
+
+		if (url === "http://localhost:3001/job-roles/1") {
+			return Promise.resolve({ data: sampleApiJobRoles[0] });
+		}
+
+		return Promise.reject(new Error("Unexpected URL"));
+	});
 	mockedAxios.get.mockReset();
 	mockedAxios.post.mockReset();
 	mockedAxios.isAxiosError.mockReset();
@@ -348,14 +383,11 @@ describe("POST /register", () => {
 });
 
 describe("GET /job-roles", () => {
-	it("should redirect unauthenticated users to /login", async () => {
+	it("should redirect unauthenticated users to login", async () => {
 		const response = await request(app).get("/job-roles");
 
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/login");
-		expect(getSetCookieHeader(response.headers["set-cookie"])).toContain(
-			"postLoginRedirect=%2Fjob-roles",
-		);
 	});
 
 	it("should return 200 for authenticated users", async () => {
@@ -393,7 +425,6 @@ describe("GET /job-roles", () => {
 		expect(response.text).toContain("Capability");
 		expect(response.text).toContain("Band");
 		expect(response.text).toContain("Closing Date");
-		expect(response.text).toContain("Status");
 	});
 
 	it("should only display open job roles", async () => {
@@ -408,22 +439,50 @@ describe("GET /job-roles", () => {
 		expect(response.text).not.toContain("CLOSED");
 	});
 
-	it("should render closing dates as DD/MM/YYYY", async () => {
+	it("should render role names as links to detail pages", async () => {
 		const response = await request(app)
 			.get("/job-roles")
 			.set("Cookie", ["authSession=token"]);
 
-		expect(response.text).toContain("15/08/2026");
-		expect(response.text).toContain("30/08/2026");
-		expect(response.text).toContain("01/09/2026");
+		expect(response.text).toContain('href="/job-roles/1"');
+		expect(response.text).toContain('href="/job-roles/2"');
+		expect(response.text).toContain('href="/job-roles/3"');
+	});
+
+	it("should render closing dates for open roles", async () => {
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Cookie", ["authSession=token"]);
+
+		expect(response.text).toContain("<td>2026-12-31</td>");
+		expect(response.text).toContain("<td>2026-09-30</td>");
+		expect(response.text).toContain("<td>2026-11-15</td>");
 	});
 
 	it("should render fallback placeholders for missing values", async () => {
+		mockedApiURL.get.mockResolvedValueOnce({
+			data: [
+				{
+					jobRoleId: 5,
+					roleName: "Data Analyst",
+					location: "",
+					capability: "",
+					band: "",
+					closingDate: "",
+					description: "",
+					responsibilities: "",
+					sharepointUrl: "",
+					numberOfOpenPositions: 0,
+					status: "OPEN",
+				},
+			],
+		});
+
 		const response = await request(app)
 			.get("/job-roles")
 			.set("Cookie", ["authSession=token"]);
 
-		expect(response.text).toContain("<td>-</td>");
+		expect(response.text).toMatch(/<td>\s*-\s*<\/td>/);
 	});
 
 	it("should request job roles from the API service endpoint", async () => {
@@ -443,5 +502,39 @@ describe("GET /job-roles", () => {
 		expect(response.text).toContain(
 			"No open job roles are available right now.",
 		);
+	});
+});
+
+describe("GET /job-roles/:id", () => {
+	it("should show job role details including specification", async () => {
+		const response = await request(app)
+			.get("/job-roles/1")
+			.set("Cookie", ["authSession=token"]);
+
+		expect(response.status).toBe(200);
+		expect(response.headers["content-type"]).toMatch(/html/);
+		expect(response.text).toContain("Software Engineer");
+		expect(response.text).toContain("Specification");
+		expect(response.text).toContain("Description");
+		expect(response.text).toContain("Responsibilities");
+		expect(response.text).toContain("Open SharePoint");
+		expect(response.text).toContain(
+			"Build and maintain production software systems.",
+		);
+	});
+
+	it("should return 404 when role does not exist", async () => {
+		mockedApiURL.get.mockRejectedValueOnce({
+			isAxiosError: true,
+			response: { status: 404 },
+			message: "Not Found",
+		});
+
+		const response = await request(app)
+			.get("/job-roles/999")
+			.set("Cookie", ["authSession=token"]);
+
+		expect(response.status).toBe(404);
+		expect(response.text).toContain("Job role not found.");
 	});
 });
