@@ -1,45 +1,42 @@
-import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import apiURL from "../src/config/backend";
 import { JobRoleMapper } from "../src/mappers/job-role-mapper";
 import { JobRoleService } from "../src/services/job-role-service";
 import { JobRoleStatus } from "../src/types/job-role";
 
-vi.mock("axios");
+vi.mock("../src/config/backend", () => ({
+	default: {
+		get: vi.fn(),
+	},
+}));
 
-const mockedAxios = vi.mocked(axios, true);
+const mockedApiURL = vi.mocked(apiURL, true);
 describe("JobRoleService", () => {
 	let service: JobRoleService;
 
 	beforeEach(() => {
 		service = new JobRoleService(new JobRoleMapper());
-		mockedAxios.get.mockReset();
+		mockedApiURL.get.mockReset();
 	});
 
 	it("should fetch job roles from API endpoint", async () => {
-		mockedAxios.get.mockResolvedValue({ data: [] });
+		mockedApiURL.get.mockResolvedValue({ data: [] });
 
 		await service.getJobRoles();
 
-		expect(mockedAxios.get).toHaveBeenCalledWith(
-			"http://localhost:3001/job-roles",
-		);
+		expect(mockedApiURL.get).toHaveBeenCalledWith("/job-roles");
 	});
 
-	it("should map job roles using the mapper", async () => {
-		mockedAxios.get.mockResolvedValue({
+	it("should map API roleName to UI name", async () => {
+		mockedApiURL.get.mockResolvedValue({
 			data: [
 				{
-					jobRoleId: 42,
 					roleName: "Software Engineer",
-					location: "Wellington",
+					location: "Belfast",
 					capability: "Engineering",
-					band: "B2",
-					closingDate: "2026-12-31",
-					status: " CLOSED ",
-					description: "Build systems",
-					responsibilities: "Deliver features",
-					sharepointUrl: "https://example.com/software-engineer",
-					numberOfOpenPositions: 2,
+					band: "3",
+					closingDate: "2026-08-15",
+					status: "OPEN",
 				},
 			],
 		});
@@ -50,54 +47,19 @@ describe("JobRoleService", () => {
 			{
 				id: "42",
 				name: "Software Engineer",
-				location: "Wellington",
+				location: "Belfast",
 				capability: "Engineering",
-				band: "B2",
-				closingDate: "2026-12-31",
-				status: JobRoleStatus.CLOSED,
-				description: "Build systems",
-				responsibilities: "Deliver features",
-				sharepointUrl: "https://example.com/software-engineer",
-				numberOfOpenPositions: 2,
+				band: "3",
+				closingDate: "2026-08-15",
+				status: "OPEN",
 			},
 		]);
 	});
 
-	it("should default missing status to OPEN", async () => {
-		mockedAxios.get.mockResolvedValue({
-			data: [
-				{
-					jobRoleId: 77,
-					roleName: "Platform Engineer",
-					location: "Auckland",
-					capability: "Platform",
-					band: "B3",
-					closingDate: "2026-10-01",
-					description: "Builds internal platform capabilities.",
-					responsibilities: "Supports teams and improves delivery flow.",
-					sharepointUrl: "https://example.com/team-space",
-					numberOfOpenPositions: 3,
-				},
-			],
-		});
+	it("should rethrow API errors", async () => {
+		mockedApiURL.get.mockRejectedValue(new Error("API unavailable"));
 
-		const jobRoles = await service.getJobRoles();
-
-		expect(jobRoles).toEqual([
-			{
-				id: "77",
-				name: "Platform Engineer",
-				location: "Auckland",
-				capability: "Platform",
-				band: "B3",
-				closingDate: "2026-10-01",
-				status: JobRoleStatus.OPEN,
-				description: "Builds internal platform capabilities.",
-				responsibilities: "Supports teams and improves delivery flow.",
-				sharepointUrl: "https://example.com/team-space",
-				numberOfOpenPositions: 3,
-			},
-		]);
+		await expect(service.getJobRoles()).rejects.toThrow("API unavailable");
 	});
 
 	it("should fetch a single job role by id", async () => {

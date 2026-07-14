@@ -1,53 +1,28 @@
 import axios from "axios";
-import JobRoleMapper from "../mappers/job-role-mapper";
+import apiURL from "../config/backend";
+import type { JobRoleMapper } from "../mappers/job-role-mapper";
 import type { JobRole } from "../types/job-role";
 import type { JobRoleApiResponse } from "../types/job-role-api";
 
 export class JobRoleService {
-	private readonly apiUrl: string;
-	private readonly jobRolesEndpoint: string;
-	private readonly jobRoleMapper: JobRoleMapper;
-
-	constructor(
-		apiUrlOrMapper: string | JobRoleMapper = process.env.JOB_ROLES_API_URL ||
-			"http://localhost:3001/job-roles",
-		jobRoleMapper: JobRoleMapper = new JobRoleMapper(),
-	) {
-		if (typeof apiUrlOrMapper === "string") {
-			this.apiUrl = apiUrlOrMapper;
-			this.jobRolesEndpoint = apiUrlOrMapper;
-			this.jobRoleMapper = jobRoleMapper;
-			return;
-		}
-
-		this.apiUrl =
-			process.env.JOB_ROLES_API_URL || "http://localhost:3001/job-roles";
-		this.jobRolesEndpoint = this.apiUrl;
-		this.jobRoleMapper = apiUrlOrMapper;
-	}
+	constructor(private readonly mapper: JobRoleMapper) {}
 
 	async getJobRoles(): Promise<JobRole[]> {
 		try {
-			const response = await axios.get<JobRoleApiResponse[]>(
-				this.jobRolesEndpoint,
-			);
+			const response = await apiURL.get<JobRoleApiResponse[]>("/job-roles");
 			const jobRoles = Array.isArray(response.data) ? response.data : [];
-
-			return jobRoles.map((jobRole) => this.jobRoleMapper.toJobRole(jobRole));
+			return jobRoles.map((jobRole) => this.mapper.toJobRole(jobRole));
 		} catch (error) {
-			if (axios.isAxiosError(error)) {
-				throw new Error(`Failed to fetch job roles: ${error.message}`);
-			}
-
-			throw new Error("An unexpected error occurred while fetching job roles.");
+			console.error("Failed to fetch job roles:", error);
+			throw error;
 		}
 	}
 
 	async getJobRoleById(id: string): Promise<JobRole | null> {
 		try {
-			const response = await axios.get<
+			const response = await apiURL.get<
 				JobRoleApiResponse | JobRoleApiResponse[]
-			>(`${this.apiUrl}/${id}`);
+			>(`/job-roles/${id}`);
 			const jobRoleData = Array.isArray(response.data)
 				? response.data[0]
 				: response.data;
@@ -56,7 +31,7 @@ export class JobRoleService {
 				return null;
 			}
 
-			return this.jobRoleMapper.toJobRole(jobRoleData);
+			return this.mapper.toJobRole(jobRoleData);
 		} catch (error) {
 			const errorWithStatus = error as { response?: { status?: number } };
 
