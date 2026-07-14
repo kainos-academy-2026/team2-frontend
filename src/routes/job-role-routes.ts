@@ -15,5 +15,10 @@ jobRoleRoutes.get(
 	requireAuthenticatedUser,
 	jobRoleController.getJobRolesPage,
 );
+jobRoleRoutes.get(
+	"/job-roles/:id",
+	requireAuthenticatedUser,
+	jobRoleController.getJobRoleDetailPage,
+);
 
 export default jobRoleRoutes;

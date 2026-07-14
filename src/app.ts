@@ -4,7 +4,7 @@ import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import nunjucks from "nunjucks";
 import authRouter from "./routes/auth-router";
-import jobRoleRouter from "./routes/jobRoleRouter";
+import jobRoleRoutes from "./routes/job-role-routes";
 import registrationRoutes from "./routes/registration-routes";
 
 const app = express();
@@ -44,7 +44,7 @@ app.get("/", (_req, res) => {
 	res.redirect("/login");
 });
 
-app.use(jobRoleRouter);
+app.use(jobRoleRoutes);
 
 app.use(registrationRoutes);
 app.use(authRouter);
