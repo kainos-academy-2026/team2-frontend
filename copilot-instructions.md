@@ -34,7 +34,7 @@
   - npm run lint
   - npm run test
 - Do not consider the task complete until all tests pass and linting is clean.
-- If either command fails, fix the issue if it is caused by the current change.
+- If any of these commands fail, fix the issue if it is caused by the current change.
 - If a failure is unrelated to the current change, clearly report it to the user.
 ## Completion Checklist
 - At the end, summarise what changed in a concise way, and call out any remaining issues or next steps.
