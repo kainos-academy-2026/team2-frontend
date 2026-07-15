@@ -24,6 +24,25 @@ const getSetCookieHeader = (header: string | string[] | undefined) => {
 	return header ?? "";
 };
 
+const createJwtToken = (exp: number, payload: Record<string, unknown> = {}) => {
+	const header = Buffer.from(
+		JSON.stringify({ alg: "none", typ: "JWT" }),
+	).toString("base64url");
+	const body = Buffer.from(JSON.stringify({ exp, ...payload })).toString(
+		"base64url",
+	);
+
+	return `${header}.${body}.signature`;
+};
+
+const AUTH_SESSION_TOKEN = createJwtToken(
+	Math.floor(Date.now() / 1000) + 3600,
+	{
+		id: 123,
+		role: "user",
+	},
+);
+
 const sampleApiJobRoles = [
 	{
 		jobRoleId: 1,
@@ -597,5 +616,46 @@ describe("Static assets and error middleware", () => {
 
 		expect(res.status).not.toHaveBeenCalled();
 		expect(res.render).not.toHaveBeenCalled();
+	});
+
+	it("error middleware logs unknown errors when non-Error values are thrown", () => {
+		type ErrorHandler = (...args: unknown[]) => unknown;
+		type RouterLayer = { handle: ErrorHandler };
+		const appWithRouters = app as unknown as {
+			_router?: { stack?: RouterLayer[] };
+			router?: { stack?: RouterLayer[] };
+		};
+
+		const stack =
+			appWithRouters._router?.stack ?? appWithRouters.router?.stack ?? [];
+
+		const errorLayer = [...stack]
+			.reverse()
+			.find(
+				(layer) =>
+					typeof layer.handle === "function" && layer.handle.length === 4,
+			);
+
+		expect(errorLayer).toBeDefined();
+
+		const res = {
+			headersSent: false,
+			status: vi.fn().mockReturnThis(),
+			render: vi.fn(),
+		};
+		const consoleErrorSpy = vi
+			.spyOn(console, "error")
+			.mockImplementation(() => undefined);
+
+		errorLayer?.handle("boom", {}, res, vi.fn());
+
+		expect(consoleErrorSpy).toHaveBeenCalledWith(
+			"Unhandled application error",
+			expect.objectContaining({ error: "Unknown error" }),
+		);
+		expect(res.status).toHaveBeenCalledWith(500);
+		expect(res.render).toHaveBeenCalled();
+
+		consoleErrorSpy.mockRestore();
 	});
 });

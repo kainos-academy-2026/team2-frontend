@@ -174,4 +174,17 @@ describe("login controller", () => {
 		expect(res.clearCookie).toHaveBeenCalledWith("authSession");
 		expect(res.redirect).toHaveBeenCalledWith("/login?loggedOut=1");
 	});
+
+	it("postLogout handles non-Error rejection values", async () => {
+		const authService = createAuthService();
+		const controller = new LoginController(authService);
+		const req = {} as Request;
+		const res = createResponse();
+		vi.mocked(authService.logout).mockRejectedValueOnce("boom");
+
+		await controller.postLogout(req, res);
+
+		expect(res.clearCookie).toHaveBeenCalledWith("authSession");
+		expect(res.redirect).toHaveBeenCalledWith("/login?loggedOut=1");
+	});
 });

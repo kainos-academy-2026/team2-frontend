@@ -73,7 +73,7 @@ describe("auth session helper", () => {
 			cookies: { authSession: expiredToken },
 		} as unknown as Request;
 		const redirect = vi.fn();
-		const res = { redirect } as unknown as Response;
+		const res = { redirect, locals: {} } as unknown as Response;
 		const next = vi.fn() as NextFunction;
 
 		requireRole([Role.User])(req, res, next);
@@ -325,5 +325,6 @@ describe("auth session helper", () => {
 
 		expect(next).toHaveBeenCalledTimes(1);
 		expect(redirect).not.toHaveBeenCalled();
+		expect(res.locals.isAdmin).toBe(true);
 	});
 });

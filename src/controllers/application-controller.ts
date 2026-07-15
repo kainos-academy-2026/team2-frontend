@@ -1,8 +1,4 @@
 import type { Request, Response } from "express";
-import {
-	getTokenFromRequest,
-	getUserFromSession,
-} from "../middleware/auth-session";
 import type { ApplicationService } from "../services/application-service";
 import type { JobRoleService } from "../services/job-role-service";
 
@@ -13,10 +9,10 @@ export class ApplicationController {
 	) {}
 
 	getApplyPage = async (req: Request, res: Response) => {
-		const user = getUserFromSession(req);
-		const token = getTokenFromRequest(req);
+		const user = res.locals.user;
+		const token = res.locals.authToken;
 
-		if (!user || user.role === "admin" || !token) {
+		if (!user || !token || res.locals.isAdmin) {
 			return res.redirect("/job-roles");
 		}
 
@@ -44,9 +40,9 @@ export class ApplicationController {
 	};
 
 	getUploadUrl = async (req: Request, res: Response) => {
-		const user = getUserFromSession(req);
+		const user = res.locals.user;
 
-		if (!user || user.role === "admin") {
+		if (!user || res.locals.isAdmin) {
 			return res.status(403).json({ error: "Forbidden." });
 		}
 
@@ -78,10 +74,10 @@ export class ApplicationController {
 	};
 
 	postApply = async (req: Request, res: Response) => {
-		const user = getUserFromSession(req);
-		const token = getTokenFromRequest(req);
+		const user = res.locals.user;
+		const token = res.locals.authToken;
 
-		if (!user || user.role === "admin" || !token) {
+		if (!user || !token || res.locals.isAdmin) {
 			return res.redirect("/job-roles");
 		}
 
@@ -128,7 +124,7 @@ export class ApplicationController {
 
 	getConfirmationPage = async (req: Request, res: Response) => {
 		const { id } = req.params;
-		const token = getTokenFromRequest(req);
+		const token = res.locals.authToken;
 
 		if (!token) {
 			return res.render("apply-confirmation", { jobRole: null });

@@ -52,6 +52,25 @@ describe("DefaultAuthService", () => {
 		});
 	});
 
+	it("configures axios validateStatus to accept all statuses", async () => {
+		mockedAxios.post.mockResolvedValueOnce({
+			status: 401,
+			data: { message: "Invalid" },
+		});
+		const authService = new DefaultAuthService({
+			loginApiUrl: "http://localhost:3001/login",
+		});
+
+		await authService.login({
+			email: "exampleuser1@hotmail.com",
+			password: "wrong-password",
+		});
+
+		const config = mockedAxios.post.mock.calls[0]?.[2];
+		expect(config).toBeDefined();
+		expect(config?.validateStatus?.(500)).toBe(true);
+	});
+
 	it("rejects login when backend returns 401", async () => {
 		mockedApiURL.post.mockResolvedValueOnce({
 			status: 401,

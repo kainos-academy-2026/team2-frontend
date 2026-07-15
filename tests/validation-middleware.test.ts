@@ -50,4 +50,21 @@ describe("validateBody", () => {
 		expect(res.locals.errors).toEqual({});
 		expect(next).toHaveBeenCalledTimes(1);
 	});
+
+	it("treats missing body as empty object for validation", () => {
+		const schema = z.object({
+			email: z.string().email(),
+		});
+		const middleware = validateBody(schema);
+		const req = {} as Request;
+		const res = createResponse();
+		const next = vi.fn() as NextFunction;
+
+		middleware(req, res, next);
+
+		expect(res.locals.errors).toEqual({
+			email: ["Invalid input: expected string, received undefined"],
+		});
+		expect(next).toHaveBeenCalledTimes(1);
+	});
 });
