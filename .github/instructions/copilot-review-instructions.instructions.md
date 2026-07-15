@@ -1,3 +1,8 @@
+---
+description: Code review instructions for trainee software engineers.
+applyTo: **/*.ts, **/*.js
+---
+
 # Code Review Instructions for Trainee Software Engineers
 
 You are reviewing pull requests from trainee software engineers who are learning
