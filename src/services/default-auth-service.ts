@@ -1,4 +1,4 @@
-import axios from "axios";
+import apiURL from "../config/backend";
 import type { AuthService, LoginCredentials, LoginResult } from "../types/auth";
 
 const DEFAULT_REDIRECT_TARGET = "/job-roles";
@@ -7,20 +7,10 @@ type BackendLoginResponse = {
 	token?: string;
 };
 
-export type DefaultAuthServiceDeps = {
-	loginApiUrl: string;
-};
-
 export class DefaultAuthService implements AuthService {
-	private readonly loginApiUrl: string;
-
-	constructor(deps: DefaultAuthServiceDeps) {
-		this.loginApiUrl = deps.loginApiUrl;
-	}
-
 	async login(credentials: LoginCredentials): Promise<LoginResult> {
-		const response = await axios.post<BackendLoginResponse>(
-			this.loginApiUrl,
+		const response = await apiURL.post<BackendLoginResponse>(
+			"/login",
 			{
 				email: credentials.email.trim().toLowerCase(),
 				password: credentials.password,
@@ -30,7 +20,6 @@ export class DefaultAuthService implements AuthService {
 					"Content-Type": "application/json",
 				},
 				validateStatus: () => true,
-				timeout: 5000,
 			},
 		);
 

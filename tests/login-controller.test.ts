@@ -83,9 +83,7 @@ describe("login controller", () => {
 				email: "dev@example.com",
 				password: "devpassword123",
 			},
-			cookies: {
-				postLoginRedirect: "/job-roles",
-			},
+			cookies: {},
 		} as unknown as Request;
 		const res = createResponse();
 		const next = vi.fn() as NextFunction;
@@ -105,8 +103,7 @@ describe("login controller", () => {
 			httpOnly: true,
 			sameSite: "lax",
 		});
-		expect(res.clearCookie).toHaveBeenCalledWith("postLoginRedirect");
-		expect(res.redirect).toHaveBeenCalledWith("/job-roles");
+		expect(res.redirect).toHaveBeenCalledWith("/");
 		expect(next).not.toHaveBeenCalled();
 	});
 
@@ -133,7 +130,6 @@ describe("login controller", () => {
 
 		await controller.postLogin(req, res, next);
 
-		expect(res.clearCookie).toHaveBeenCalledWith("postLoginRedirect");
 		expect(res.redirect).toHaveBeenCalledWith("/");
 		expect(next).not.toHaveBeenCalled();
 	});

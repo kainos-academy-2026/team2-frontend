@@ -3,6 +3,7 @@ import cookieParser from "cookie-parser";
 import type { NextFunction, Request, Response } from "express";
 import express from "express";
 import nunjucks from "nunjucks";
+import { ForbiddenError } from "./errors/forbidden-error";
 import authRouter from "./routes/auth-router";
 import jobRoleRoutes from "./routes/job-role-routes";
 import registrationRoutes from "./routes/registration-routes";
@@ -41,7 +42,7 @@ nunjucks.configure(viewsPath, {
 app.set("view engine", "njk");
 
 app.get("/", (_req, res) => {
-	res.redirect("/login");
+	res.redirect("/job-roles");
 });
 
 app.use(jobRoleRoutes);
@@ -71,6 +72,10 @@ app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
 
 	if (res.headersSent) {
 		return;
+	}
+
+	if (error instanceof ForbiddenError) {
+		return res.status(403).render("forbidden");
 	}
 
 	return renderErrorPage(

@@ -22,6 +22,18 @@
             {% endif %}
         {% endfor %}
 
+        <p>Welcome, {{ user.name }}!</p>
+        <p>Your role: {{ user.role }}</p>
+        {% if user.isAdmin %}
+            <p>Admin: Yes</p>
+        {% else %}
+            <p>Admin: No</p>
+        {% endif %}
+
+        {% if user.isAdmin %}
+            <p><a href="/job-roles/create">Create New Job Role</a></p>
+        {% endif %}
+
         <table>
             <thead>
                 <tr>

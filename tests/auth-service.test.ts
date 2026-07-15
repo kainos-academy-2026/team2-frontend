@@ -1,35 +1,40 @@
-import axios from "axios";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import apiURL from "../src/config/backend";
 import { DefaultAuthService } from "../src/services/default-auth-service";
 import { MockAuthService } from "../src/services/mock-auth-service";
 
-vi.mock("axios");
+vi.mock("../src/config/backend", () => ({
+	default: {
+		post: vi.fn(),
+		interceptors: {
+			response: { use: vi.fn() },
+		},
+	},
+}));
 
-const mockedAxios = vi.mocked(axios, true);
+const mockedApiURL = vi.mocked(apiURL, true);
 
 afterEach(() => {
-	mockedAxios.post.mockReset();
+	mockedApiURL.post.mockReset();
 });
 
 describe("DefaultAuthService", () => {
 	it("authenticates with backend token", async () => {
-		mockedAxios.post.mockResolvedValueOnce({
+		mockedApiURL.post.mockResolvedValueOnce({
 			status: 200,
 			data: {
 				token: "jwt-token",
 			},
 		});
-		const authService = new DefaultAuthService({
-			loginApiUrl: "http://localhost:3001/login",
-		});
+		const authService = new DefaultAuthService();
 
 		const result = await authService.login({
 			email: "ExampleUser1@Hotmail.com",
 			password: "password123",
 		});
 
-		expect(mockedAxios.post).toHaveBeenCalledWith(
-			"http://localhost:3001/login",
+		expect(mockedApiURL.post).toHaveBeenCalledWith(
+			"/login",
 			{
 				email: "exampleuser1@hotmail.com",
 				password: "password123",
@@ -48,15 +53,13 @@ describe("DefaultAuthService", () => {
 	});
 
 	it("rejects login when backend returns 401", async () => {
-		mockedAxios.post.mockResolvedValueOnce({
+		mockedApiURL.post.mockResolvedValueOnce({
 			status: 401,
 			data: {
 				message: "Invalid email or password",
 			},
 		});
-		const authService = new DefaultAuthService({
-			loginApiUrl: "http://localhost:3001/login",
-		});
+		const authService = new DefaultAuthService();
 
 		const result = await authService.login({
 			email: "exampleuser1@hotmail.com",
@@ -70,13 +73,11 @@ describe("DefaultAuthService", () => {
 	});
 
 	it("throws when backend returns 200 without token", async () => {
-		mockedAxios.post.mockResolvedValueOnce({
+		mockedApiURL.post.mockResolvedValueOnce({
 			status: 200,
 			data: {},
 		});
-		const authService = new DefaultAuthService({
-			loginApiUrl: "http://localhost:3001/login",
-		});
+		const authService = new DefaultAuthService();
 
 		await expect(
 			authService.login({

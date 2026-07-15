@@ -1,10 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
-import { resolveRedirectTarget } from "../auth/redirect-target";
 import type { AuthService } from "../types/auth";
 import { parseLoginCredentials } from "../validators/login-credentials";
 
 const INVALID_CREDENTIALS_MESSAGE = "Invalid email or password.";
-const POST_LOGIN_REDIRECT_COOKIE = "postLoginRedirect";
 
 export class LoginController {
 	private readonly authService: AuthService;
@@ -55,12 +53,7 @@ export class LoginController {
 				sameSite: "lax",
 			});
 
-			const redirectTarget = resolveRedirectTarget(
-				req.cookies?.[POST_LOGIN_REDIRECT_COOKIE],
-			);
-			res.clearCookie(POST_LOGIN_REDIRECT_COOKIE);
-
-			return res.redirect(redirectTarget);
+			return res.redirect("/");
 		} catch (error) {
 			return next(error);
 		}
