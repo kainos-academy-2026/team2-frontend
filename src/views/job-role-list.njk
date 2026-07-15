@@ -11,6 +11,9 @@
             <button type="submit">Log Out</button>
         </form>
         <h1>Job Role List</h1>
+        {% if forbidden %}
+            <p style="color: red;">You do not have permission to access that page.</p>
+        {% endif %}
         <!-- Expected jobRoles item shape: { id, name, location, capability, band, closingDate, status } -->
         {% set hasOpenRoles = false %}
         {% for jobRole in jobRoles %}
