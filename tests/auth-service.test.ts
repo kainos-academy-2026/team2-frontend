@@ -86,6 +86,52 @@ describe("DefaultAuthService", () => {
 			}),
 		).rejects.toThrow("Backend login response did not include a token");
 	});
+
+	it("throws when backend returns non-401 non-2xx status", async () => {
+		mockedAxios.post.mockResolvedValueOnce({
+			status: 500,
+			data: {
+				message: "Server error",
+			},
+		});
+		const authService = new DefaultAuthService({
+			loginApiUrl: "http://localhost:3001/login",
+		});
+
+		await expect(
+			authService.login({
+				email: "exampleuser1@hotmail.com",
+				password: "password123",
+			}),
+		).rejects.toThrow("Unexpected backend login response status: 500");
+	});
+
+	it("throws when backend token is blank", async () => {
+		mockedAxios.post.mockResolvedValueOnce({
+			status: 200,
+			data: {
+				token: "   ",
+			},
+		});
+		const authService = new DefaultAuthService({
+			loginApiUrl: "http://localhost:3001/login",
+		});
+
+		await expect(
+			authService.login({
+				email: "exampleuser1@hotmail.com",
+				password: "password123",
+			}),
+		).rejects.toThrow("Backend login response did not include a token");
+	});
+
+	it("logout resolves without error", async () => {
+		const authService = new DefaultAuthService({
+			loginApiUrl: "http://localhost:3001/login",
+		});
+
+		await expect(authService.logout()).resolves.toBeUndefined();
+	});
 });
 
 describe("MockAuthService", () => {
@@ -116,5 +162,11 @@ describe("MockAuthService", () => {
 			isAuthenticated: false,
 			redirectTo: "/job-roles",
 		});
+	});
+
+	it("logout resolves without error", async () => {
+		const authService = new MockAuthService();
+
+		await expect(authService.logout()).resolves.toBeUndefined();
 	});
 });

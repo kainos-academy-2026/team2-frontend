@@ -17,6 +17,17 @@ const createJwtToken = (
 	return `${header}.${payload}.signature`;
 };
 
+const createJwtWithPayload = (payload: Record<string, unknown>) => {
+	const header = Buffer.from(
+		JSON.stringify({ alg: "none", typ: "JWT" }),
+	).toString("base64url");
+	const encodedPayload = Buffer.from(JSON.stringify(payload)).toString(
+		"base64url",
+	);
+
+	return `${header}.${encodedPayload}.signature`;
+};
+
 describe("auth session helper", () => {
 	it("redirects to login when no auth session cookie is present", () => {
 		const req = { cookies: {} } as unknown as Request;

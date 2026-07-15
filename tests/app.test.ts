@@ -558,3 +558,44 @@ describe("GET /job-roles/:id", () => {
 		expect(response.text).toContain("Job role not found.");
 	});
 });
+
+describe("Static assets and error middleware", () => {
+	it("GET /styles.css should return stylesheet content", async () => {
+		const response = await request(app).get("/styles.css");
+
+		expect(response.status).toBe(200);
+		expect(response.headers["content-type"]).toMatch(/text\/css/);
+	});
+
+	it("error middleware should not render when headers are already sent", () => {
+		type ErrorHandler = (...args: unknown[]) => unknown;
+		type RouterLayer = { handle: ErrorHandler };
+		const appWithRouters = app as unknown as {
+			_router?: { stack?: RouterLayer[] };
+			router?: { stack?: RouterLayer[] };
+		};
+
+		const stack =
+			appWithRouters._router?.stack ?? appWithRouters.router?.stack ?? [];
+
+		const errorLayer = [...stack]
+			.reverse()
+			.find(
+				(layer) =>
+					typeof layer.handle === "function" && layer.handle.length === 4,
+			);
+
+		expect(errorLayer).toBeDefined();
+
+		const res = {
+			headersSent: true,
+			status: vi.fn(),
+			render: vi.fn(),
+		};
+
+		errorLayer?.handle(new Error("boom"), {}, res, vi.fn());
+
+		expect(res.status).not.toHaveBeenCalled();
+		expect(res.render).not.toHaveBeenCalled();
+	});
+});
