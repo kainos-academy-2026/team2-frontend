@@ -1,11 +1,63 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Hello</title>
-  </head>
-  <body>
-    <h1>Hello World</h1>
-  </body>
-</html>
+{% extends "_layout.njk" %}
+
+{% block title %}Home{% endblock %}
+
+{% block content %}
+  <div class="home-bg">
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="hero-content">
+        <p class="hero-eyebrow">Kainos Careers Portal</p>
+        <h1 class="hero-title" id="hero-title">
+          Find Your Next<br />
+          <span>Opportunity</span> at Kainos
+        </h1>
+        <p class="hero-desc">
+          Explore open roles across engineering, design, delivery and more.
+          Browse current vacancies and take the next step in your career with
+          one of the UK's leading technology companies.
+        </p>
+        <div class="hero-actions">
+          <a href="/login" class="btn-primary">Sign In</a>
+          <a href="/register" class="btn-outline">Create Account</a>
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        <div class="hero-card">
+          <img
+            class="hero-card-logo"
+            src="/public/icons/Kainos_Logo.png"
+            alt="Kainos"
+          />
+          <h3>Kainos Careers</h3>
+          <p>
+            We build digital services that matter. Join a team of talented
+            people working on meaningful technology across the public and
+            private sector.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features-section" aria-label="Why join Kainos">
+      <h2 class="features-heading">Why join Kainos?</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">&#127919;</div>
+          <h3>Meaningful Work</h3>
+          <p>Deliver digital transformation projects that make a real difference to people's lives across healthcare, government and beyond.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">&#127919;</div>
+          <h3>Career Growth</h3>
+          <p>Benefit from structured career paths, learning budgets, mentoring and a culture that invests in your development at every stage.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon" aria-hidden="true">&#127919;</div>
+          <h3>Inclusive Culture</h3>
+          <p>Work in an environment where diverse perspectives are valued and everyone has the opportunity to thrive and succeed.</p>
+        </div>
+      </div>
+    </section>
+  </div>
+{% endblock %}

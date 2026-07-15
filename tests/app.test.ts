@@ -122,11 +122,11 @@ describe("GET /health", () => {
 });
 
 describe("GET /", () => {
-	it("should redirect to /login", async () => {
+	it("should render the home page", async () => {
 		const response = await request(app).get("/");
 
-		expect(response.status).toBe(302);
-		expect(response.headers.location).toBe("/login");
+		expect(response.status).toBe(200);
+		expect(response.text).toContain("Kainos");
 	});
 
 	it("should render generic 404 page for unknown routes", async () => {
@@ -307,8 +307,8 @@ describe("GET /register", () => {
 		const response = await request(app).get("/register");
 
 		expect(response.status).toBe(200);
-		expect(response.text).toContain("Sign In");
-		expect(response.text).toContain('form action="/login" method="POST"');
+		expect(response.text).toContain("Register");
+		expect(response.text).toContain('form method="post" action="/register"');
 	});
 
 	it("should return HTML content", async () => {

@@ -34,17 +34,6 @@ const renderErrorPage = (
 	});
 };
 
-const renderErrorPage = (
-	res: Response,
-	statusCode: number,
-	message: string,
-) => {
-	return res.status(statusCode).render("error", {
-		statusCode,
-		message,
-	});
-};
-
 nunjucks.configure(viewsPath, {
 	autoescape: true,
 	express: app,
@@ -52,7 +41,7 @@ nunjucks.configure(viewsPath, {
 app.set("view engine", "njk");
 
 app.get("/", (_req, res) => {
-	res.redirect("/login");
+	res.render("index");
 });
 
 app.use(jobRoleRoutes);
@@ -64,30 +53,6 @@ app.get("/health", (_req, res) => {
 		status: "UP",
 		time: new Date().toISOString(),
 	});
-});
-
-app.use((_req: Request, res: Response) => {
-	return renderErrorPage(
-		res,
-		404,
-		"The page you requested could not be found.",
-	);
-});
-
-app.use((error: unknown, _req: Request, res: Response, _next: NextFunction) => {
-	console.error("Unhandled application error", {
-		error: error instanceof Error ? error.message : "Unknown error",
-	});
-
-	if (res.headersSent) {
-		return;
-	}
-
-	return renderErrorPage(
-		res,
-		500,
-		"Something went wrong. Please try again later.",
-	);
 });
 
 app.use((_req: Request, res: Response) => {

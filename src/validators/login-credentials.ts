@@ -11,8 +11,8 @@ const loginCredentialsSchema = z.object({
 });
 
 type LoginFieldErrors = {
-	email?: string;
-	password?: string;
+	email?: string[];
+	password?: string[];
 };
 
 type ParseLoginCredentialsResult =
@@ -49,8 +49,8 @@ export const parseLoginCredentials = (
 			success: false,
 			submittedEmail: getSubmittedEmail(input),
 			fieldErrors: {
-				email: emailError,
-				password: passwordError,
+				email: emailError ? [emailError] : undefined,
+				password: passwordError ? [passwordError] : undefined,
 			},
 		};
 	}

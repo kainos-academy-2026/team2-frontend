@@ -219,7 +219,7 @@ input:focus {
 
 input.input-error {
 	border-color: #d32f2f;
-	box-shadow: 
+	box-shadow:
 		0 0 0 4px rgba(211, 47, 47, 0.15),
 		0 0 12px rgba(211, 47, 47, 0.3);
 	background: #ffebee;
@@ -227,7 +227,7 @@ input.input-error {
 
 input.input-error:focus {
 	border-color: #d32f2f;
-	box-shadow: 
+	box-shadow:
 		0 0 0 4px rgba(211, 47, 47, 0.25),
 		0 0 16px rgba(211, 47, 47, 0.4);
 }

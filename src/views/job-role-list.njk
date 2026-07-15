@@ -1,84 +1,78 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Open Job Roles</title>
-        <link rel="stylesheet" href="/public/job-role-list.css" />
-    </head>
-    <body>
-        <main class="page">
-            <section class="shell" aria-labelledby="job-role-title">
-                <header class="hero">
-                    <div class="hero-top">
-                        <p class="eyebrow">Kainos Careers</p>
-                        <img
-                            class="hero-logo"
-                            src="/public/icons/Kainos_Logo.png"
-                            alt="Kainos logo"
-                        />
-                    </div>
-                    <h1 id="job-role-title">Job Role List</h1>
-                    <p class="intro">Browse the current open roles and closing dates.</p>
-                </header>
+{% extends "_layout.njk" %}
 
-        <form action="/logout" method="POST" style="margin-bottom: 1rem;">
-            <button type="submit">Log Out</button>
-        </form>
-        <h1>Job Role List</h1>
-        {% if forbidden %}
-            <p style="color: red;">You do not have permission to access that page.</p>
+{% block title %}Job Role List{% endblock %}
+
+{% block extraStyles %}
+  <link rel="stylesheet" href="/public/job-role-list.css" />
+{% endblock %}
+
+{% block nav %}
+  <form action="/logout" method="POST" style="margin: 0;">
+    <button type="submit" class="nav-cta" style="cursor: pointer; font: inherit;">Log Out</button>
+  </form>
+{% endblock %}
+
+{% block content %}
+  <div class="page">
+    <section class="shell" aria-labelledby="job-role-title">
+      <header class="hero">
+        <div class="hero-top">
+          <p class="eyebrow">Kainos Careers</p>
+          <img
+            class="hero-logo"
+            src="/public/icons/Kainos_Logo.png"
+            alt="Kainos logo"
+          />
+        </div>
+        <h1 id="job-role-title">Job Role List</h1>
+        <p class="intro">Browse the current open roles and closing dates.</p>
+      </header>
+
+      {% if forbidden %}
+        <p style="color: red; padding: 0 24px;">You do not have permission to access that page.</p>
+      {% endif %}
+
+      {% set hasOpenRoles = false %}
+      {% for jobRole in jobRoles %}
+        {% if (jobRole.status or "") | upper == "OPEN" %}
+          {% set hasOpenRoles = true %}
         {% endif %}
-        <!-- Expected jobRoles item shape: { id, name, location, capability, band, closingDate, status } -->
-        {% set hasOpenRoles = false %}
-        {% for jobRole in jobRoles %}
-                    {% if (jobRole.status or "") | upper == "OPEN" %}
-                        {% set hasOpenRoles = true %}
-                    {% endif %}
-        {% endfor %}
+      {% endfor %}
 
-                <div class="table-wrap" role="region" aria-label="Open job roles">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th scope="col">Role Name</th>
-                                <th scope="col">Location</th>
-                                <th scope="col">Capability</th>
-                                <th scope="col">Band</th>
-                                <th scope="col">Closing Date</th>
-                                <th scope="col">Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if hasOpenRoles %}
-                                {% for jobRole in jobRoles %}
-                                    {% if (jobRole.status or "") | upper == "OPEN" %}
-                                        {% set rawClosingDate = jobRole.closingDate or "" %}
-                                        {% set closingParts = rawClosingDate.split("-") %}
-                                        {% if closingParts.length == 3 %}
-                                            {% set formattedClosingDate = closingParts[2].slice(0, 2) + "/" + closingParts[1] + "/" + closingParts[0] %}
-                                        {% else %}
-                                            {% set formattedClosingDate = rawClosingDate or "-" %}
-                                        {% endif %}
-                                        <tr>
-                                            <td>{{ jobRole.name or "-" }}</td>
-                                            <td>{{ jobRole.location or "-" }}</td>
-                                            <td>{{ jobRole.capability or "-" }}</td>
-                                            <td>{{ jobRole.band or "-" }}</td>
-                                            <td>{{ formattedClosingDate }}</td>
-                                            <td><span class="status-pill">OPEN</span></td>
-                                        </tr>
-                                    {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                <tr>
-                                    <td colspan="6" class="empty-state">No open job roles are available right now.</td>
-                                </tr>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
-    </body>
-</html>
+      <div class="table-wrap" role="region" aria-label="Open job roles">
+        <table>
+          <thead>
+            <tr>
+              <th scope="col">Role Name</th>
+              <th scope="col">Location</th>
+              <th scope="col">Capability</th>
+              <th scope="col">Band</th>
+              <th scope="col">Closing Date</th>
+              <th scope="col">Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% if hasOpenRoles %}
+              {% for jobRole in jobRoles %}
+                {% if (jobRole.status or "") | upper == "OPEN" %}
+                  <tr>
+                    <td><a href="/job-roles/{{ jobRole.id }}">{{ jobRole.name or "-" }}</a></td>
+                    <td>{{ jobRole.location or "-" }}</td>
+                    <td>{{ jobRole.capability or "-" }}</td>
+                    <td>{{ jobRole.band or "-" }}</td>
+                    <td>{{ jobRole.closingDate or "-" }}</td>
+                    <td><span class="status-pill">OPEN</span></td>
+                  </tr>
+                {% endif %}
+              {% endfor %}
+            {% else %}
+              <tr>
+                <td colspan="6" class="empty-state">No open job roles are available right now.</td>
+              </tr>
+            {% endif %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+{% endblock %}
