@@ -1,16 +1,21 @@
 import type { Request, Response } from "express";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { ApplicationController } from "../src/controllers/application-controller";
-import { getUserFromSession } from "../src/middleware/auth-session";
+import {
+	getTokenFromRequest,
+	getUserFromSession,
+} from "../src/middleware/auth-session";
 import type { ApplicationService } from "../src/services/application-service";
 import type { JobRoleService } from "../src/services/job-role-service";
 import { JobRoleStatus } from "../src/types/job-role";
 
 vi.mock("../src/middleware/auth-session", () => ({
 	getUserFromSession: vi.fn(),
+	getTokenFromRequest: vi.fn(),
 }));
 
 const mockedGetUserFromSession = vi.mocked(getUserFromSession);
+const mockedGetTokenFromRequest = vi.mocked(getTokenFromRequest);
 
 const createResponse = () => {
 	const res: Partial<Response> = {
@@ -56,6 +61,7 @@ describe("ApplicationController", () => {
 
 	beforeEach(() => {
 		vi.clearAllMocks();
+		mockedGetTokenFromRequest.mockReturnValue("token");
 		controller = new ApplicationController(
 			applicationService as ApplicationService,
 			jobRoleService as JobRoleService,
@@ -83,7 +89,7 @@ describe("ApplicationController", () => {
 	});
 
 	it("getApplyPage renders 404 when role is missing", async () => {
-		mockedGetUserFromSession.mockReturnValueOnce({ id: 2, role: "candidate" });
+		mockedGetUserFromSession.mockReturnValueOnce({ id: 2, role: "user" });
 		jobRoleService.getJobRoleById.mockResolvedValueOnce(null);
 		const req = { params: { id: "missing" } } as unknown as Request;
 		const res = createResponse();
@@ -98,7 +104,7 @@ describe("ApplicationController", () => {
 	});
 
 	it("getApplyPage renders apply view when role exists", async () => {
-		mockedGetUserFromSession.mockReturnValueOnce({ id: 2, role: "candidate" });
+		mockedGetUserFromSession.mockReturnValueOnce({ id: 2, role: "user" });
 		const jobRole = createJobRole();
 		jobRoleService.getJobRoleById.mockResolvedValueOnce(jobRole);
 		const req = { params: { id: "1" } } as unknown as Request;
@@ -110,7 +116,7 @@ describe("ApplicationController", () => {
 	});
 
 	it("getApplyPage renders 502 when role lookup fails", async () => {
-		mockedGetUserFromSession.mockReturnValueOnce({ id: 2, role: "candidate" });
+		mockedGetUserFromSession.mockReturnValueOnce({ id: 2, role: "user" });
 		jobRoleService.getJobRoleById.mockRejectedValueOnce(new Error("down"));
 		const req = { params: { id: "1" } } as unknown as Request;
 		const res = createResponse();
@@ -140,7 +146,7 @@ describe("ApplicationController", () => {
 	});
 
 	it("getUploadUrl returns 400 when request body is incomplete", async () => {
-		mockedGetUserFromSession.mockReturnValueOnce({ id: 2, role: "candidate" });
+		mockedGetUserFromSession.mockReturnValueOnce({ id: 2, role: "user" });
 		const req = { params: { id: "1" }, body: {} } as unknown as Request;
 		const res = createResponse();
 
@@ -153,7 +159,7 @@ describe("ApplicationController", () => {
 	});
 
 	it("getUploadUrl returns generated upload url details", async () => {
-		mockedGetUserFromSession.mockReturnValueOnce({ id: 22, role: "candidate" });
+		mockedGetUserFromSession.mockReturnValueOnce({ id: 22, role: "user" });
 		applicationService.getUploadUrl.mockResolvedValueOnce({
 			cvKey: "cvs/job-role-1/user-22/cv.pdf",
 			uploadUrl: "https://upload.example.com",
@@ -178,7 +184,7 @@ describe("ApplicationController", () => {
 	});
 
 	it("getUploadUrl returns 502 when upload url service fails", async () => {
-		mockedGetUserFromSession.mockReturnValueOnce({ id: 22, role: "candidate" });
+		mockedGetUserFromSession.mockReturnValueOnce({ id: 22, role: "user" });
 		applicationService.getUploadUrl.mockRejectedValueOnce(new Error("down"));
 		const req = {
 			params: { id: "1" },
@@ -208,7 +214,7 @@ describe("ApplicationController", () => {
 	});
 
 	it("postApply returns 400 and role when cvKey is missing", async () => {
-		mockedGetUserFromSession.mockReturnValueOnce({ id: 9, role: "candidate" });
+		mockedGetUserFromSession.mockReturnValueOnce({ id: 9, role: "user" });
 		const jobRole = createJobRole();
 		jobRoleService.getJobRoleById.mockResolvedValueOnce(jobRole);
 		const req = {
@@ -227,7 +233,7 @@ describe("ApplicationController", () => {
 	});
 
 	it("postApply returns 400 with null role when role lookup fails", async () => {
-		mockedGetUserFromSession.mockReturnValueOnce({ id: 9, role: "candidate" });
+		mockedGetUserFromSession.mockReturnValueOnce({ id: 9, role: "user" });
 		jobRoleService.getJobRoleById.mockRejectedValueOnce(new Error("down"));
 		const req = {
 			params: { id: "1" },
@@ -245,7 +251,7 @@ describe("ApplicationController", () => {
 	});
 
 	it("postApply creates application with trimmed cvKey then redirects", async () => {
-		mockedGetUserFromSession.mockReturnValueOnce({ id: 99, role: "candidate" });
+		mockedGetUserFromSession.mockReturnValueOnce({ id: 99, role: "user" });
 		const req = {
 			params: { id: "1" },
 			body: { cvKey: "  cv-key  " },
@@ -264,7 +270,7 @@ describe("ApplicationController", () => {
 	});
 
 	it("postApply returns 502 and role when submit fails", async () => {
-		mockedGetUserFromSession.mockReturnValueOnce({ id: 99, role: "candidate" });
+		mockedGetUserFromSession.mockReturnValueOnce({ id: 99, role: "user" });
 		applicationService.createApplication.mockRejectedValueOnce(
 			new Error("down"),
 		);
@@ -286,7 +292,7 @@ describe("ApplicationController", () => {
 	});
 
 	it("postApply returns 502 with null role when both calls fail", async () => {
-		mockedGetUserFromSession.mockReturnValueOnce({ id: 99, role: "candidate" });
+		mockedGetUserFromSession.mockReturnValueOnce({ id: 99, role: "user" });
 		applicationService.createApplication.mockRejectedValueOnce(
 			new Error("down"),
 		);

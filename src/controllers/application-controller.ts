@@ -1,5 +1,8 @@
 import type { Request, Response } from "express";
-import { getUserFromSession } from "../middleware/auth-session";
+import {
+	getTokenFromRequest,
+	getUserFromSession,
+} from "../middleware/auth-session";
 import type { ApplicationService } from "../services/application-service";
 import type { JobRoleService } from "../services/job-role-service";
 
@@ -11,15 +14,16 @@ export class ApplicationController {
 
 	getApplyPage = async (req: Request, res: Response) => {
 		const user = getUserFromSession(req);
+		const token = getTokenFromRequest(req);
 
-		if (!user || user.role === "admin") {
+		if (!user || user.role === "admin" || !token) {
 			return res.redirect("/job-roles");
 		}
 
 		const { id } = req.params;
 
 		try {
-			const jobRole = await this.jobRoleService.getJobRoleById(id);
+			const jobRole = await this.jobRoleService.getJobRoleById(id, token);
 
 			if (!jobRole) {
 				return res.status(404).render("error", {
@@ -75,8 +79,9 @@ export class ApplicationController {
 
 	postApply = async (req: Request, res: Response) => {
 		const user = getUserFromSession(req);
+		const token = getTokenFromRequest(req);
 
-		if (!user || user.role === "admin") {
+		if (!user || user.role === "admin" || !token) {
 			return res.redirect("/job-roles");
 		}
 
@@ -85,7 +90,7 @@ export class ApplicationController {
 
 		if (!cvKey || cvKey.trim().length === 0) {
 			try {
-				const jobRole = await this.jobRoleService.getJobRoleById(id);
+				const jobRole = await this.jobRoleService.getJobRoleById(id, token);
 				return res.status(400).render("apply", {
 					jobRole,
 					error: "Please upload your CV before submitting.",
@@ -107,7 +112,7 @@ export class ApplicationController {
 			return res.redirect(`/job-roles/${id}/apply/confirmation`);
 		} catch {
 			try {
-				const jobRole = await this.jobRoleService.getJobRoleById(id);
+				const jobRole = await this.jobRoleService.getJobRoleById(id, token);
 				return res.status(502).render("apply", {
 					jobRole,
 					error: "Your application could not be submitted. Please try again.",
@@ -123,9 +128,14 @@ export class ApplicationController {
 
 	getConfirmationPage = async (req: Request, res: Response) => {
 		const { id } = req.params;
+		const token = getTokenFromRequest(req);
+
+		if (!token) {
+			return res.render("apply-confirmation", { jobRole: null });
+		}
 
 		try {
-			const jobRole = await this.jobRoleService.getJobRoleById(id);
+			const jobRole = await this.jobRoleService.getJobRoleById(id, token);
 
 			return res.render("apply-confirmation", { jobRole });
 		} catch {
