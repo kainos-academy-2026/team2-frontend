@@ -488,7 +488,9 @@ describe("GET /job-roles", () => {
 	it("should request job roles from the API service endpoint", async () => {
 		await request(app).get("/job-roles").set("Cookie", ["authSession=token"]);
 
-		expect(mockedApiURL.get).toHaveBeenCalledWith("/job-roles");
+		expect(mockedApiURL.get).toHaveBeenCalledWith("/job-roles", {
+			headers: { Authorization: "Bearer token" },
+		});
 	});
 
 	it("should render empty-state row when API call fails", async () => {

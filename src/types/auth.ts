@@ -3,8 +3,11 @@ export type LoginCredentials = {
 	password: string;
 };
 
+export type UserRole = "user" | "admin";
+
 export type AuthSessionState = {
 	isAuthenticated: boolean;
+	role: UserRole | null;
 };
 
 export type LoginResult =

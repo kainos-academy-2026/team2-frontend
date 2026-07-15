@@ -2,15 +2,22 @@ import type { NextFunction, Request, Response } from "express";
 import { describe, expect, it, vi } from "vitest";
 import {
 	getAuthSessionState,
+	getTokenFromRequest,
 	redirectAuthenticatedUser,
+	requireAdminUser,
 	requireAuthenticatedUser,
 } from "../src/middleware/auth-session";
 
-const createJwtToken = (exp: number) => {
+const createJwtToken = (
+	exp: number,
+	extraClaims: Record<string, unknown> = {},
+) => {
 	const header = Buffer.from(
 		JSON.stringify({ alg: "none", typ: "JWT" }),
 	).toString("base64url");
-	const payload = Buffer.from(JSON.stringify({ exp })).toString("base64url");
+	const payload = Buffer.from(JSON.stringify({ exp, ...extraClaims })).toString(
+		"base64url",
+	);
 
 	return `${header}.${payload}.signature`;
 };
@@ -154,6 +161,127 @@ describe("auth session helper", () => {
 		const next = vi.fn() as NextFunction;
 
 		redirectAuthenticatedUser(req, res, next);
+
+		expect(next).toHaveBeenCalledTimes(1);
+		expect(redirect).not.toHaveBeenCalled();
+	});
+
+	it("extracts admin role from token payload", () => {
+		const token = createJwtToken(Math.floor(Date.now() / 1000) + 60, {
+			role: "admin",
+		});
+		const state = getAuthSessionState({
+			cookies: { authSession: token },
+		} as unknown as Request);
+
+		expect(state.isAuthenticated).toBe(true);
+		expect(state.role).toBe("admin");
+	});
+
+	it("extracts user role from token payload", () => {
+		const token = createJwtToken(Math.floor(Date.now() / 1000) + 60, {
+			role: "user",
+		});
+		const state = getAuthSessionState({
+			cookies: { authSession: token },
+		} as unknown as Request);
+
+		expect(state.isAuthenticated).toBe(true);
+		expect(state.role).toBe("user");
+	});
+
+	it("returns null role when token has no role claim", () => {
+		const token = createJwtToken(Math.floor(Date.now() / 1000) + 60);
+		const state = getAuthSessionState({
+			cookies: { authSession: token },
+		} as unknown as Request);
+
+		expect(state.isAuthenticated).toBe(true);
+		expect(state.role).toBeNull();
+	});
+
+	it("returns null role for unauthenticated requests", () => {
+		const state = getAuthSessionState({
+			cookies: {},
+		} as unknown as Request);
+
+		expect(state.isAuthenticated).toBe(false);
+		expect(state.role).toBeNull();
+	});
+
+	it("returns null role for expired tokens", () => {
+		const expiredToken = createJwtToken(Math.floor(Date.now() / 1000) - 60, {
+			role: "admin",
+		});
+		const state = getAuthSessionState({
+			cookies: { authSession: expiredToken },
+		} as unknown as Request);
+
+		expect(state.isAuthenticated).toBe(false);
+		expect(state.role).toBeNull();
+	});
+
+	it("getTokenFromRequest returns token string when cookie is present", () => {
+		const req = {
+			cookies: { authSession: "mytoken" },
+		} as unknown as Request;
+
+		expect(getTokenFromRequest(req)).toBe("mytoken");
+	});
+
+	it("getTokenFromRequest returns undefined when cookie is absent", () => {
+		const req = { cookies: {} } as unknown as Request;
+
+		expect(getTokenFromRequest(req)).toBeUndefined();
+	});
+
+	it("requireAdminUser redirects unauthenticated requests to login", () => {
+		const req = {
+			cookies: {},
+			originalUrl: "/job-roles/create",
+		} as unknown as Request;
+		const redirect = vi.fn();
+		const cookie = vi.fn();
+		const res = { redirect, cookie } as unknown as Response;
+		const next = vi.fn() as NextFunction;
+
+		requireAdminUser(req, res, next);
+
+		expect(redirect).toHaveBeenCalledWith("/login");
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it("requireAdminUser redirects user-role requests to job-roles with forbidden flag", () => {
+		const token = createJwtToken(Math.floor(Date.now() / 1000) + 60, {
+			role: "user",
+		});
+		const req = {
+			cookies: { authSession: token },
+			originalUrl: "/job-roles/create",
+		} as unknown as Request;
+		const redirect = vi.fn();
+		const res = { redirect } as unknown as Response;
+		const next = vi.fn() as NextFunction;
+
+		requireAdminUser(req, res, next);
+
+		expect(redirect).toHaveBeenCalledWith("/job-roles?forbidden=1");
+		expect(next).not.toHaveBeenCalled();
+	});
+
+	it("requireAdminUser allows admin-role requests", () => {
+		const token = createJwtToken(Math.floor(Date.now() / 1000) + 60, {
+			role: "admin",
+		});
+		const req = {
+			cookies: { authSession: token },
+			originalUrl: "/job-roles/create",
+		} as unknown as Request;
+		const redirect = vi.fn();
+		const res = { redirect } as unknown as Response;
+		const next = vi.fn() as NextFunction;
+
+		requireAdminUser(req, res, next);
 
 		expect(next).toHaveBeenCalledTimes(1);
 		expect(redirect).not.toHaveBeenCalled();
