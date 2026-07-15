@@ -73,18 +73,17 @@ describe("ApplicationController", () => {
 
 		await controller.getApplyPage(req, res);
 
-		expect(res.redirect).toHaveBeenCalledWith("/job-roles");
+		expect(res.redirect).toHaveBeenCalledWith("/login");
 	});
 
-	it("getApplyPage redirects when user is admin", async () => {
+	it("getApplyPage redirects when auth token is missing", async () => {
 		const req = { params: { id: "1" } } as unknown as Request;
 		const res = createResponse();
-		res.locals.user = { id: 1, role: "admin" };
-		res.locals.isAdmin = true;
+		res.locals.authToken = undefined;
 
 		await controller.getApplyPage(req, res);
 
-		expect(res.redirect).toHaveBeenCalledWith("/job-roles");
+		expect(res.redirect).toHaveBeenCalledWith("/login");
 	});
 
 	it("getApplyPage renders 404 when role is missing", async () => {
@@ -209,7 +208,7 @@ describe("ApplicationController", () => {
 
 		await controller.postApply(req, res);
 
-		expect(res.redirect).toHaveBeenCalledWith("/job-roles");
+		expect(res.redirect).toHaveBeenCalledWith("/login");
 	});
 
 	it("postApply returns 400 and role when cvKey is missing", async () => {
@@ -320,7 +319,7 @@ describe("ApplicationController", () => {
 		});
 	});
 
-	it("getConfirmationPage renders null role when token is missing", async () => {
+	it("getConfirmationPage redirects to login when token is missing", async () => {
 		const req = { params: { id: "1" } } as unknown as Request;
 		const res = createResponse();
 		res.locals.authToken = undefined;
@@ -328,9 +327,7 @@ describe("ApplicationController", () => {
 		await controller.getConfirmationPage(req, res);
 
 		expect(mockedGetJobRoleById).not.toHaveBeenCalled();
-		expect(res.render).toHaveBeenCalledWith("apply-confirmation", {
-			jobRole: null,
-		});
+		expect(res.redirect).toHaveBeenCalledWith("/login");
 	});
 
 	it("getConfirmationPage renders with null role when lookup fails", async () => {

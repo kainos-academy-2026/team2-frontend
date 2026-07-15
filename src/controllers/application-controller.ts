@@ -1,6 +1,12 @@
 import type { Request, Response } from "express";
+import { z } from "zod";
 import type { ApplicationService } from "../services/application-service";
 import type { JobRoleService } from "../services/job-role-service";
+
+const uploadUrlRequestSchema = z.object({
+	fileName: z.string().min(1),
+	contentType: z.string().min(1),
+});
 
 export class ApplicationController {
 	constructor(
@@ -12,8 +18,8 @@ export class ApplicationController {
 		const user = res.locals.user;
 		const token = res.locals.authToken;
 
-		if (!user || !token || res.locals.isAdmin) {
-			return res.redirect("/job-roles");
+		if (!user || !token) {
+			return res.redirect("/login");
 		}
 
 		const { id } = req.params;
@@ -42,21 +48,20 @@ export class ApplicationController {
 	getUploadUrl = async (req: Request, res: Response) => {
 		const user = res.locals.user;
 
-		if (!user || res.locals.isAdmin) {
+		if (!user) {
 			return res.status(403).json({ error: "Forbidden." });
 		}
 
 		const { id } = req.params;
-		const { fileName, contentType } = req.body as {
-			fileName?: string;
-			contentType?: string;
-		};
+		const parsedRequest = uploadUrlRequestSchema.safeParse(req.body ?? {});
 
-		if (!fileName || !contentType) {
+		if (!parsedRequest.success) {
 			return res
 				.status(400)
 				.json({ error: "fileName and contentType are required." });
 		}
+
+		const { fileName, contentType } = parsedRequest.data;
 
 		try {
 			const uploadUrlResponse = await this.applicationService.getUploadUrl(id, {
@@ -77,8 +82,8 @@ export class ApplicationController {
 		const user = res.locals.user;
 		const token = res.locals.authToken;
 
-		if (!user || !token || res.locals.isAdmin) {
-			return res.redirect("/job-roles");
+		if (!user || !token) {
+			return res.redirect("/login");
 		}
 
 		const { id } = req.params;
@@ -127,7 +132,7 @@ export class ApplicationController {
 		const token = res.locals.authToken;
 
 		if (!token) {
-			return res.render("apply-confirmation", { jobRole: null });
+			return res.redirect("/login");
 		}
 
 		try {

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { ApplicationController } from "../controllers/application-controller";
 import { JobRoleMapper } from "../mappers/job-role-mapper";
-import { requireAuthenticatedUser } from "../middleware/auth-session";
+import { requireRole } from "../middleware/auth-session";
 import { ApplicationService } from "../services/application-service";
 import { JobRoleService } from "../services/job-role-service";
 
@@ -17,25 +17,27 @@ const applicationRoutes = Router();
 
 applicationRoutes.get(
 	"/job-roles/:id/apply/confirmation",
-	requireAuthenticatedUser,
+	requireRole(["user"]),
 	applicationController.getConfirmationPage,
 );
 
 applicationRoutes.get(
 	"/job-roles/:id/apply",
-	requireAuthenticatedUser,
+	requireRole(["user"]),
 	applicationController.getApplyPage,
 );
 
 applicationRoutes.post(
 	"/job-roles/:id/apply/upload-url",
-	requireAuthenticatedUser,
+	requireRole(["user"], {
+		onForbidden: (_req, res) => res.status(403).json({ error: "Forbidden." }),
+	}),
 	applicationController.getUploadUrl,
 );
 
 applicationRoutes.post(
 	"/job-roles/:id/apply",
-	requireAuthenticatedUser,
+	requireRole(["user"]),
 	applicationController.postApply,
 );
 
