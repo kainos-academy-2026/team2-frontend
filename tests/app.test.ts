@@ -167,9 +167,7 @@ describe("Auth routes", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.text).toContain("Invalid email address");
-		expect(response.text).toContain(
-			"Too small: expected string to have &gt;=1 characters",
-		);
+		expect(response.text).toContain("Please enter your password.");
 	});
 
 	it("POST /login should redirect to /job-roles for valid input", async () => {

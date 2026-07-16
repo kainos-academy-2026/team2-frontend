@@ -69,7 +69,7 @@ describe("login controller", () => {
 			oldInput: { email: "invalid-email" },
 			fieldErrors: {
 				email: ["Invalid email address"],
-				password: ["Too small: expected string to have >=1 characters"],
+				password: ["Please enter your password."],
 			},
 		});
 		expect(next).not.toHaveBeenCalled();

@@ -28,7 +28,7 @@ describe("parseLoginCredentials", () => {
 			expect(result.submittedEmail).toBe("invalid-email");
 			expect(result.fieldErrors.email).toEqual(["Invalid email address"]);
 			expect(result.fieldErrors.password).toEqual([
-				"Too small: expected string to have >=1 characters",
+				"Please enter your password.",
 			]);
 		}
 	});

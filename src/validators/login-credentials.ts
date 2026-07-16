@@ -7,7 +7,7 @@ const loginCredentialsSchema = z.object({
 		.trim()
 		.email()
 		.transform((value) => value.toLowerCase()),
-	password: z.string().min(1),
+	password: z.string().min(1, "Please enter your password."),
 });
 
 type LoginFieldErrors = {
