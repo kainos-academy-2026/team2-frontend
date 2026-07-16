@@ -7,7 +7,7 @@ It is possible for this backend api to return various error codes. I want to han
 403 - redirect to our forbidden page
 500 - redirect to something went wrong page
 
-Explore the best way to to globally implement this and clean up my service calls.
+Explore the best way to globally implement this and clean up my service calls.
 
 Does axios have a global error handler that could help here?
 
