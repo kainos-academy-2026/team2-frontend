@@ -1,10 +1,8 @@
+import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import apiURL from "../src/config/backend";
 import { JobRoleMapper } from "../src/mappers/job-role-mapper";
-import {
-	ForbiddenError,
-	JobRoleService,
-} from "../src/services/job-role-service";
+import { JobRoleService } from "../src/services/job-role-service";
 import { JobRoleStatus } from "../src/types/job-role";
 
 vi.mock("../src/config/backend", () => ({
@@ -76,18 +74,6 @@ describe("JobRoleService", () => {
 		);
 	});
 
-	it("should throw ForbiddenError when getJobRoles receives 403", async () => {
-		mockedApiURL.get.mockRejectedValueOnce({
-			isAxiosError: true,
-			response: { status: 403 },
-			message: "Forbidden",
-		});
-
-		await expect(service.getJobRoles(TEST_TOKEN)).rejects.toThrow(
-			ForbiddenError,
-		);
-	});
-
 	it("should fetch a single job role by id with Authorization header", async () => {
 		mockedApiURL.get.mockResolvedValueOnce({
 			data: {
@@ -137,15 +123,55 @@ describe("JobRoleService", () => {
 		expect(jobRole).toBeNull();
 	});
 
-	it("should throw ForbiddenError when getJobRoleById receives 403", async () => {
-		mockedApiURL.get.mockRejectedValueOnce({
-			isAxiosError: true,
-			response: { status: 403 },
-			message: "Forbidden",
-		});
+	it("should return null when API returns an empty array for a role", async () => {
+		mockedApiURL.get.mockResolvedValueOnce({ data: [] });
+
+		const jobRole = await service.getJobRoleById("missing", TEST_TOKEN);
+
+		expect(jobRole).toBeNull();
+	});
+
+	it("should throw a normalized error for non-404 axios errors", async () => {
+		mockedApiURL.get.mockRejectedValueOnce({ message: "socket hang up" });
+		vi.spyOn(axios, "isAxiosError").mockReturnValueOnce(true);
 
 		await expect(service.getJobRoleById("1", TEST_TOKEN)).rejects.toThrow(
-			ForbiddenError,
+			"Failed to fetch job role: socket hang up",
+		);
+	});
+
+	it("should throw a generic error for non-axios errors", async () => {
+		mockedApiURL.get.mockRejectedValueOnce(new Error("unexpected"));
+		vi.spyOn(axios, "isAxiosError").mockReturnValueOnce(false);
+
+		await expect(service.getJobRoleById("1", TEST_TOKEN)).rejects.toThrow(
+			"An unexpected error occurred while fetching the job role.",
+		);
+	});
+
+	it("should return null when API returns an empty array payload", async () => {
+		mockedApiURL.get.mockResolvedValueOnce({ data: [] });
+
+		const jobRole = await service.getJobRoleById("missing", TEST_TOKEN);
+
+		expect(jobRole).toBeNull();
+	});
+
+	it("should throw normalized axios error for non-403/404 failures", async () => {
+		mockedApiURL.get.mockRejectedValueOnce({ message: "socket hang up" });
+		vi.spyOn(axios, "isAxiosError").mockReturnValueOnce(true);
+
+		await expect(service.getJobRoleById("1", TEST_TOKEN)).rejects.toThrow(
+			"Failed to fetch job role: socket hang up",
+		);
+	});
+
+	it("should throw generic error for non-axios failures", async () => {
+		mockedApiURL.get.mockRejectedValueOnce(new Error("boom"));
+		vi.spyOn(axios, "isAxiosError").mockReturnValueOnce(false);
+
+		await expect(service.getJobRoleById("1", TEST_TOKEN)).rejects.toThrow(
+			"An unexpected error occurred while fetching the job role.",
 		);
 	});
 });

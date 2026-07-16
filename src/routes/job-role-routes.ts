@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { JobRoleController } from "../controllers/job-role-controller";
 import { JobRoleMapper } from "../mappers/job-role-mapper";
-import { requireAuthenticatedUser } from "../middleware/auth-session";
+import requireRole from "../middleware/auth-session";
 import { JobRoleService } from "../services/job-role-service";
+import { Role } from "../types/role";
 
 const jobRoleMapper = new JobRoleMapper();
 const jobRoleService = new JobRoleService(jobRoleMapper);
@@ -12,12 +13,12 @@ const jobRoleRoutes = Router();
 
 jobRoleRoutes.get(
 	"/job-roles",
-	requireAuthenticatedUser,
+	requireRole([Role.Admin, Role.User]),
 	jobRoleController.getJobRolesPage,
 );
 jobRoleRoutes.get(
 	"/job-roles/:id",
-	requireAuthenticatedUser,
+	requireRole([Role.Admin, Role.User]),
 	jobRoleController.getJobRoleDetailPage,
 );
 

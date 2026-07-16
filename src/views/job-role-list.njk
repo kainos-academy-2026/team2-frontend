@@ -39,6 +39,14 @@
         {% endif %}
       {% endfor %}
 
+        <p>Welcome, {{ user.name }}!</p>
+        <p>Your role: {{ user.role }}</p>
+        {% if user.isAdmin %}
+            <p>Admin: Yes</p>
+        {% else %}
+            <p>Admin: No</p>
+        {% endif %}
+
       <div class="table-wrap" role="region" aria-label="Open job roles">
         <table>
           <thead>

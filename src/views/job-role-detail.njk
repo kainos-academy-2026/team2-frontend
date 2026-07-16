@@ -33,6 +33,9 @@
         <h2 style="margin: 0 0 1rem; color: var(--brand-secondary);">Specification</h2>
         {% if jobRole.sharepointUrl %}
           <p style="margin: 0;"><a href="{{ jobRole.sharepointUrl }}" target="_blank" rel="noopener noreferrer" style="color: var(--brand-primary);">Open SharePoint</a></p>
+            {% if canApply %}
+                <a href="/job-roles/{{ jobRole.id }}/apply">Apply for this role</a>
+            {% endif %}
         {% else %}
           <p style="margin: 0; color: var(--text-muted);">No specification available.</p>
         {% endif %}
