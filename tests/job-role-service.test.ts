@@ -74,19 +74,7 @@ describe("JobRoleService", () => {
 		);
 	});
 
-<<<<<<< HEAD
 	it("should fetch a single job role by id with Authorization header", async () => {
-=======
-	it("should return an empty list when API payload is not an array", async () => {
-		mockedApiURL.get.mockResolvedValue({ data: null });
-
-		const jobRoles = await service.getJobRoles(TEST_TOKEN);
-
-		expect(jobRoles).toEqual([]);
-	});
-
-	it("should fetch a single job role by id", async () => {
->>>>>>> 9e09647 (fixed lint issues and added more unit tests)
 		mockedApiURL.get.mockResolvedValueOnce({
 			data: {
 				jobRoleId: 11,
@@ -138,7 +126,7 @@ describe("JobRoleService", () => {
 	it("should return null when API returns an empty array for a role", async () => {
 		mockedApiURL.get.mockResolvedValueOnce({ data: [] });
 
-		const jobRole = await service.getJobRoleById("missing");
+		const jobRole = await service.getJobRoleById("missing", TEST_TOKEN);
 
 		expect(jobRole).toBeNull();
 	});
@@ -147,7 +135,7 @@ describe("JobRoleService", () => {
 		mockedApiURL.get.mockRejectedValueOnce({ message: "socket hang up" });
 		vi.spyOn(axios, "isAxiosError").mockReturnValueOnce(true);
 
-		await expect(service.getJobRoleById("1")).rejects.toThrow(
+		await expect(service.getJobRoleById("1", TEST_TOKEN)).rejects.toThrow(
 			"Failed to fetch job role: socket hang up",
 		);
 	});
@@ -156,7 +144,7 @@ describe("JobRoleService", () => {
 		mockedApiURL.get.mockRejectedValueOnce(new Error("unexpected"));
 		vi.spyOn(axios, "isAxiosError").mockReturnValueOnce(false);
 
-		await expect(service.getJobRoleById("1")).rejects.toThrow(
+		await expect(service.getJobRoleById("1", TEST_TOKEN)).rejects.toThrow(
 			"An unexpected error occurred while fetching the job role.",
 		);
 	});

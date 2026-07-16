@@ -13,7 +13,6 @@ const createResponse = () => {
 		json: vi.fn(),
 		locals: {
 			user: { id: 1, role: "user" },
-			authToken: "token",
 			isAdmin: false,
 			isApplicant: true,
 		},
@@ -79,7 +78,6 @@ describe("ApplicationController", () => {
 	it("getApplyPage redirects when auth token is missing", async () => {
 		const req = { params: { id: "1" } } as unknown as Request;
 		const res = createResponse();
-		res.locals.authToken = undefined;
 
 		await controller.getApplyPage(req, res);
 
@@ -87,7 +85,10 @@ describe("ApplicationController", () => {
 	});
 
 	it("getApplyPage renders 404 when role is missing", async () => {
-		const req = { params: { id: "missing" } } as unknown as Request;
+		const req = {
+			params: { id: "missing" },
+			cookies: { authSession: "token" },
+		} as unknown as Request;
 		const res = createResponse();
 		res.locals.user = { id: 2, role: "user" };
 		mockedGetJobRoleById.mockResolvedValueOnce(null);
@@ -103,7 +104,10 @@ describe("ApplicationController", () => {
 
 	it("getApplyPage renders apply view when role exists", async () => {
 		const jobRole = createJobRole();
-		const req = { params: { id: "1" } } as unknown as Request;
+		const req = {
+			params: { id: "1" },
+			cookies: { authSession: "token" },
+		} as unknown as Request;
 		const res = createResponse();
 		res.locals.user = { id: 2, role: "user" };
 		mockedGetJobRoleById.mockResolvedValueOnce(jobRole);
@@ -114,7 +118,10 @@ describe("ApplicationController", () => {
 	});
 
 	it("getApplyPage renders 502 when role lookup fails", async () => {
-		const req = { params: { id: "1" } } as unknown as Request;
+		const req = {
+			params: { id: "1" },
+			cookies: { authSession: "token" },
+		} as unknown as Request;
 		const res = createResponse();
 		res.locals.user = { id: 2, role: "user" };
 		mockedGetJobRoleById.mockRejectedValueOnce(new Error("down"));
@@ -201,6 +208,7 @@ describe("ApplicationController", () => {
 	it("postApply redirects when user is missing", async () => {
 		const req = {
 			params: { id: "1" },
+			cookies: { authSession: "token" },
 			body: { cvKey: "cv-key" },
 		} as unknown as Request;
 		const res = createResponse();
@@ -215,6 +223,7 @@ describe("ApplicationController", () => {
 		const jobRole = createJobRole();
 		const req = {
 			params: { id: "1" },
+			cookies: { authSession: "token" },
 			body: { cvKey: " " },
 		} as unknown as Request;
 		const res = createResponse();
@@ -233,6 +242,7 @@ describe("ApplicationController", () => {
 	it("postApply returns 400 with null role when role lookup fails", async () => {
 		const req = {
 			params: { id: "1" },
+			cookies: { authSession: "token" },
 			body: { cvKey: "" },
 		} as unknown as Request;
 		const res = createResponse();
@@ -251,6 +261,7 @@ describe("ApplicationController", () => {
 	it("postApply creates application with trimmed cvKey then redirects", async () => {
 		const req = {
 			params: { id: "1" },
+			cookies: { authSession: "token" },
 			body: { cvKey: "  cv-key  " },
 		} as unknown as Request;
 		const res = createResponse();
@@ -270,6 +281,7 @@ describe("ApplicationController", () => {
 	it("postApply returns 502 and role when submit fails", async () => {
 		const req = {
 			params: { id: "1" },
+			cookies: { authSession: "token" },
 			body: { cvKey: "cv-key" },
 		} as unknown as Request;
 		const res = createResponse();
@@ -290,6 +302,7 @@ describe("ApplicationController", () => {
 	it("postApply returns 502 with null role when both calls fail", async () => {
 		const req = {
 			params: { id: "1" },
+			cookies: { authSession: "token" },
 			body: { cvKey: "cv-key" },
 		} as unknown as Request;
 		const res = createResponse();
@@ -309,7 +322,10 @@ describe("ApplicationController", () => {
 	it("getConfirmationPage renders role when lookup succeeds", async () => {
 		const jobRole = createJobRole();
 		mockedGetJobRoleById.mockResolvedValueOnce(jobRole);
-		const req = { params: { id: "1" } } as unknown as Request;
+		const req = {
+			params: { id: "1" },
+			cookies: { authSession: "token" },
+		} as unknown as Request;
 		const res = createResponse();
 
 		await controller.getConfirmationPage(req, res);
@@ -322,7 +338,6 @@ describe("ApplicationController", () => {
 	it("getConfirmationPage redirects to login when token is missing", async () => {
 		const req = { params: { id: "1" } } as unknown as Request;
 		const res = createResponse();
-		res.locals.authToken = undefined;
 
 		await controller.getConfirmationPage(req, res);
 
@@ -332,7 +347,10 @@ describe("ApplicationController", () => {
 
 	it("getConfirmationPage renders with null role when lookup fails", async () => {
 		mockedGetJobRoleById.mockRejectedValueOnce(new Error("down"));
-		const req = { params: { id: "1" } } as unknown as Request;
+		const req = {
+			params: { id: "1" },
+			cookies: { authSession: "token" },
+		} as unknown as Request;
 		const res = createResponse();
 
 		await controller.getConfirmationPage(req, res);

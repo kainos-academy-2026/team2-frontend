@@ -5,6 +5,14 @@ vi.mock("axios");
 
 const mockedAxios = vi.mocked(axios, true);
 
+mockedAxios.create.mockReturnValue({
+	post: mockedAxios.post,
+	interceptors: {
+		response: { use: vi.fn() },
+		request: { use: vi.fn() },
+	},
+} as unknown as ReturnType<typeof axios.create>);
+
 const originalMockedAuth = process.env.MOCKED_AUTHENTICATION;
 
 afterEach(() => {

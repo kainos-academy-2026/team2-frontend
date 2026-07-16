@@ -7,12 +7,17 @@ const createJwtToken = (
 	exp: number,
 	extraClaims: Record<string, unknown> = {},
 ) => {
+	const defaults = {
+		sub: "test-user-id",
+		email: "test@example.com",
+		name: "Test User",
+	};
 	const header = Buffer.from(
 		JSON.stringify({ alg: "none", typ: "JWT" }),
 	).toString("base64url");
-	const payload = Buffer.from(JSON.stringify({ exp, ...extraClaims })).toString(
-		"base64url",
-	);
+	const payload = Buffer.from(
+		JSON.stringify({ exp, ...defaults, ...extraClaims }),
+	).toString("base64url");
 
 	return `${header}.${payload}.signature`;
 };
@@ -325,6 +330,6 @@ describe("auth session helper", () => {
 
 		expect(next).toHaveBeenCalledTimes(1);
 		expect(redirect).not.toHaveBeenCalled();
-		expect(res.locals.isAdmin).toBe(true);
+		expect(res.locals.user.isAdmin).toBe(true);
 	});
 });

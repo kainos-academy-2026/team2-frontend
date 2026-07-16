@@ -4,12 +4,13 @@ declare global {
 	namespace Express {
 		interface Locals {
 			user?: {
-				id: number;
+				id: string;
 				role: UserRole;
+				email: string;
+				name: string;
+				isAdmin?: boolean;
 			};
 			authToken?: string;
-			isAdmin?: boolean;
-			isApplicant?: boolean;
 		}
 	}
 }

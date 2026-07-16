@@ -1,5 +1,5 @@
 export interface UploadUrlRequest {
-	userId: number;
+	userId: string;
 	fileName: string;
 	contentType: string;
 }
@@ -10,6 +10,6 @@ export interface UploadUrlResponse {
 }
 
 export interface CreateApplicationRequest {
-	userId: number;
+	userId: string;
 	cvKey: string;
 }

@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import { getUserFromSession } from "../middleware/auth-session";
+import { ForbiddenError } from "../errors/forbidden-error";
 import type { JobRoleService } from "../services/job-role-service";
 
 export class JobRoleController {
@@ -9,49 +9,84 @@ export class JobRoleController {
 		this.jobRoleService = jobRoleService;
 	}
 
-	getJobRolesPage = async (req: Request, res: Response, next: NextFunction) => {
-		try {
-			const jobRoles = await this.jobRoleService.getJobRoles(
-				req.cookies.authSession,
-			);
+	getJobRolesPage = async (req: Request, res: Response) => {
+		const token = req.cookies?.authSession;
 
-			res.render("job-role-list", {
+		if (!token) {
+			return res.redirect("/login");
+		}
+
+		try {
+			const jobRoles = await this.jobRoleService.getJobRoles(token);
+
+			return res.render("job-role-list", {
 				jobRoles,
 			});
 		} catch (error) {
-			next(error);
+			if (error instanceof ForbiddenError) {
+				return res.status(403).render("error", {
+					statusCode: 403,
+					message: "You do not have permission to access this resource.",
+				});
+			}
+
+			return res.render("job-role-list", {
+				jobRoles: [],
+			});
 		}
 	};
 
 	getJobRoleDetailPage = async (req: Request, res: Response) => {
-		const user = getUserFromSession(req);
-		const isApplicant = user !== null && user.role !== "admin";
+		const token = req.cookies?.authSession;
+
+		if (!token) {
+			return res.redirect("/login");
+		}
 
 		try {
 			const jobRole = await this.jobRoleService.getJobRoleById(
 				req.params.id,
-				req.cookies.authSession,
+				token,
 			);
 
 			if (!jobRole) {
-				res.status(404).render("job-role-detail", {
+				return res.status(404).render("job-role-detail", {
 					jobRole: null,
-					isApplicant,
+					isApplicant: res.locals.isApplicant,
 					message: "Job role not found.",
+					isAdmin: res.locals.isAdmin,
 				});
-				return;
 			}
 
-			res.render("job-role-detail", {
+			console.log(
+				!res.locals.user?.isAdmin &&
+					jobRole.status === "OPEN" &&
+					jobRole.numberOfOpenPositions > 0,
+			);
+			console.log(!res.locals.user?.isAdmin);
+			console.log(jobRole.status === "OPEN");
+			console.log(jobRole.numberOfOpenPositions > 0);
+
+			return res.render("job-role-detail", {
 				jobRole,
-				isApplicant,
-				message: "",
+				canApply:
+					!res.locals.user?.isAdmin &&
+					jobRole.status === "OPEN" &&
+					jobRole.numberOfOpenPositions > 0,
 			});
-		} catch {
-			res.status(502).render("job-role-detail", {
+		} catch (error) {
+			if (error instanceof ForbiddenError) {
+				return res.status(403).render("error", {
+					statusCode: 403,
+					message: "You do not have permission to access this resource.",
+				});
+			}
+
+			return res.status(502).render("job-role-detail", {
 				jobRole: null,
-				isApplicant,
+				isApplicant: res.locals.isApplicant,
 				message: "Could not load this job role right now.",
+				isAdmin: res.locals.isAdmin,
 			});
 		}
 	};

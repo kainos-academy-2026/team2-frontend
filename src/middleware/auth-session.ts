@@ -1,6 +1,15 @@
 import type { NextFunction, Request, Response } from "express";
 import * as jose from "jose";
+import z from "zod";
 import { Role } from "../types/role";
+
+const tokenPayloadSchema = z.object({
+	sub: z.string(),
+	email: z.string(),
+	name: z.string(),
+	role: z.enum(Role),
+	exp: z.number(),
+});
 
 export default function requireRole(allowedRoles: Role[]) {
 	return (req: Request, res: Response, next: NextFunction) => {
@@ -28,11 +37,17 @@ export default function requireRole(allowedRoles: Role[]) {
 			return;
 		}
 
+		if (!tokenPayloadSchema.safeParse(userDetails).success) {
+			res.clearCookie("authSession");
+			res.redirect("/login");
+			return;
+		}
+
 		res.locals.user = {
-			id: userDetails.sub,
+			id: userDetails.sub!,
 			role: userRole,
-			email: userDetails.email,
-			name: userDetails.name,
+			email: userDetails.email as string,
+			name: userDetails.name as string,
 			isAdmin: userRole === Role.Admin,
 		};
 
