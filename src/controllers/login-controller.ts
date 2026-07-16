@@ -53,7 +53,7 @@ export class LoginController {
 				sameSite: "lax",
 			});
 
-			return res.redirect("/");
+			return res.redirect("/job-roles");
 		} catch (error) {
 			return next(error);
 		}

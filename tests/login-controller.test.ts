@@ -103,7 +103,7 @@ describe("login controller", () => {
 			httpOnly: true,
 			sameSite: "lax",
 		});
-		expect(res.redirect).toHaveBeenCalledWith("/");
+		expect(res.redirect).toHaveBeenCalledWith("/job-roles");
 		expect(next).not.toHaveBeenCalled();
 	});
 
@@ -130,7 +130,7 @@ describe("login controller", () => {
 
 		await controller.postLogin(req, res, next);
 
-		expect(res.redirect).toHaveBeenCalledWith("/");
+		expect(res.redirect).toHaveBeenCalledWith("/job-roles");
 		expect(next).not.toHaveBeenCalled();
 	});
 

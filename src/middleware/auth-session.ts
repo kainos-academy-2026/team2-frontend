@@ -44,7 +44,7 @@ export default function requireRole(allowedRoles: Role[]) {
 		}
 
 		res.locals.user = {
-			id: userDetails.sub!,
+			id: userDetails.sub as string,
 			role: userRole,
 			email: userDetails.email as string,
 			name: userDetails.name as string,

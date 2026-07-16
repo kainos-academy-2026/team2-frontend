@@ -268,13 +268,13 @@ describe("Auth routes", () => {
 			.send({ email: "candidate@example.com", password: "password123" });
 
 		expect(response.status).toBe(302);
-		expect(response.headers.location).toBe("/");
+		expect(response.headers.location).toBe("/job-roles");
 		expect(getSetCookieHeader(response.headers["set-cookie"])).toContain(
 			"authSession=",
 		);
 	});
 
-	it("POST /login should redirect to / and set authSession cookie on successful login with cookie set", async () => {
+	it("POST /login should redirect to /job-roles and set authSession cookie on successful login with cookie set", async () => {
 		vi.spyOn(authService, "login").mockResolvedValueOnce({
 			isAuthenticated: true,
 			redirectTo: "/job-roles",
@@ -288,7 +288,7 @@ describe("Auth routes", () => {
 			.send({ email: "candidate@example.com", password: "password123" });
 
 		expect(response.status).toBe(302);
-		expect(response.headers.location).toBe("/");
+		expect(response.headers.location).toBe("/job-roles");
 		expect(getSetCookieHeader(response.headers["set-cookie"])).toContain(
 			"authSession=",
 		);
