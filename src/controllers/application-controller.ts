@@ -15,12 +15,7 @@ export class ApplicationController {
 	) {}
 
 	getApplyPage = async (req: Request, res: Response) => {
-		const user = res.locals.user;
-		const token = res.locals.authToken;
-
-		if (!user || !token) {
-			return res.redirect("/login");
-		}
+		const token = res.locals.authToken!;
 
 		const { id } = req.params;
 
@@ -79,12 +74,8 @@ export class ApplicationController {
 	};
 
 	postApply = async (req: Request, res: Response) => {
-		const user = res.locals.user;
-		const token = res.locals.authToken;
-
-		if (!user || !token) {
-			return res.redirect("/login");
-		}
+		const user = res.locals.user!;
+		const token = res.locals.authToken!;
 
 		const { id } = req.params;
 		const { cvKey } = req.body as { cvKey?: string };
@@ -129,11 +120,7 @@ export class ApplicationController {
 
 	getConfirmationPage = async (req: Request, res: Response) => {
 		const { id } = req.params;
-		const token = res.locals.authToken;
-
-		if (!token) {
-			return res.redirect("/login");
-		}
+		const token = res.locals.authToken!;
 
 		try {
 			const jobRole = await this.jobRoleService.getJobRoleById(id, token);
