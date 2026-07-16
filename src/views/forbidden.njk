@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Error {{ statusCode }}</title>
+		<style>
+			body {
+				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+				margin: 2rem;
+			}
+		</style>
+        {% if user and user.isAdmin %}
+            <meta http-equiv="refresh" content="5;url=/job-roles" />
+        {% endif %}
+	</head>
+	<body>
+		<main>
+			<h1>Forbidden</h1>
+			<p>You do not have access to this page</p>
+		</main>
+	</body>
+</html>

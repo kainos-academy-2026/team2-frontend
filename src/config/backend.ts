@@ -1,11 +1,6 @@
-import axios from "axios";
+// Re-export from lib for backward compatibility
+import apiClient from "../lib/apiClient";
+import "../lib/apiClient.interceptors"; // Ensure interceptors are registered
 
-const apiURL = axios.create({
-	baseURL: process.env.BACKEND_URL || "http://localhost:3001",
-	headers: {
-		"content-type": "application/json",
-	},
-	timeout: 5000,
-});
-
-export default apiURL;
+export { handleResponseError } from "../lib/apiClient.interceptors";
+export default apiClient;

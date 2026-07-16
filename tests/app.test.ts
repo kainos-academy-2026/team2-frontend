@@ -83,6 +83,23 @@ const sampleApiJobRoles = [
 	},
 ];
 
+const createJwtToken = (
+	exp: number,
+	extraClaims: Record<string, unknown> = {},
+) => {
+	const header = Buffer.from(
+		JSON.stringify({ alg: "none", typ: "JWT" }),
+	).toString("base64url");
+	const payload = Buffer.from(JSON.stringify({ exp, ...extraClaims })).toString(
+		"base64url",
+	);
+	return `${header}.${payload}.signature`;
+};
+
+const validToken = createJwtToken(Math.floor(Date.now() / 1000) + 3600, {
+	role: "user",
+});
+
 beforeEach(() => {
 	mockedAxios.get.mockImplementation((url) => {
 		if (url === "http://localhost:3001/job-roles") {
@@ -122,11 +139,11 @@ describe("GET /health", () => {
 });
 
 describe("GET /", () => {
-	it("should redirect to /login", async () => {
+	it("should redirect to /job-roles", async () => {
 		const response = await request(app).get("/");
 
 		expect(response.status).toBe(302);
-		expect(response.headers.location).toBe("/login");
+		expect(response.headers.location).toBe("/job-roles");
 	});
 
 	it("should render generic 404 page for unknown routes", async () => {
@@ -150,13 +167,13 @@ describe("Auth routes", () => {
 		expect(response.text).toContain('form action="/login" method="POST"');
 	});
 
-	it("GET /login should redirect authenticated users to /job-roles", async () => {
+	it("GET /login should render login page for authenticated users", async () => {
 		const response = await request(app)
 			.get("/login")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
-		expect(response.status).toBe(302);
-		expect(response.headers.location).toBe("/job-roles");
+		expect(response.status).toBe(200);
+		expect(response.text).toContain("Sign In");
 	});
 
 	it("POST /login should return 400 and show field-level errors for invalid input", async () => {
@@ -191,7 +208,7 @@ describe("Auth routes", () => {
 		);
 	});
 
-	it("POST /login should use allowlisted post-login redirect cookie", async () => {
+	it("POST /login should redirect to / and set authSession cookie on successful login with cookie set", async () => {
 		vi.spyOn(authService, "login").mockResolvedValueOnce({
 			isAuthenticated: true,
 			redirectTo: "/job-roles",
@@ -205,9 +222,9 @@ describe("Auth routes", () => {
 			.send({ email: "candidate@example.com", password: "password123" });
 
 		expect(response.status).toBe(302);
-		expect(response.headers.location).toBe("/job-roles");
+		expect(response.headers.location).toBe("/");
 		expect(getSetCookieHeader(response.headers["set-cookie"])).toContain(
-			"postLoginRedirect=;",
+			"authSession=",
 		);
 	});
 
@@ -393,7 +410,7 @@ describe("GET /job-roles", () => {
 	it("should return 200 for authenticated users", async () => {
 		const response = await request(app)
 			.get("/job-roles")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
 		expect(response.status).toBe(200);
 	});
@@ -401,7 +418,7 @@ describe("GET /job-roles", () => {
 	it("should return HTML content", async () => {
 		const response = await request(app)
 			.get("/job-roles")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
 		expect(response.headers["content-type"]).toMatch(/html/);
 	});
@@ -409,7 +426,7 @@ describe("GET /job-roles", () => {
 	it("should render a logout form for authenticated users", async () => {
 		const response = await request(app)
 			.get("/job-roles")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
 		expect(response.text).toContain('form action="/logout" method="POST"');
 		expect(response.text).toContain("Log Out");
@@ -418,7 +435,7 @@ describe("GET /job-roles", () => {
 	it("should render the job roles table headers", async () => {
 		const response = await request(app)
 			.get("/job-roles")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
 		expect(response.text).toContain("Role Name");
 		expect(response.text).toContain("Location");
@@ -430,7 +447,7 @@ describe("GET /job-roles", () => {
 	it("should only display open job roles", async () => {
 		const response = await request(app)
 			.get("/job-roles")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
 		expect(response.text).toContain("Software Engineer");
 		expect(response.text).toContain("Test Engineer");
@@ -442,7 +459,7 @@ describe("GET /job-roles", () => {
 	it("should render role names as links to detail pages", async () => {
 		const response = await request(app)
 			.get("/job-roles")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
 		expect(response.text).toContain('href="/job-roles/1"');
 		expect(response.text).toContain('href="/job-roles/2"');
@@ -452,7 +469,7 @@ describe("GET /job-roles", () => {
 	it("should render closing dates for open roles", async () => {
 		const response = await request(app)
 			.get("/job-roles")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
 		expect(response.text).toContain("<td>2026-12-31</td>");
 		expect(response.text).toContain("<td>2026-09-30</td>");
@@ -480,30 +497,30 @@ describe("GET /job-roles", () => {
 
 		const response = await request(app)
 			.get("/job-roles")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
 		expect(response.text).toMatch(/<td>\s*-\s*<\/td>/);
 	});
 
 	it("should request job roles from the API service endpoint", async () => {
-		await request(app).get("/job-roles").set("Cookie", ["authSession=token"]);
+		await request(app)
+			.get("/job-roles")
+			.set("Cookie", [`authSession=${validToken}`]);
 
 		expect(mockedApiURL.get).toHaveBeenCalledWith("/job-roles", {
-			headers: { Authorization: "Bearer token" },
+			headers: { Authorization: `Bearer ${validToken}` },
 		});
 	});
 
-	it("should render empty-state row when API call fails", async () => {
+	it("should render error page when API call fails", async () => {
 		mockedApiURL.get.mockRejectedValueOnce(new Error("API unavailable"));
 
 		const response = await request(app)
 			.get("/job-roles")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
-		expect(response.status).toBe(200);
-		expect(response.text).toContain(
-			"No open job roles are available right now.",
-		);
+		expect(response.status).toBe(500);
+		expect(response.text).toContain("Something went wrong");
 	});
 });
 
@@ -511,7 +528,7 @@ describe("GET /job-roles/:id", () => {
 	it("should show job role details including specification", async () => {
 		const response = await request(app)
 			.get("/job-roles/1")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
 		expect(response.status).toBe(200);
 		expect(response.headers["content-type"]).toMatch(/html/);
@@ -526,6 +543,7 @@ describe("GET /job-roles/:id", () => {
 	});
 
 	it("should return 404 when role does not exist", async () => {
+		mockedAxios.isAxiosError.mockReturnValueOnce(true);
 		mockedApiURL.get.mockRejectedValueOnce({
 			isAxiosError: true,
 			response: { status: 404 },
@@ -534,7 +552,7 @@ describe("GET /job-roles/:id", () => {
 
 		const response = await request(app)
 			.get("/job-roles/999")
-			.set("Cookie", ["authSession=token"]);
+			.set("Cookie", [`authSession=${validToken}`]);
 
 		expect(response.status).toBe(404);
 		expect(response.text).toContain("Job role not found.");

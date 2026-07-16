@@ -9,4 +9,4 @@
 .env
 .env. *
 !.env.example
-
+coverage/

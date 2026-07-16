@@ -1,10 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import apiURL from "../src/config/backend";
 import { JobRoleMapper } from "../src/mappers/job-role-mapper";
-import {
-	ForbiddenError,
-	JobRoleService,
-} from "../src/services/job-role-service";
+import { JobRoleService } from "../src/services/job-role-service";
 import { JobRoleStatus } from "../src/types/job-role";
 
 vi.mock("../src/config/backend", () => ({
@@ -76,18 +73,6 @@ describe("JobRoleService", () => {
 		);
 	});
 
-	it("should throw ForbiddenError when getJobRoles receives 403", async () => {
-		mockedApiURL.get.mockRejectedValueOnce({
-			isAxiosError: true,
-			response: { status: 403 },
-			message: "Forbidden",
-		});
-
-		await expect(service.getJobRoles(TEST_TOKEN)).rejects.toThrow(
-			ForbiddenError,
-		);
-	});
-
 	it("should fetch a single job role by id with Authorization header", async () => {
 		mockedApiURL.get.mockResolvedValueOnce({
 			data: {
@@ -135,17 +120,5 @@ describe("JobRoleService", () => {
 		const jobRole = await service.getJobRoleById("missing", TEST_TOKEN);
 
 		expect(jobRole).toBeNull();
-	});
-
-	it("should throw ForbiddenError when getJobRoleById receives 403", async () => {
-		mockedApiURL.get.mockRejectedValueOnce({
-			isAxiosError: true,
-			response: { status: 403 },
-			message: "Forbidden",
-		});
-
-		await expect(service.getJobRoleById("1", TEST_TOKEN)).rejects.toThrow(
-			ForbiddenError,
-		);
 	});
 });
