@@ -7,14 +7,30 @@ const createJwtToken = (
 	exp: number,
 	extraClaims: Record<string, unknown> = {},
 ) => {
+	const defaults = {
+		sub: "test-user-id",
+		email: "test@example.com",
+		name: "Test User",
+	};
 	const header = Buffer.from(
 		JSON.stringify({ alg: "none", typ: "JWT" }),
 	).toString("base64url");
-	const payload = Buffer.from(JSON.stringify({ exp, ...extraClaims })).toString(
+	const payload = Buffer.from(
+		JSON.stringify({ exp, ...defaults, ...extraClaims }),
+	).toString("base64url");
+
+	return `${header}.${payload}.signature`;
+};
+
+const createJwtWithPayload = (payload: Record<string, unknown>) => {
+	const header = Buffer.from(
+		JSON.stringify({ alg: "none", typ: "JWT" }),
+	).toString("base64url");
+	const encodedPayload = Buffer.from(JSON.stringify(payload)).toString(
 		"base64url",
 	);
 
-	return `${header}.${payload}.signature`;
+	return `${header}.${encodedPayload}.signature`;
 };
 
 describe("auth session helper", () => {
@@ -62,7 +78,7 @@ describe("auth session helper", () => {
 			cookies: { authSession: expiredToken },
 		} as unknown as Request;
 		const redirect = vi.fn();
-		const res = { redirect } as unknown as Response;
+		const res = { redirect, locals: {} } as unknown as Response;
 		const next = vi.fn() as NextFunction;
 
 		requireRole([Role.User])(req, res, next);
@@ -314,5 +330,6 @@ describe("auth session helper", () => {
 
 		expect(next).toHaveBeenCalledTimes(1);
 		expect(redirect).not.toHaveBeenCalled();
+		expect(res.locals.user.isAdmin).toBe(true);
 	});
 });

@@ -34,10 +34,18 @@ export class JobRoleService {
 
 			return this.mapper.toJobRole(jobRoleData);
 		} catch (error) {
-			if (axios.isAxiosError(error) && error.response?.status === 404) {
+			const isAxiosError = axios.isAxiosError(error);
+
+			if (isAxiosError && error.response?.status === 404) {
 				return null;
 			}
-			throw error;
+			if (isAxiosError) {
+				throw new Error(`Failed to fetch job role: ${error.message}`);
+			}
+
+			throw new Error(
+				"An unexpected error occurred while fetching the job role.",
+			);
 		}
 	}
 }

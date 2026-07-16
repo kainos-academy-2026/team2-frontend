@@ -52,6 +52,23 @@ describe("DefaultAuthService", () => {
 		});
 	});
 
+	it("configures axios validateStatus to accept all statuses", async () => {
+		mockedApiURL.post.mockResolvedValueOnce({
+			status: 401,
+			data: { message: "Invalid" },
+		});
+		const authService = new DefaultAuthService();
+
+		await authService.login({
+			email: "exampleuser1@hotmail.com",
+			password: "wrong-password",
+		});
+
+		const config = mockedApiURL.post.mock.calls[0]?.[2];
+		expect(config).toBeDefined();
+		expect(config?.validateStatus?.(500)).toBe(true);
+	});
+
 	it("rejects login when backend returns 401", async () => {
 		mockedApiURL.post.mockResolvedValueOnce({
 			status: 401,
@@ -86,6 +103,46 @@ describe("DefaultAuthService", () => {
 			}),
 		).rejects.toThrow("Backend login response did not include a token");
 	});
+
+	it("throws when backend returns non-401 non-2xx status", async () => {
+		mockedApiURL.post.mockResolvedValueOnce({
+			status: 500,
+			data: {
+				message: "Server error",
+			},
+		});
+		const authService = new DefaultAuthService();
+
+		await expect(
+			authService.login({
+				email: "exampleuser1@hotmail.com",
+				password: "password123",
+			}),
+		).rejects.toThrow("Unexpected backend login response status: 500");
+	});
+
+	it("throws when backend token is blank", async () => {
+		mockedApiURL.post.mockResolvedValueOnce({
+			status: 200,
+			data: {
+				token: "   ",
+			},
+		});
+		const authService = new DefaultAuthService();
+
+		await expect(
+			authService.login({
+				email: "exampleuser1@hotmail.com",
+				password: "password123",
+			}),
+		).rejects.toThrow("Backend login response did not include a token");
+	});
+
+	it("logout resolves without error", async () => {
+		const authService = new DefaultAuthService();
+
+		await expect(authService.logout()).resolves.toBeUndefined();
+	});
 });
 
 describe("MockAuthService", () => {
@@ -116,5 +173,11 @@ describe("MockAuthService", () => {
 			isAuthenticated: false,
 			redirectTo: "/job-roles",
 		});
+	});
+
+	it("logout resolves without error", async () => {
+		const authService = new MockAuthService();
+
+		await expect(authService.logout()).resolves.toBeUndefined();
 	});
 });

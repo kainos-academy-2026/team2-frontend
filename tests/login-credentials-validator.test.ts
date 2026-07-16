@@ -32,4 +32,25 @@ describe("parseLoginCredentials", () => {
 			);
 		}
 	});
+
+	it("returns blank submittedEmail when payload is not an object", () => {
+		const result = parseLoginCredentials(undefined);
+
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.submittedEmail).toBe("");
+		}
+	});
+
+	it("returns blank submittedEmail when email is not a string", () => {
+		const result = parseLoginCredentials({
+			email: 123,
+			password: "",
+		});
+
+		expect(result.success).toBe(false);
+		if (!result.success) {
+			expect(result.submittedEmail).toBe("");
+		}
+	});
 });

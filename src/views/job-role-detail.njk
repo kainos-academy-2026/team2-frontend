@@ -37,6 +37,9 @@
                 <h2>Responsibilities</h2>
                 <p>{{ jobRole.responsibilities or "No responsibilities available." }}</p>
             </section>
+            {% if canApply %}
+                <a href="/job-roles/{{ jobRole.id }}/apply">Apply for this role</a>
+            {% endif %}
         {% else %}
             <h1>Role detail unavailable</h1>
             <p>{{ message or "Could not load this job role right now." }}</p>
