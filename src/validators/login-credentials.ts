@@ -7,12 +7,12 @@ const loginCredentialsSchema = z.object({
 		.trim()
 		.email()
 		.transform((value) => value.toLowerCase()),
-	password: z.string().min(1),
+	password: z.string().min(1, "Please enter your password."),
 });
 
 type LoginFieldErrors = {
-	email?: string;
-	password?: string;
+	email?: string[];
+	password?: string[];
 };
 
 type ParseLoginCredentialsResult =
@@ -49,8 +49,8 @@ export const parseLoginCredentials = (
 			success: false,
 			submittedEmail: getSubmittedEmail(input),
 			fieldErrors: {
-				email: emailError,
-				password: passwordError,
+				email: emailError ? [emailError] : undefined,
+				password: passwordError ? [passwordError] : undefined,
 			},
 		};
 	}

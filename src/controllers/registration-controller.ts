@@ -18,6 +18,7 @@ export default class RegistrationController {
 		if (res.locals.errors) {
 			res.render("register", {
 				values: this.getValues(input),
+				fieldErrors: res.locals.errors,
 			});
 
 			return;

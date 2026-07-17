@@ -1,68 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sign In</title>
-  </head>
-  <body>
-    <main>
-      <h1>Sign In</h1>
+{% extends "_form-layout.njk" %}
 
-      {% if loggedOut %}
-        <p role="status">You have been logged out.</p>
-      {% endif %}
+{% block title %}Sign In{% endblock %}
+{% block ariaLabel %}Sign in page{% endblock %}
 
-      {% if error %}
-        <div class="error-alert" role="alert" aria-live="assertive">
-          {{ error }}
-        </div>
-      {% endif %}
+{% block brandBlurb %}
+  <p>Welcome back to your career journey.</p>
+  <p>Sign in to your account to continue.</p>
+{% endblock %}
 
-      <form action="/login" method="POST">
-        {% if csrfToken %}
-          <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
-        {% endif %}
+{% block brandIcon %}
+  <div>
+    <img
+      class="brand-icon"
+      src="/public/icons/LoginIcon.png"
+      alt=""
+      aria-hidden="true"
+    />
+  </div>
+{% endblock %}
 
-        <div class="form-group">
-          <label for="email">Email Address</label>
-          <input
-            type="email"
-            id="email"
-            name="email"
-            value="{{ oldInput.email | default('') }}"
-            autocomplete="username"
-            inputmode="email"
-            spellcheck="false"
-            aria-invalid="{{ 'true' if fieldErrors.email else 'false' }}"
-            {% if fieldErrors.email %}aria-describedby="email-error"{% endif %}
-            required
-          />
-          {% if fieldErrors.email %}
-            <p id="email-error" role="alert">{{ fieldErrors.email }}</p>
-          {% endif %}
-        </div>
+{% block eyebrow %}Sign in{% endblock %}
+{% block heading %}Welcome{% endblock %}
+{% block intro %}Enter your credentials to access your account.{% endblock %}
 
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            autocomplete="current-password"
-            aria-invalid="{{ 'true' if fieldErrors.password else 'false' }}"
-            {% if fieldErrors.password %}aria-describedby="password-error"{% endif %}
-            required
-          />
-          {% if fieldErrors.password %}
-            <p id="password-error" role="alert">{{ fieldErrors.password }}</p>
-          {% endif %}
-        </div>
+{% block alerts %}
+  {% if loggedOut %}
+    <div class="alert alert-loggedout" role="status">You have been logged out successfully.</div>
+  {% endif %}
+  {% if error %}
+    <div class="alert alert-error" role="alert">{{ error }}</div>
+  {% endif %}
+{% endblock %}
 
-        <button type="submit" data-loading-text="Signing In...">Sign In</button>
-      </form>
-    </main>
+{% block formContent %}
+  {% from '_field-macro.njk' import field %}
+  <form action="/login" method="POST">
+    {% if csrfToken %}
+      <input type="hidden" name="_csrf" value="{{ csrfToken }}" />
+    {% endif %}
 
-    <script src="/login-form.js"></script>
-  </body>
-</html>
+    {{ field('email', 'Email address', 'email', 'jane.smith@example.com', oldInput.email, fieldErrors, 'username') }}
+    {{ field('password', 'Password', 'password', 'Enter your password', oldInput.password, fieldErrors, 'current-password') }}
+
+    <button class="btn-primary" type="submit">Sign In</button>
+  </form>
+{% endblock %}
+
+{% block formFooter %}
+  <p class="form-footer">
+    Don't have an account? <a href="/register">Create one now</a>.
+  </p>
+{% endblock %}

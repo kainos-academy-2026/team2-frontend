@@ -1,21 +1,13 @@
-<!DOCTYPE html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Error {{ statusCode }}</title>
-		<style>
-			body {
-				font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-				margin: 2rem;
-			}
-		</style>
-	</head>
-	<body>
-		<main>
-			<h1>Something went wrong</h1>
-			<p>{{ message }}</p>
-			<p>Error code: {{ statusCode }}</p>
-		</main>
-	</body>
-</html>
+{% extends "_layout.njk" %}
+
+{% block title %}Error {{ statusCode }}{% endblock %}
+
+{% block content %}
+  <div class="error-page">
+    <p class="error-code">{{ statusCode }}</p>
+    <h1>Something went wrong</h1>
+    <p>{{ message }}</p>
+    <p>Error code: {{ statusCode }}</p>
+    <a href="/" class="btn-primary">Back to Home</a>
+  </div>
+{% endblock %}
