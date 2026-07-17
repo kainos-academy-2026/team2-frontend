@@ -20,6 +20,27 @@ function clearFileError() {
 	fileInput.removeAttribute("aria-invalid");
 }
 
+async function uploadToStorage(uploadUrl, file) {
+	const withContentTypeResponse = await fetch(uploadUrl, {
+		method: "PUT",
+		headers: { "Content-Type": file.type },
+		body: file,
+	});
+
+	if (withContentTypeResponse.ok) {
+		return;
+	}
+
+	const withoutContentTypeResponse = await fetch(uploadUrl, {
+		method: "PUT",
+		body: file,
+	});
+
+	if (!withoutContentTypeResponse.ok) {
+		throw new Error("Failed to upload CV to storage.");
+	}
+}
+
 if (form && fileInput && cvKeyInput && submitBtn) {
 	form.addEventListener("submit", async (event) => {
 		event.preventDefault();
@@ -46,7 +67,17 @@ if (form && fileInput && cvKeyInput && submitBtn) {
 		uploadStatusEl.hidden = false;
 
 		try {
-			const jobRoleId = form.action.split("/job-roles/")[1].split("/apply")[0];
+			const actionUrl = new URL(form.action, window.location.origin);
+			const pathParts = actionUrl.pathname.split("/").filter(Boolean);
+			const jobRolesSegmentIndex = pathParts.indexOf("job-roles");
+			const jobRoleId =
+				jobRolesSegmentIndex >= 0
+					? pathParts[jobRolesSegmentIndex + 1]
+					: undefined;
+
+			if (!jobRoleId) {
+				throw new Error("Could not determine job role id.");
+			}
 
 			const urlResponse = await fetch(
 				`/job-roles/${jobRoleId}/apply/upload-url`,
@@ -61,20 +92,12 @@ if (form && fileInput && cvKeyInput && submitBtn) {
 			);
 
 			if (!urlResponse.ok) {
-				throw new Error("Failed to get upload URL.");
+				const uploadError = await urlResponse.json().catch(() => null);
+				throw new Error(uploadError?.error ?? "Failed to get upload URL.");
 			}
 
 			const { cvKey, uploadUrl } = await urlResponse.json();
-
-			const s3Response = await fetch(uploadUrl, {
-				method: "PUT",
-				headers: { "Content-Type": file.type },
-				body: file,
-			});
-
-			if (!s3Response.ok) {
-				throw new Error("Failed to upload CV to storage.");
-			}
+			await uploadToStorage(uploadUrl, file);
 
 			cvKeyInput.value = cvKey;
 			form.submit();
