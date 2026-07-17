@@ -118,6 +118,41 @@ body {
 	overflow-x: auto;
 }
 
+.welcome-banner {
+	margin: 24px 24px 0;
+	padding: 0;
+}
+
+.welcome-banner-title {
+	margin: 0;
+	font-size: 1.05rem;
+	font-weight: 700;
+	color: var(--brand-secondary);
+}
+
+.welcome-banner-meta {
+	margin: 6px 0 0;
+	font-size: 0.92rem;
+	color: var(--text-muted);
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.welcome-admin-pill {
+	display: inline-flex;
+	align-items: center;
+	padding: 4px 10px;
+	border-radius: 999px;
+	background: rgba(0, 122, 83, 0.14);
+	color: var(--brand-secondary);
+	font-size: 0.75rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
 table {
 	width: 100%;
 	border-collapse: collapse;
@@ -200,6 +235,20 @@ tbody tr:last-child td {
 		padding: 16px;
 	}
 
+	.welcome-banner {
+		margin: 16px 16px 0;
+		padding: 14px;
+	}
+
+	.welcome-banner-title {
+		font-size: 1rem;
+	}
+
+	.welcome-banner-meta {
+		font-size: 0.86rem;
+		gap: 8px;
+	}
+
 	thead th,
 	tbody td {
 		padding: 12px 10px;
@@ -221,8 +270,9 @@ tbody tr:last-child td {
 
 .dialog-actions {
 	display: flex;
-	gap: 0.5rem;
+	gap: 10px;
 	justify-content: flex-end;
+	margin-top: 18px;
 }
 
 dialog::backdrop {
