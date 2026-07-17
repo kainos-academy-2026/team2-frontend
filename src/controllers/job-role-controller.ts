@@ -34,6 +34,8 @@ export class JobRoleController {
 	getJobRolesPage = async (req: Request, res: Response) => {
 		const token = req.cookies?.authSession;
 		const roleCreated = req.query.created === "1";
+		const deletedMessage =
+			req.query.deleted === "1" ? "Job role deleted successfully." : undefined;
 
 		if (!token) {
 			return res.redirect("/login");
@@ -45,6 +47,7 @@ export class JobRoleController {
 			return res.render("job-role-list", {
 				jobRoles,
 				roleCreated,
+				deletedMessage,
 			});
 		} catch (error) {
 			if (error instanceof ForbiddenError) {
@@ -57,6 +60,47 @@ export class JobRoleController {
 			return res.render("job-role-list", {
 				jobRoles: [],
 				roleCreated,
+				deletedMessage,
+			});
+		}
+	};
+
+	postDeleteJobRole = async (req: Request, res: Response) => {
+		const token = req.cookies?.authSession;
+
+		if (!token) {
+			return res.redirect("/login");
+		}
+
+		try {
+			await this.jobRoleService.deleteJobRole(req.params.id, token);
+
+			return res.redirect("/job-roles?deleted=1");
+		} catch (error) {
+			if (error instanceof ForbiddenError) {
+				return res.status(403).render("error", {
+					statusCode: 403,
+					message: "You do not have permission to access this resource.",
+				});
+			}
+
+			if (axios.isAxiosError(error)) {
+				if (error.response?.status === 401) {
+					res.clearCookie("authSession");
+					return res.redirect("/login");
+				}
+
+				if (error.response?.status === 404) {
+					return res.status(404).render("error", {
+						statusCode: 404,
+						message: "Job role not found.",
+					});
+				}
+			}
+
+			return res.status(502).render("error", {
+				statusCode: 502,
+				message: "Could not delete this job role right now. Please try again.",
 			});
 		}
 	};

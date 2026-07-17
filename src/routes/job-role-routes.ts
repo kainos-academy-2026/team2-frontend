@@ -39,5 +39,10 @@ jobRoleRoutes.get(
 	requireRole([Role.Admin, Role.User]),
 	jobRoleController.getJobRoleDetailPage,
 );
+jobRoleRoutes.post(
+	"/job-roles/:id/delete",
+	requireRole([Role.Admin]),
+	jobRoleController.postDeleteJobRole,
+);
 
 export default jobRoleRoutes;

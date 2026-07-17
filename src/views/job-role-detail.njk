@@ -23,7 +23,19 @@
         <p style="margin: 0.25rem 0;">Location: {{ jobRole.location or "-" }}</p>
         <p style="margin: 0.25rem 0;">Capability: {{ jobRole.capability or "-" }}</p>
         <p style="margin: 0.25rem 0;">Band: {{ jobRole.band or "-" }}</p>
-        <p style="margin: 0.25rem 0;">Closing date: {{ jobRole.closingDate or "-" }}</p>
+        <p style="margin: 0.25rem 0;">
+          Closing date:
+          {% if jobRole.closingDate %}
+            {% set detailClosingDateParts = (jobRole.closingDate | string).split("T")[0].split("-") %}
+            {% if detailClosingDateParts.length == 3 %}
+              {{ detailClosingDateParts[2] }}-{{ detailClosingDateParts[1] }}-{{ detailClosingDateParts[0] }}
+            {% else %}
+              {{ jobRole.closingDate }}
+            {% endif %}
+          {% else %}
+            -
+          {% endif %}
+        </p>
       </section>
       <section style="border: 1px solid var(--border-soft); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
         <h2 style="margin: 0 0 1rem; color: var(--brand-secondary);">Description</h2>
@@ -33,9 +45,6 @@
         <h2 style="margin: 0 0 1rem; color: var(--brand-secondary);">Specification</h2>
         {% if jobRole.sharepointUrl %}
           <p style="margin: 0;"><a href="{{ jobRole.sharepointUrl }}" target="_blank" rel="noopener noreferrer" style="color: var(--brand-primary);">Open SharePoint</a></p>
-            {% if canApply %}
-                <a href="/job-roles/{{ jobRole.id }}/apply">Apply for this role</a>
-            {% endif %}
         {% else %}
           <p style="margin: 0; color: var(--text-muted);">No specification available.</p>
         {% endif %}
@@ -44,6 +53,40 @@
         <h2 style="margin: 0 0 1rem; color: var(--brand-secondary);">Responsibilities</h2>
         <p style="margin: 0; color: var(--text-muted); line-height: 1.7;">{{ jobRole.responsibilities or "No responsibilities available." }}</p>
       </section>
+      {% if user.isAdmin %}
+        <div class="detail-admin-delete" aria-label="Role admin actions">
+          <form id="delete-role-detail-form" action="/job-roles/{{ jobRole.id }}/delete" method="POST" class="delete-role-form">
+            <button
+              type="button"
+              class="danger-cta"
+              data-delete-open
+              data-form-id="delete-role-detail-form"
+              data-role-name="{{ jobRole.name or 'this role' }}"
+            >
+              Delete role
+            </button>
+          </form>
+        </div>
+
+      {% elif canApply %}
+        <div class="detail-admin-delete" aria-label="Role actions">
+          <a href="/job-roles/{{ jobRole.id }}/apply" class="apply-cta">Apply for this role</a>
+        </div>
+      {% endif %}
+
+      {% if user.isAdmin %}
+        <dialog id="delete-role-modal" class="brand-modal" aria-labelledby="delete-role-title" aria-describedby="delete-role-description">
+          <h2 id="delete-role-title" class="brand-modal-title">Confirm role deletion</h2>
+          <p id="delete-role-description" class="brand-modal-text">
+            Are you sure you want to delete <strong id="delete-role-name">this role</strong>? This action cannot be undone.
+          </p>
+          <div class="dialog-actions">
+            <button type="button" id="delete-cancel-btn" class="modal-btn modal-btn-secondary">Cancel</button>
+            <button type="button" id="delete-confirm-btn" class="modal-btn modal-btn-danger">Delete role</button>
+          </div>
+        </dialog>
+      {% endif %}
+      <script src="/public/delete-role-modal.js"></script>
     {% else %}
       <h1 style="margin: 2rem 0 0.5rem; color: var(--brand-secondary);">Role detail unavailable</h1>
       <p style="color: var(--text-muted);">{{ message or "Could not load this job role right now." }}</p>

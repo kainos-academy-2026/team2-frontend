@@ -1,43 +1,51 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Apply for {{ jobRole.name if jobRole else "Job Role" }}</title>
-    <link rel="stylesheet" href="/styles.css" />
-  </head>
-  <body>
+{% extends "_form-layout.njk" %}
+
+{% block title %}Apply{% endblock %}
+{% block ariaLabel %}Job application page{% endblock %}
+
+{% block brandBlurb %}
+  <p>Take the next step in your Kainos career journey.</p>
+  <p>Upload your CV and submit your application in minutes.</p>
+{% endblock %}
+
+{% block eyebrow %}Job application{% endblock %}
+{% block heading %}Apply for {{ jobRole.name if jobRole else "this role" }}{% endblock %}
+{% block intro %}Upload your CV as a PDF file to submit your application.{% endblock %}
+
+{% block alerts %}
+  {% if error %}
+    <div class="alert alert-error" role="alert">{{ error }}</div>
+  {% endif %}
+{% endblock %}
+
+{% block formContent %}
+  <form id="apply-form" method="post" action="/job-roles/{{ jobRole.id if jobRole }}/apply" novalidate>
+    <div class="field">
+      <label for="cv-file">Upload your CV (PDF only, max 5MB)</label>
+      <div id="cv-file-error" class="field-error" role="alert" hidden></div>
+      <input
+        id="cv-file"
+        name="cv-file"
+        type="file"
+        accept="application/pdf"
+        aria-describedby="cv-file-error"
+        required
+      />
+    </div>
+
+    <input type="hidden" id="cvKey" name="cvKey" value="" />
+
+    <div id="upload-status" class="helper-row" hidden>
+      <span>Uploading CV...</span>
+    </div>
+
+    <button class="btn-primary" type="submit" id="submit-btn">Submit application</button>
+  </form>
+{% endblock %}
+
+{% block formFooter %}
+  <p class="form-footer">
     <a href="/job-roles/{{ jobRole.id if jobRole }}">Back to job role</a>
-
-    <h1>Apply for {{ jobRole.name if jobRole else "this role" }}</h1>
-
-    {% if error %}
-      <div class="alert alert-error" role="alert">{{ error }}</div>
-    {% endif %}
-
-    <form id="apply-form" method="post" action="/job-roles/{{ jobRole.id if jobRole }}/apply" novalidate>
-      <div class="field">
-        <label for="cv-file">Upload your CV (PDF only, max 5MB)</label>
-        <div id="cv-file-error" class="field-error" role="alert" hidden></div>
-        <input
-          id="cv-file"
-          name="cv-file"
-          type="file"
-          accept="application/pdf"
-          aria-describedby="cv-file-error"
-          required
-        />
-      </div>
-
-      <input type="hidden" id="cvKey" name="cvKey" value="" />
-
-      <div id="upload-status" hidden>
-        <p>Uploading CV…</p>
-      </div>
-
-      <button type="submit" id="submit-btn">Submit application</button>
-    </form>
-
-    <script src="/public/apply.js"></script>
-  </body>
-</html>
+  </p>
+  <script src="/public/apply.js"></script>
+{% endblock %}

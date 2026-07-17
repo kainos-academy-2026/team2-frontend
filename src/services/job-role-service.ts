@@ -1,5 +1,7 @@
 import axios from "axios";
 import apiURL from "../config/backend";
+import { ForbiddenError } from "../errors/forbidden-error";
+import { ServerError } from "../errors/server-error";
 import type { JobRoleMapper } from "../mappers/job-role-mapper";
 import type { Band } from "../types/band";
 import type { Capability } from "../types/capability";
@@ -26,6 +28,28 @@ export class JobRoleService {
 			headers: authHeaders(token),
 		});
 		return Array.isArray(response.data) ? response.data : [];
+	}
+
+	async deleteJobRole(id: string, token: string): Promise<void> {
+		try {
+			await apiURL.delete(`/${id}`, {
+				headers: authHeaders(token),
+			});
+		} catch (error) {
+			if (error instanceof ForbiddenError || error instanceof ServerError) {
+				throw error;
+			}
+
+			const isAxiosError = axios.isAxiosError(error);
+
+			if (isAxiosError) {
+				throw error;
+			}
+
+			throw new Error(
+				"An unexpected error occurred while deleting the job role.",
+			);
+		}
 	}
 
 	async getJobRoles(token: string): Promise<JobRole[]> {
