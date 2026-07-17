@@ -43,7 +43,7 @@ nunjucks.configure(viewsPath, {
 app.set("view engine", "njk");
 
 app.get("/", (_req, res) => {
-	res.redirect("/job-roles");
+	res.render("index");
 });
 
 app.use(jobRoleRoutes);

@@ -172,12 +172,19 @@ form {
 	gap: 8px;
 }
 
+.field-errors {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+}
+
 .field-error {
-	margin: 0;
+	margin: 0 0 6px 0;
 	font-size: 0.85rem;
 	font-weight: 600;
 	line-height: 1.45;
-	color: #b42318;
+	color: #d32f2f;
+	display: block;
 }
 
 label {
@@ -211,14 +218,18 @@ input:focus {
 }
 
 input.input-error {
-	border-color: #b42318;
-	box-shadow: 0 0 0 3px rgba(180, 35, 24, 0.18);
-	background: #fff7f6;
+	border-color: #d32f2f;
+	box-shadow:
+		0 0 0 4px rgba(211, 47, 47, 0.15),
+		0 0 12px rgba(211, 47, 47, 0.3);
+	background: #ffebee;
 }
 
 input.input-error:focus {
-	border-color: #b42318;
-	box-shadow: 0 0 0 4px rgba(180, 35, 24, 0.22);
+	border-color: #d32f2f;
+	box-shadow:
+		0 0 0 4px rgba(211, 47, 47, 0.25),
+		0 0 16px rgba(211, 47, 47, 0.4);
 }
 
 .helper-row {

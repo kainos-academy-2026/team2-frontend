@@ -1,75 +1,55 @@
-{% import '_field-macro.njk' as formMacro %}
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Create your account</title>
-    <link rel="stylesheet" href="/public/register.css" />
-  </head>
-  <body>
-    <main class="page">
-      <section class="shell" aria-label="Registration page">
-        <aside class="brand-panel" aria-label="Brand information">
-          <div>
-            <div class="brand-lockup">
-              <img
-                class="brand-logo"
-                src="/public/icons/Kainos_Logo.png"
-                alt="Kainos logo"
-              />
-            </div>
+{% extends "_form-layout.njk" %}
 
-            <p class="brand-blurb">
-              <span>Join thousands of professionals finding their next opportunity.</span>
-              <span>Create your account to get started.</span>
-            </p>
+{% block title %}Create Account{% endblock %}
+{% block ariaLabel %}Registration page{% endblock %}
 
-            <div class="brand-copy">
-              <img
-                class="brand-icon"
-                src="/public/icons/Register_Icon.png"
-                alt="Icon"
-              />
-            </div>
-          </div>
-        </aside>
+{% block brandBlurb %}
+  <p>Join thousands of professionals finding their next opportunity.</p>
+  <p>Create your account to get started.</p>
+{% endblock %}
 
-        <section class="form-panel">
-          <div class="form-wrap">
-            <p class="eyebrow">Create account</p>
-            <h2>Register</h2>
-            <p class="intro">
-              Enter your details below to create an account.
-            </p>
+{% block brandIcon %}
+  <div>
+    <img
+      class="brand-icon"
+      src="/public/icons/Register_Icon.png"
+      alt=""
+      aria-hidden="true"
+    />
+  </div>
+{% endblock %}
 
-            {% if error %}
-              <div class="alert alert-error" role="alert">{{ error }}</div>
-            {% endif %}
+{% block eyebrow %}Create account{% endblock %}
+{% block heading %}Register{% endblock %}
+{% block intro %}Enter your details below to create an account.{% endblock %}
 
-            {% if success %}
-              <div class="alert alert-success" role="status">{{ success }}</div>
-            {% endif %}
+{% block alerts %}
+  {% if error %}
+    <div class="alert alert-error" role="alert">{{ error }}</div>
+  {% endif %}
+  {% if success %}
+    <div class="alert alert-success" role="status">{{ success }}</div>
+  {% endif %}
+{% endblock %}
 
-            <form method="post" action="/register" novalidate>
-              {{ formMacro.field('fullName', 'Full name', 'text', 'Jane Smith', values.fullName or '', errors, 'name') }}
-              {{ formMacro.field('email', 'Email address', 'text', 'jane.smith@example.com', values.email or '', errors, 'email') }}
-              {{ formMacro.field('password', 'Password', 'password', 'Create a secure password', '', errors, 'new-password') }}
-              {{ formMacro.field('confirmPassword', 'Confirm password', 'password', 'Re-enter your password', '', errors, 'new-password') }}
+{% block formContent %}
+  {% from '_field-macro.njk' import field %}
+  <form method="post" action="/register">
+    {{ field('fullName', 'Full name', 'text', 'Jane Smith', values.fullName, fieldErrors, 'name') }}
+    {{ field('email', 'Email address', 'email', 'jane.smith@example.com', values.email, fieldErrors, 'email') }}
+    {{ field('password', 'Password', 'password', 'Create a secure password', values.password, fieldErrors, 'new-password') }}
+    {{ field('confirmPassword', 'Confirm password', 'password', 'Re-enter your password', values.confirmPassword, fieldErrors, 'new-password') }}
 
-              <div class="helper-row" aria-hidden="true">
-                <span>Passwords must be at least 8 characters long and include at least one upper case, lower case and special character.</span>
-              </div>
+    <div class="helper-row" aria-hidden="true">
+      <span>Use at least 8 characters.</span>
+    </div>
 
-              <button class="register-button" type="submit">Register</button>
-            </form>
+    <button class="btn-primary" type="submit">Register</button>
+  </form>
+{% endblock %}
 
-            <p class="form-footer">
-              Already have access? <a href="/">Return to the home page</a>.
-            </p>
-          </div>
-        </section>
-      </section>
-    </main>
-  </body>
-</html>
+{% block formFooter %}
+  <p class="form-footer">
+    Already have an account? <a href="/login">Sign in</a>.
+  </p>
+{% endblock %}

@@ -1,48 +1,52 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Job Role Detail</title>
-        <link rel="stylesheet" href="/styles.css" />
-    </head>
-    <body>
-        <a href="/job-roles">Back to job roles</a>
+{% extends "_layout.njk" %}
 
-        {% if jobRole %}
-            <h1>{{ jobRole.name or "Job Role" }}</h1>
-            <p class="meta">
-                Status: {{ jobRole.status or "-" }} | Open positions: {{ jobRole.numberOfOpenPositions or 0 }}
-            </p>
-            <section class="card">
-                <h2>Role information</h2>
-                <p>Location: {{ jobRole.location or "-" }}</p>
-                <p>Capability: {{ jobRole.capability or "-" }}</p>
-                <p>Band: {{ jobRole.band or "-" }}</p>
-                <p>Closing date: {{ jobRole.closingDate or "-" }}</p>
-            </section>
-            <section class="card">
-                <h2>Description</h2>
-                <p>{{ jobRole.description or "No description available." }}</p>
-            </section>
-            <section class="card">
-                <h2>Specification</h2>
-                {% if jobRole.sharepointUrl %}
-                    <p><a href="{{ jobRole.sharepointUrl }}" target="_blank" rel="noopener noreferrer">Open SharePoint</a></p>
-                {% else %}
-                    <p>No specification available.</p>
-                {% endif %}
-            </section>
-            <section class="card">
-                <h2>Responsibilities</h2>
-                <p>{{ jobRole.responsibilities or "No responsibilities available." }}</p>
-            </section>
+{% block title %}{% if jobRole %}{{ jobRole.name }}{% else %}Job Role Detail{% endif %}{% endblock %}
+
+{% block nav %}
+  <a href="/job-roles">All Roles</a>
+  <form action="/logout" method="POST" style="margin: 0;">
+    <button type="submit" class="nav-cta" style="cursor: pointer; font: inherit;">Log Out</button>
+  </form>
+{% endblock %}
+
+{% block content %}
+  <div style="max-width: 900px; margin: 2rem auto; padding: 0 2rem;">
+    <a href="/job-roles" style="color: var(--brand-primary); font-weight: 600; text-decoration: none;">&#8592; Back to job roles</a>
+
+    {% if jobRole %}
+      <h1 style="margin: 1.5rem 0 0.5rem; color: var(--brand-secondary);">{{ jobRole.name or "Job Role" }}</h1>
+      <p style="color: var(--text-muted); margin-bottom: 2rem;">
+        Status: {{ jobRole.status or "-" }} | Open positions: {{ jobRole.numberOfOpenPositions or 0 }}
+      </p>
+      <section style="border: 1px solid var(--border-soft); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0 0 1rem; color: var(--brand-secondary);">Role information</h2>
+        <p style="margin: 0.25rem 0;">Location: {{ jobRole.location or "-" }}</p>
+        <p style="margin: 0.25rem 0;">Capability: {{ jobRole.capability or "-" }}</p>
+        <p style="margin: 0.25rem 0;">Band: {{ jobRole.band or "-" }}</p>
+        <p style="margin: 0.25rem 0;">Closing date: {{ jobRole.closingDate or "-" }}</p>
+      </section>
+      <section style="border: 1px solid var(--border-soft); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0 0 1rem; color: var(--brand-secondary);">Description</h2>
+        <p style="margin: 0; color: var(--text-muted); line-height: 1.7;">{{ jobRole.description or "No description available." }}</p>
+      </section>
+      <section style="border: 1px solid var(--border-soft); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0 0 1rem; color: var(--brand-secondary);">Specification</h2>
+        {% if jobRole.sharepointUrl %}
+          <p style="margin: 0;"><a href="{{ jobRole.sharepointUrl }}" target="_blank" rel="noopener noreferrer" style="color: var(--brand-primary);">Open SharePoint</a></p>
             {% if canApply %}
                 <a href="/job-roles/{{ jobRole.id }}/apply">Apply for this role</a>
             {% endif %}
         {% else %}
-            <h1>Role detail unavailable</h1>
-            <p>{{ message or "Could not load this job role right now." }}</p>
+          <p style="margin: 0; color: var(--text-muted);">No specification available.</p>
         {% endif %}
-    </body>
-</html>
+      </section>
+      <section style="border: 1px solid var(--border-soft); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0 0 1rem; color: var(--brand-secondary);">Responsibilities</h2>
+        <p style="margin: 0; color: var(--text-muted); line-height: 1.7;">{{ jobRole.responsibilities or "No responsibilities available." }}</p>
+      </section>
+    {% else %}
+      <h1 style="margin: 2rem 0 0.5rem; color: var(--brand-secondary);">Role detail unavailable</h1>
+      <p style="color: var(--text-muted);">{{ message or "Could not load this job role right now." }}</p>
+    {% endif %}
+  </div>
+{% endblock %}

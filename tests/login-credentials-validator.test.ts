@@ -26,10 +26,10 @@ describe("parseLoginCredentials", () => {
 		expect(result.success).toBe(false);
 		if (!result.success) {
 			expect(result.submittedEmail).toBe("invalid-email");
-			expect(result.fieldErrors.email).toBe("Invalid email address");
-			expect(result.fieldErrors.password).toBe(
-				"Too small: expected string to have >=1 characters",
-			);
+			expect(result.fieldErrors.email).toEqual(["Invalid email address"]);
+			expect(result.fieldErrors.password).toEqual([
+				"Please enter your password.",
+			]);
 		}
 	});
 

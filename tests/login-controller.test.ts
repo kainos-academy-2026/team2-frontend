@@ -68,8 +68,8 @@ describe("login controller", () => {
 			error: undefined,
 			oldInput: { email: "invalid-email" },
 			fieldErrors: {
-				email: "Invalid email address",
-				password: "Too small: expected string to have >=1 characters",
+				email: ["Invalid email address"],
+				password: ["Please enter your password."],
 			},
 		});
 		expect(next).not.toHaveBeenCalled();
@@ -103,7 +103,7 @@ describe("login controller", () => {
 			httpOnly: true,
 			sameSite: "lax",
 		});
-		expect(res.redirect).toHaveBeenCalledWith("/");
+		expect(res.redirect).toHaveBeenCalledWith("/job-roles");
 		expect(next).not.toHaveBeenCalled();
 	});
 
@@ -130,7 +130,7 @@ describe("login controller", () => {
 
 		await controller.postLogin(req, res, next);
 
-		expect(res.redirect).toHaveBeenCalledWith("/");
+		expect(res.redirect).toHaveBeenCalledWith("/job-roles");
 		expect(next).not.toHaveBeenCalled();
 	});
 

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Kainos{% endblock %} | Kainos Careers</title>
+    <link rel="icon" type="image/png" href="/public/icons/Kainos_Logo.png" />
+    <link rel="stylesheet" href="/public/kainos.css" />
+  </head>
+  <body class="form-page-bg">
+    <main class="page">
+      <section class="shell" aria-label="{% block ariaLabel %}{% endblock %}">
+        <aside class="brand-panel" aria-label="Brand information">
+          <div>
+            <div class="brand-lockup">
+              <img
+                class="brand-logo"
+                src="/public/icons/Kainos_Logo.png"
+                alt="Kainos logo"
+              />
+            </div>
+
+            <div class="brand-blurb">
+              {% block brandBlurb %}{% endblock %}
+            </div>
+
+            {% block brandIcon %}{% endblock %}
+          </div>
+        </aside>
+
+        <section class="form-panel">
+          <div class="form-wrap">
+            <p class="eyebrow">{% block eyebrow %}{% endblock %}</p>
+            <h2>{% block heading %}{% endblock %}</h2>
+            <p class="intro">{% block intro %}{% endblock %}</p>
+
+            {% block alerts %}{% endblock %}
+
+            {% block formContent %}{% endblock %}
+
+            {% block formFooter %}{% endblock %}
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <div>
+          <img src="/public/icons/Kainos_Logo.png" alt="Kainos" class="footer-logo" />
+        </div>
+        <div class="footer-contact">
+          <h3>Contact Us</h3>
+          <p>Email: <a href="mailto:info@kainos.com">info@kainos.com</a></p>
+          <p>Phone: <a href="tel:+442890918200">+44 (0)28 9091 8200</a></p>
+          <p>Kainos Group plc, 4-6 Upper Crescent, Belfast, BT7 1NT</p>
+        </div>
+        <div class="footer-links">
+          <a href="https://www.kainos.com" target="_blank" rel="noopener noreferrer">kainos.com</a>
+          <a href="/login">Sign In</a>
+          <a href="/register">Register</a>
+        </div>
+      </div>
+      <hr class="footer-divider" />
+      <p class="footer-copy">&copy; 2025 Kainos Group plc. All rights reserved.</p>
+    </footer>
+  </body>
+</html>
