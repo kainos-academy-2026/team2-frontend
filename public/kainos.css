@@ -223,7 +223,9 @@ label {
 	font-weight: 700;
 }
 
-input {
+input,
+textarea,
+select {
 	width: 100%;
 	border: 1px solid var(--border-soft);
 	border-radius: var(--radius-input);
@@ -241,14 +243,38 @@ input::placeholder {
 	color: #8a9a93;
 }
 
-input:focus {
+textarea {
+	min-height: 120px;
+	resize: vertical;
+}
+
+select {
+	appearance: none;
+	padding-right: 44px;
+	background-image:
+		linear-gradient(45deg, transparent 50%, var(--text-muted) 50%),
+		linear-gradient(135deg, var(--text-muted) 50%, transparent 50%);
+	background-position:
+		calc(100% - 20px) calc(50% - 3px),
+		calc(100% - 14px) calc(50% - 3px);
+	background-size:
+		6px 6px,
+		6px 6px;
+	background-repeat: no-repeat;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
 	outline: none;
 	border-color: var(--brand-primary);
 	box-shadow: 0 0 0 4px rgba(0, 122, 83, 0.15);
 	background: #ffffff;
 }
 
-input.input-error {
+input.input-error,
+textarea.input-error,
+select.input-error {
 	border-color: #d32f2f;
 	box-shadow:
 		0 0 0 4px rgba(211, 47, 47, 0.15),
@@ -256,7 +282,9 @@ input.input-error {
 	background: #ffebee;
 }
 
-input.input-error:focus {
+input.input-error:focus,
+textarea.input-error:focus,
+select.input-error:focus {
 	border-color: #d32f2f;
 	box-shadow:
 		0 0 0 4px rgba(211, 47, 47, 0.25),

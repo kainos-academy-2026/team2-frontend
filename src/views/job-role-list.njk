@@ -31,6 +31,14 @@
         <p class="intro">Browse the current open roles and closing dates.</p>
       </header>
 
+      {% if roleCreated %}
+        <div class="alert alert-success" style="margin: 18px 24px 0;" role="status">New job role created successfully.</div>
+      {% endif %}
+
+      {% if user.isAdmin %}
+        <p style="padding: 18px 24px 0;"><a href="/job-roles/add" class="btn-primary">Create role</a></p>
+      {% endif %}
+
       {% if forbidden %}
         <p style="color: red; padding: 0 24px;">You do not have permission to access that page.</p>
       {% endif %}

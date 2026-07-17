@@ -685,6 +685,136 @@ describe("GET /job-roles/:id", () => {
 	});
 });
 
+describe("Admin add role routes", () => {
+	it("GET /job-roles/add should render add role form", async () => {
+		mockedApiURL.get
+			.mockResolvedValueOnce({ data: [{ id: 1, name: "Band 1" }] })
+			.mockResolvedValueOnce({ data: [{ id: 10, name: "Engineering" }] });
+
+		const response = await request(app)
+			.get("/job-roles/add")
+			.set("Cookie", [`authSession=${adminToken}`]);
+
+		expect(response.status).toBe(200);
+		expect(response.text).toContain("Add a new role");
+		expect(response.text).toContain("Select a band");
+		expect(response.text).toContain("Select a capability");
+	});
+
+	it("GET /job-roles/add should return 502 when dropdown endpoints fail", async () => {
+		mockedApiURL.get.mockRejectedValueOnce(new Error("backend unavailable"));
+
+		const response = await request(app)
+			.get("/job-roles/add")
+			.set("Cookie", [`authSession=${adminToken}`]);
+
+		expect(response.status).toBe(502);
+		expect(response.text).toContain(
+			"Could not load the add role page right now. Please try again later.",
+		);
+	});
+
+	it("POST /job-roles/add should re-render form when validation fails", async () => {
+		mockedApiURL.get
+			.mockResolvedValueOnce({ data: [{ id: 1, name: "Band 1" }] })
+			.mockResolvedValueOnce({ data: [{ id: 10, name: "Engineering" }] });
+
+		const response = await request(app)
+			.post("/job-roles/add")
+			.set("Cookie", [`authSession=${adminToken}`])
+			.type("form")
+			.send({
+				name: "",
+				location: "",
+				bandId: "",
+				capabilityId: "",
+				closingDate: "",
+				numberOfOpenPositions: "-1",
+			});
+
+		expect(response.status).toBe(200);
+		expect(response.text).toContain("Job role name is required.");
+		expect(response.text).toContain("Location is required.");
+	});
+
+	it("POST /job-roles/add should reject a closing date before today", async () => {
+		mockedApiURL.get
+			.mockResolvedValueOnce({ data: [{ id: 1, name: "Band 1" }] })
+			.mockResolvedValueOnce({ data: [{ id: 10, name: "Engineering" }] });
+
+		const response = await request(app)
+			.post("/job-roles/add")
+			.set("Cookie", [`authSession=${adminToken}`])
+			.type("form")
+			.send({
+				name: "Principal Engineer",
+				location: "Belfast",
+				bandId: "2",
+				capabilityId: "10",
+				closingDate: "2000-01-01",
+				numberOfOpenPositions: "1",
+			});
+
+		expect(response.status).toBe(200);
+		expect(response.text).toContain("Closing date cannot be before today.");
+	});
+
+	it("POST /job-roles/add should create role and redirect", async () => {
+		mockedApiURL.post.mockResolvedValueOnce({ data: { jobRoleId: 99 } });
+
+		const response = await request(app)
+			.post("/job-roles/add")
+			.set("Cookie", [`authSession=${adminToken}`])
+			.type("form")
+			.send({
+				name: "Principal Engineer",
+				location: "Belfast",
+				bandId: "2",
+				capabilityId: "10",
+				closingDate: "2026-12-31",
+				description: "Lead technical delivery",
+				sharepointUrl: "https://example.com/spec",
+				responsibilities: "Lead delivery\nMentor engineers",
+				numberOfOpenPositions: "2",
+			});
+
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/job-roles?created=1");
+		expect(mockedApiURL.post).toHaveBeenCalledWith(
+			"/job-roles",
+			expect.objectContaining({
+				name: "Principal Engineer",
+				location: "Belfast",
+				capabilityId: 10,
+				bandId: 2,
+				closingDate: "2026-12-31",
+				numberOfOpenPositions: 2,
+			}),
+			expect.objectContaining({
+				headers: { Authorization: `Bearer ${adminToken}` },
+			}),
+		);
+	});
+
+	it("GET /job-roles should show success message when redirected from create", async () => {
+		const response = await request(app)
+			.get("/job-roles?created=1")
+			.set("Cookie", [`authSession=${validToken}`]);
+
+		expect(response.status).toBe(200);
+		expect(response.text).toContain("New job role created successfully.");
+	});
+
+	it("GET /job-roles should not show create role link for non-admin users", async () => {
+		const response = await request(app)
+			.get("/job-roles")
+			.set("Cookie", [`authSession=${validToken}`]);
+
+		expect(response.status).toBe(200);
+		expect(response.text).not.toContain('href="/job-roles/add"');
+	});
+});
+
 describe("POST /job-roles/:id/delete", () => {
 	it("returns 403 when a non-admin user attempts to delete a role", async () => {
 		const response = await request(app)

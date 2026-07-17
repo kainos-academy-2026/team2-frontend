@@ -28,8 +28,10 @@ export const validateBody =
 			}
 
 			res.locals.errors = fieldErrors;
+			res.locals.validatedBody = null;
 		} else {
 			res.locals.errors = null;
+			res.locals.validatedBody = parsedRequest.data;
 		}
 
 		next();
