@@ -1,6 +1,7 @@
 import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import apiURL from "../src/config/backend";
+import { ForbiddenError } from "../src/errors/forbidden-error";
 import { JobRoleMapper } from "../src/mappers/job-role-mapper";
 import { JobRoleService } from "../src/services/job-role-service";
 import { JobRoleStatus } from "../src/types/job-role";
@@ -8,6 +9,7 @@ import { JobRoleStatus } from "../src/types/job-role";
 vi.mock("../src/config/backend", () => ({
 	default: {
 		get: vi.fn(),
+		delete: vi.fn(),
 	},
 }));
 
@@ -20,6 +22,43 @@ describe("JobRoleService", () => {
 	beforeEach(() => {
 		service = new JobRoleService(new JobRoleMapper());
 		mockedApiURL.get.mockReset();
+		mockedApiURL.delete.mockReset();
+	});
+
+	it("should delete a job role with Authorization header", async () => {
+		mockedApiURL.delete.mockResolvedValueOnce({ data: undefined });
+
+		await service.deleteJobRole("11", TEST_TOKEN);
+
+		expect(mockedApiURL.delete).toHaveBeenCalledWith("/job-roles/11", {
+			headers: { Authorization: `Bearer ${TEST_TOKEN}` },
+		});
+	});
+
+	it("should preserve axios delete failures", async () => {
+		mockedApiURL.delete.mockRejectedValueOnce({ message: "request failed" });
+		vi.spyOn(axios, "isAxiosError").mockReturnValueOnce(true);
+
+		await expect(service.deleteJobRole("11", TEST_TOKEN)).rejects.toEqual(
+			expect.objectContaining({ message: "request failed" }),
+		);
+	});
+
+	it("should preserve forbidden errors from response interceptors", async () => {
+		mockedApiURL.delete.mockRejectedValueOnce(new ForbiddenError());
+
+		await expect(
+			service.deleteJobRole("11", TEST_TOKEN),
+		).rejects.toBeInstanceOf(ForbiddenError);
+	});
+
+	it("should throw a generic error for non-axios delete failures", async () => {
+		mockedApiURL.delete.mockRejectedValueOnce(new Error("boom"));
+		vi.spyOn(axios, "isAxiosError").mockReturnValueOnce(false);
+
+		await expect(service.deleteJobRole("11", TEST_TOKEN)).rejects.toThrow(
+			"An unexpected error occurred while deleting the job role.",
+		);
 	});
 
 	it("should fetch job roles from API endpoint with Authorization header", async () => {

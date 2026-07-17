@@ -206,3 +206,25 @@ tbody tr:last-child td {
 		font-size: 0.88rem;
 	}
 }
+
+.success-banner {
+	padding: 0.75rem;
+	border: 1px solid #0e7a0d;
+	background-color: #edf7ed;
+	color: #0e7a0d;
+	max-width: 36rem;
+}
+
+.delete-role-form {
+	margin: 0;
+}
+
+.dialog-actions {
+	display: flex;
+	gap: 0.5rem;
+	justify-content: flex-end;
+}
+
+dialog::backdrop {
+	background: rgb(0 0 0 / 40%);
+}

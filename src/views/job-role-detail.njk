@@ -33,12 +33,38 @@
         <h2 style="margin: 0 0 1rem; color: var(--brand-secondary);">Specification</h2>
         {% if jobRole.sharepointUrl %}
           <p style="margin: 0;"><a href="{{ jobRole.sharepointUrl }}" target="_blank" rel="noopener noreferrer" style="color: var(--brand-primary);">Open SharePoint</a></p>
+            {% if user.isAdmin %}
+                <form id="delete-role-detail-form" action="/job-roles/{{ jobRole.id }}/delete" method="POST" class="delete-role-form">
+                    <button
+                        type="button"
+                        data-delete-open
+                        data-form-id="delete-role-detail-form"
+                        data-role-name="{{ jobRole.name or 'this role' }}"
+                    >
+                        Delete role
+                    </button>
+                </form>
+            {% endif %}
             {% if canApply %}
                 <a href="/job-roles/{{ jobRole.id }}/apply">Apply for this role</a>
+            {% endif %}
+
+            {% if user.isAdmin %}
+                <dialog id="delete-role-modal" aria-labelledby="delete-role-title" aria-describedby="delete-role-description">
+                    <h2 id="delete-role-title">Confirm role deletion</h2>
+                    <p id="delete-role-description">
+                        Are you sure you want to delete <strong id="delete-role-name">this role</strong>? This action cannot be undone.
+                    </p>
+                    <div class="dialog-actions">
+                        <button type="button" id="delete-cancel-btn">Cancel</button>
+                        <button type="button" id="delete-confirm-btn">Delete role</button>
+                    </div>
+                </dialog>
             {% endif %}
         {% else %}
           <p style="margin: 0; color: var(--text-muted);">No specification available.</p>
         {% endif %}
+        <script src="/public/delete-role-modal.js"></script>
       </section>
       <section style="border: 1px solid var(--border-soft); border-radius: 12px; padding: 1.5rem; margin-bottom: 1.5rem;">
         <h2 style="margin: 0 0 1rem; color: var(--brand-secondary);">Responsibilities</h2>

@@ -3,9 +3,8 @@ import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("../src/middleware/auth-session", () => ({
-	default:
-		() =>
-		(
+	default: (allowedRoles: string[]) => {
+		return (
 			req: { cookies?: { authSession?: string } },
 			res: {
 				locals: {
@@ -20,24 +19,50 @@ vi.mock("../src/middleware/auth-session", () => ({
 					isAdmin?: boolean;
 					isApplicant?: boolean;
 				};
+				status: (code: number) => {
+					render: (view: string) => void;
+				};
 			},
 			next: () => void,
 		) => {
+			const token = req.cookies?.authSession;
+			const tokenPayload = token?.split(".")[1];
+			let role = "user";
+
+			if (tokenPayload) {
+				try {
+					const parsed = JSON.parse(
+						Buffer.from(tokenPayload, "base64url").toString("utf8"),
+					);
+					if (typeof parsed.role === "string") {
+						role = parsed.role;
+					}
+				} catch {
+					role = "user";
+				}
+			}
+
 			res.locals.user = {
 				id: "test-user-id",
-				role: "user",
+				role,
 				email: "test.user@example.com",
 				name: "Test User",
-				isAdmin: false,
+				isAdmin: role === "admin",
 			};
-			res.locals.authToken = req.cookies?.authSession;
-			res.locals.isAdmin = false;
-			res.locals.isApplicant = true;
+			res.locals.authToken = token;
+			res.locals.isAdmin = role === "admin";
+			res.locals.isApplicant = role !== "admin";
+
+			if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+				res.status(403).render("forbidden");
+				return;
+			}
+
 			next();
-		},
-	requireRole:
-		() =>
-		(
+		};
+	},
+	requireRole: (allowedRoles: string[]) => {
+		return (
 			req: { cookies?: { authSession?: string } },
 			res: {
 				locals: {
@@ -52,21 +77,48 @@ vi.mock("../src/middleware/auth-session", () => ({
 					isAdmin?: boolean;
 					isApplicant?: boolean;
 				};
+				status: (code: number) => {
+					render: (view: string) => void;
+				};
 			},
 			next: () => void,
 		) => {
+			const token = req.cookies?.authSession;
+			const tokenPayload = token?.split(".")[1];
+			let role = "user";
+
+			if (tokenPayload) {
+				try {
+					const parsed = JSON.parse(
+						Buffer.from(tokenPayload, "base64url").toString("utf8"),
+					);
+					if (typeof parsed.role === "string") {
+						role = parsed.role;
+					}
+				} catch {
+					role = "user";
+				}
+			}
+
 			res.locals.user = {
 				id: "test-user-id",
-				role: "user",
+				role,
 				email: "test.user@example.com",
 				name: "Test User",
-				isAdmin: false,
+				isAdmin: role === "admin",
 			};
-			res.locals.authToken = req.cookies?.authSession;
-			res.locals.isAdmin = false;
-			res.locals.isApplicant = true;
+			res.locals.authToken = token;
+			res.locals.isAdmin = role === "admin";
+			res.locals.isApplicant = role !== "admin";
+
+			if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+				res.status(403).render("forbidden");
+				return;
+			}
+
 			next();
-		},
+		};
+	},
 }));
 
 import app from "../src/app";
@@ -78,6 +130,7 @@ vi.mock("../src/config/backend", () => ({
 	default: {
 		get: vi.fn(),
 		post: vi.fn(),
+		delete: vi.fn(),
 	},
 }));
 
@@ -167,6 +220,9 @@ const createJwtToken = (
 const validToken = createJwtToken(Math.floor(Date.now() / 1000) + 3600, {
 	role: "user",
 });
+const adminToken = createJwtToken(Math.floor(Date.now() / 1000) + 3600, {
+	role: "admin",
+});
 
 beforeEach(() => {
 	mockedAxios.get.mockImplementation((url) => {
@@ -185,8 +241,10 @@ beforeEach(() => {
 	mockedAxios.isAxiosError.mockReset();
 	mockedApiURL.get.mockReset();
 	mockedApiURL.post.mockReset();
+	mockedApiURL.delete.mockReset();
 	mockedApiURL.get.mockResolvedValue({ data: sampleApiJobRoles });
 	mockedApiURL.post.mockResolvedValue({ data: {} });
+	mockedApiURL.delete.mockResolvedValue({ data: {} });
 	mockedAxios.isAxiosError.mockReturnValue(false);
 });
 
@@ -624,6 +682,51 @@ describe("GET /job-roles/:id", () => {
 
 		expect(response.status).toBe(404);
 		expect(response.text).toContain("Job role not found.");
+	});
+});
+
+describe("POST /job-roles/:id/delete", () => {
+	it("returns 403 when a non-admin user attempts to delete a role", async () => {
+		const response = await request(app)
+			.post("/job-roles/1/delete")
+			.set("Cookie", [`authSession=${validToken}`]);
+
+		expect(response.status).toBe(403);
+		expect(response.text).toContain("Forbidden");
+	});
+
+	it("allows an admin to delete a role and redirects with success query flag", async () => {
+		const response = await request(app)
+			.post("/job-roles/1/delete")
+			.set("Cookie", [`authSession=${adminToken}`]);
+
+		expect(response.status).toBe(302);
+		expect(response.headers.location).toBe("/job-roles?deleted=1");
+		expect(mockedApiURL.delete).toHaveBeenCalledWith("/job-roles/1", {
+			headers: { Authorization: `Bearer ${adminToken}` },
+		});
+	});
+
+	it("shows success banner on the list page after delete redirect", async () => {
+		const response = await request(app)
+			.get("/job-roles?deleted=1")
+			.set("Cookie", [`authSession=${adminToken}`]);
+
+		expect(response.status).toBe(200);
+		expect(response.text).toContain("Job role deleted successfully.");
+	});
+
+	it("renders an error page when delete fails", async () => {
+		mockedApiURL.delete.mockRejectedValueOnce(new Error("delete failed"));
+
+		const response = await request(app)
+			.post("/job-roles/1/delete")
+			.set("Cookie", [`authSession=${adminToken}`]);
+
+		expect(response.status).toBe(502);
+		expect(response.text).toContain(
+			"Could not delete this job role right now. Please try again.",
+		);
 	});
 });
 

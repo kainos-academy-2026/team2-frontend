@@ -26,12 +26,16 @@ const createResponse = () => {
 describe("JobRoleController", () => {
 	const mockedGetJobRoles = vi.fn<JobRoleService["getJobRoles"]>();
 	const mockedGetJobRoleById = vi.fn<JobRoleService["getJobRoleById"]>();
+	const mockedDeleteJobRole = vi.fn<JobRoleService["deleteJobRole"]>();
 
-	const jobRoleService: Pick<JobRoleService, "getJobRoles" | "getJobRoleById"> =
-		{
-			getJobRoles: mockedGetJobRoles,
-			getJobRoleById: mockedGetJobRoleById,
-		};
+	const jobRoleService: Pick<
+		JobRoleService,
+		"getJobRoles" | "getJobRoleById" | "deleteJobRole"
+	> = {
+		getJobRoles: mockedGetJobRoles,
+		getJobRoleById: mockedGetJobRoleById,
+		deleteJobRole: mockedDeleteJobRole,
+	};
 
 	let controller: JobRoleController;
 
@@ -62,6 +66,23 @@ describe("JobRoleController", () => {
 		expect(mockedGetJobRoles).toHaveBeenCalledWith("token");
 		expect(res.render).toHaveBeenCalledWith("job-role-list", {
 			jobRoles: [],
+			deletedMessage: undefined,
+		});
+	});
+
+	it("getJobRolesPage renders delete success message when query flag is set", async () => {
+		mockedGetJobRoles.mockResolvedValueOnce([]);
+		const req = {
+			query: { deleted: "1" },
+			cookies: { authSession: "token" },
+		} as unknown as Request;
+		const res = createResponse();
+
+		await controller.getJobRolesPage(req, res);
+
+		expect(res.render).toHaveBeenCalledWith("job-role-list", {
+			jobRoles: [],
+			deletedMessage: "Job role deleted successfully.",
 		});
 	});
 
@@ -94,7 +115,106 @@ describe("JobRoleController", () => {
 
 		expect(res.render).toHaveBeenCalledWith("job-role-list", {
 			jobRoles: [],
+			deletedMessage: undefined,
 		});
+	});
+
+	it("postDeleteJobRole redirects to login when token is missing", async () => {
+		const req = { params: { id: "1" } } as unknown as Request;
+		const res = createResponse();
+
+		await controller.postDeleteJobRole(req, res);
+
+		expect(mockedDeleteJobRole).not.toHaveBeenCalled();
+		expect(res.redirect).toHaveBeenCalledWith("/login");
+	});
+
+	it("postDeleteJobRole redirects with success query when delete succeeds", async () => {
+		mockedDeleteJobRole.mockResolvedValueOnce();
+		const req = {
+			params: { id: "1" },
+			cookies: { authSession: "token" },
+		} as unknown as Request;
+		const res = createResponse();
+
+		await controller.postDeleteJobRole(req, res);
+
+		expect(mockedDeleteJobRole).toHaveBeenCalledWith("1", "token");
+		expect(res.redirect).toHaveBeenCalledWith("/job-roles?deleted=1");
+	});
+
+	it("postDeleteJobRole renders forbidden error when service throws ForbiddenError", async () => {
+		mockedDeleteJobRole.mockRejectedValueOnce(new ForbiddenError());
+		const req = {
+			params: { id: "1" },
+			cookies: { authSession: "token" },
+		} as unknown as Request;
+		const res = createResponse();
+
+		await controller.postDeleteJobRole(req, res);
+
+		expect(res.status).toHaveBeenCalledWith(403);
+		expect(res.render).toHaveBeenCalledWith("error", {
+			statusCode: 403,
+			message: "You do not have permission to access this resource.",
+		});
+	});
+
+	it("postDeleteJobRole renders error page for generic delete failures", async () => {
+		mockedDeleteJobRole.mockRejectedValueOnce(new Error("down"));
+		const req = {
+			params: { id: "1" },
+			cookies: { authSession: "token" },
+		} as unknown as Request;
+		const res = createResponse();
+
+		await controller.postDeleteJobRole(req, res);
+
+		expect(res.status).toHaveBeenCalledWith(502);
+		expect(res.render).toHaveBeenCalledWith("error", {
+			statusCode: 502,
+			message: "Could not delete this job role right now. Please try again.",
+		});
+	});
+
+	it("postDeleteJobRole renders 404 when backend reports role missing", async () => {
+		mockedDeleteJobRole.mockRejectedValueOnce({
+			isAxiosError: true,
+			response: { status: 404 },
+			message: "Not found",
+		});
+		const req = {
+			params: { id: "1" },
+			cookies: { authSession: "token" },
+		} as unknown as Request;
+		const res = createResponse();
+
+		await controller.postDeleteJobRole(req, res);
+
+		expect(res.status).toHaveBeenCalledWith(404);
+		expect(res.render).toHaveBeenCalledWith("error", {
+			statusCode: 404,
+			message: "Job role not found.",
+		});
+	});
+
+	it("postDeleteJobRole clears cookie and redirects on unauthorized response", async () => {
+		mockedDeleteJobRole.mockRejectedValueOnce({
+			isAxiosError: true,
+			response: { status: 401 },
+			message: "Unauthorized",
+		});
+		const req = {
+			params: { id: "1" },
+			cookies: { authSession: "token" },
+		} as unknown as Request;
+		const res = createResponse();
+		res.clearCookie = vi.fn() as unknown as Response["clearCookie"];
+
+		await controller.postDeleteJobRole(req, res);
+
+		expect(res.clearCookie).toHaveBeenCalledWith("authSession");
+		expect(res.redirect).toHaveBeenCalledWith("/login");
 	});
 
 	it("getJobRoleDetailPage returns early when token is missing", async () => {
