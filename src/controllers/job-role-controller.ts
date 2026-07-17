@@ -1,7 +1,6 @@
 import axios from "axios";
 import type { Request, Response } from "express";
-import { createJobRoleSchema } from "../dto/job-role-createDto";
-import { ForbiddenError } from "../errors/forbidden-error";
+import type { CreateJobRoleDto } from "../dto/job-role-createDto";
 import type { JobRoleCreateMapper } from "../mappers/job-role-create-mapper";
 import type { JobRoleService } from "../services/job-role-service";
 import type { CreateJobRoleFieldErrors } from "../types/job-role-create";
@@ -49,14 +48,7 @@ export class JobRoleController {
 				roleCreated,
 				deletedMessage,
 			});
-		} catch (error) {
-			if (error instanceof ForbiddenError) {
-				return res.status(403).render("error", {
-					statusCode: 403,
-					message: "You do not have permission to access this resource.",
-				});
-			}
-
+		} catch (_error) {
 			return res.render("job-role-list", {
 				jobRoles: [],
 				roleCreated,
@@ -77,13 +69,6 @@ export class JobRoleController {
 
 			return res.redirect("/job-roles?deleted=1");
 		} catch (error) {
-			if (error instanceof ForbiddenError) {
-				return res.status(403).render("error", {
-					statusCode: 403,
-					message: "You do not have permission to access this resource.",
-				});
-			}
-
 			if (axios.isAxiosError(error)) {
 				if (error.response?.status === 401) {
 					res.clearCookie("authSession");
@@ -134,14 +119,7 @@ export class JobRoleController {
 					jobRole.status === "OPEN" &&
 					jobRole.numberOfOpenPositions > 0,
 			});
-		} catch (error) {
-			if (error instanceof ForbiddenError) {
-				return res.status(403).render("error", {
-					statusCode: 403,
-					message: "You do not have permission to access this resource.",
-				});
-			}
-
+		} catch (_error) {
 			return res.status(502).render("job-role-detail", {
 				jobRole: null,
 				isApplicant: res.locals.isApplicant,
@@ -156,22 +134,11 @@ export class JobRoleController {
 		res: Response,
 		_next: (error: unknown) => void,
 	) => {
-		const token = req.cookies?.authSession;
-
-		if (!token) {
-			return res.redirect("/login");
-		}
+		const token = req.cookies.authSession as string;
 
 		try {
 			return await this.renderAddRolePage(res, token);
-		} catch (error) {
-			if (error instanceof ForbiddenError) {
-				return res.status(403).render("error", {
-					statusCode: 403,
-					message: "You do not have permission to access this resource.",
-				});
-			}
-
+		} catch (_error) {
 			return res.status(502).render("error", {
 				statusCode: 502,
 				message:
@@ -185,11 +152,7 @@ export class JobRoleController {
 		res: Response,
 		next: (error: unknown) => void,
 	) => {
-		const token = req.cookies?.authSession;
-
-		if (!token) {
-			return res.redirect("/login");
-		}
+		const token = req.cookies.authSession as string;
 
 		if (res.locals.errors) {
 			try {
@@ -199,14 +162,7 @@ export class JobRoleController {
 					req.body as Record<string, unknown>,
 					res.locals.errors as CreateJobRoleFieldErrors,
 				);
-			} catch (error) {
-				if (error instanceof ForbiddenError) {
-					return res.status(403).render("error", {
-						statusCode: 403,
-						message: "You do not have permission to access this resource.",
-					});
-				}
-
+			} catch (_error) {
 				return res.status(502).render("error", {
 					statusCode: 502,
 					message:
@@ -215,37 +171,10 @@ export class JobRoleController {
 			}
 		}
 
-		const parsedRequest = createJobRoleSchema.safeParse(req.body ?? {});
-
-		if (!parsedRequest.success) {
-			try {
-				return await this.renderAddRolePage(
-					res,
-					token,
-					req.body as Record<string, unknown>,
-				);
-			} catch (error) {
-				if (error instanceof ForbiddenError) {
-					return res.status(403).render("error", {
-						statusCode: 403,
-						message: "You do not have permission to access this resource.",
-					});
-				}
-
-				return res.status(502).render("error", {
-					statusCode: 502,
-					message:
-						"Could not load the add role page right now. Please try again later.",
-				});
-			}
-		}
-
-		const payload = this.jobRoleCreateMapper.toCreatePayload(
-			parsedRequest.data,
-		);
+		const validatedBody = res.locals.validatedBody as CreateJobRoleDto;
 
 		try {
-			await this.jobRoleService.createJobRole(token, payload);
+			await this.jobRoleService.createJobRole(token, validatedBody);
 			return res.redirect("/job-roles?created=1");
 		} catch (error) {
 			if (axios.isAxiosError(error) && error.response?.status === 400) {

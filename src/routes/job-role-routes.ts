@@ -10,7 +10,7 @@ import { Role } from "../types/role";
 
 const jobRoleMapper = new JobRoleMapper();
 const jobRoleCreateMapper = new JobRoleCreateMapper();
-const jobRoleService = new JobRoleService(jobRoleMapper);
+const jobRoleService = new JobRoleService(jobRoleMapper, jobRoleCreateMapper);
 const jobRoleController = new JobRoleController(
 	jobRoleService,
 	jobRoleCreateMapper,

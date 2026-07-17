@@ -2,7 +2,6 @@ import axios from "axios";
 import type { Request, Response } from "express";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { JobRoleController } from "../src/controllers/job-role-controller";
-import { ForbiddenError } from "../src/errors/forbidden-error";
 import { JobRoleCreateMapper } from "../src/mappers/job-role-create-mapper";
 import type { JobRoleService } from "../src/services/job-role-service";
 import { JobRoleStatus } from "../src/types/job-role";
@@ -105,23 +104,6 @@ describe("JobRoleController", () => {
 		});
 	});
 
-	it("getJobRolesPage renders forbidden error when service throws ForbiddenError", async () => {
-		mockedGetJobRoles.mockRejectedValueOnce(new ForbiddenError());
-		const req = {
-			query: {},
-			cookies: { authSession: "token" },
-		} as unknown as Request;
-		const res = createResponse();
-
-		await controller.getJobRolesPage(req, res);
-
-		expect(res.status).toHaveBeenCalledWith(403);
-		expect(res.render).toHaveBeenCalledWith("error", {
-			statusCode: 403,
-			message: "You do not have permission to access this resource.",
-		});
-	});
-
 	it("getJobRolesPage renders empty list for generic service errors", async () => {
 		mockedGetJobRoles.mockRejectedValueOnce(new Error("down"));
 		const req = {
@@ -161,23 +143,6 @@ describe("JobRoleController", () => {
 
 		expect(mockedDeleteJobRole).toHaveBeenCalledWith("1", "token");
 		expect(res.redirect).toHaveBeenCalledWith("/job-roles?deleted=1");
-	});
-
-	it("postDeleteJobRole renders forbidden error when service throws ForbiddenError", async () => {
-		mockedDeleteJobRole.mockRejectedValueOnce(new ForbiddenError());
-		const req = {
-			params: { id: "1" },
-			cookies: { authSession: "token" },
-		} as unknown as Request;
-		const res = createResponse();
-
-		await controller.postDeleteJobRole(req, res);
-
-		expect(res.status).toHaveBeenCalledWith(403);
-		expect(res.render).toHaveBeenCalledWith("error", {
-			statusCode: 403,
-			message: "You do not have permission to access this resource.",
-		});
 	});
 
 	it("postDeleteJobRole renders error page for generic delete failures", async () => {
@@ -293,23 +258,6 @@ describe("JobRoleController", () => {
 		});
 	});
 
-	it("getJobRoleDetailPage renders forbidden error for ForbiddenError", async () => {
-		mockedGetJobRoleById.mockRejectedValueOnce(new ForbiddenError());
-		const req = {
-			params: { id: "1" },
-			cookies: { authSession: "token" },
-		} as unknown as Request;
-		const res = createResponse();
-
-		await controller.getJobRoleDetailPage(req, res);
-
-		expect(res.status).toHaveBeenCalledWith(403);
-		expect(res.render).toHaveBeenCalledWith("error", {
-			statusCode: 403,
-			message: "You do not have permission to access this resource.",
-		});
-	});
-
 	it("getJobRoleDetailPage renders 502 for generic errors", async () => {
 		mockedGetJobRoleById.mockRejectedValueOnce(new Error("down"));
 		const req = {
@@ -327,17 +275,6 @@ describe("JobRoleController", () => {
 			message: "Could not load this job role right now.",
 			isAdmin: false,
 		});
-	});
-
-	it("getAddJobRolePage redirects to login when token is missing", async () => {
-		const req = {} as Request;
-		const res = createResponse();
-		const next = vi.fn();
-
-		await controller.getAddJobRolePage(req, res, next);
-
-		expect(res.redirect).toHaveBeenCalledWith("/login");
-		expect(mockedGetBands).not.toHaveBeenCalled();
 	});
 
 	it("getAddJobRolePage renders add view with bands and capabilities", async () => {
@@ -444,6 +381,17 @@ describe("JobRoleController", () => {
 			},
 		} as unknown as Request;
 		const res = createResponse();
+		res.locals.validatedBody = {
+			name: "Principal Engineer",
+			location: "Belfast",
+			capabilityId: 10,
+			bandId: 2,
+			closingDate: "2026-12-31",
+			description: "Lead technical delivery.",
+			sharepointUrl: "https://example.com/spec",
+			responsibilities: "Lead delivery\n\nMentor engineers",
+			numberOfOpenPositions: 3,
+		};
 		const next = vi.fn();
 
 		await controller.postAddJobRole(req, res, next);
@@ -456,7 +404,7 @@ describe("JobRoleController", () => {
 			closingDate: "2026-12-31",
 			description: "Lead technical delivery.",
 			sharepointUrl: "https://example.com/spec",
-			responsibilities: ["Lead delivery", "Mentor engineers"],
+			responsibilities: "Lead delivery\n\nMentor engineers",
 			numberOfOpenPositions: 3,
 		});
 		expect(res.redirect).toHaveBeenCalledWith("/job-roles?created=1");
@@ -486,6 +434,17 @@ describe("JobRoleController", () => {
 			},
 		} as unknown as Request;
 		const res = createResponse();
+		res.locals.validatedBody = {
+			name: "Principal Engineer",
+			location: "Belfast",
+			capabilityId: 10,
+			bandId: 2,
+			closingDate: "2026-12-31",
+			description: "",
+			sharepointUrl: "",
+			responsibilities: "",
+			numberOfOpenPositions: 0,
+		};
 		const next = vi.fn();
 
 		await controller.postAddJobRole(req, res, next);
@@ -515,6 +474,17 @@ describe("JobRoleController", () => {
 			},
 		} as unknown as Request;
 		const res = createResponse();
+		res.locals.validatedBody = {
+			name: "Principal Engineer",
+			location: "Belfast",
+			capabilityId: 10,
+			bandId: 2,
+			closingDate: "2026-12-31",
+			description: "",
+			sharepointUrl: "",
+			responsibilities: "",
+			numberOfOpenPositions: 0,
+		};
 		const next = vi.fn();
 
 		await controller.postAddJobRole(req, res, next);

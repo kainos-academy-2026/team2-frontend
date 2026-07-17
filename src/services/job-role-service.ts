@@ -1,20 +1,24 @@
 import axios from "axios";
 import apiURL from "../config/backend";
+import type { CreateJobRoleDto } from "../dto/job-role-createDto";
 import { ForbiddenError } from "../errors/forbidden-error";
 import { ServerError } from "../errors/server-error";
+import type { JobRoleCreateMapper } from "../mappers/job-role-create-mapper";
 import type { JobRoleMapper } from "../mappers/job-role-mapper";
 import type { Band } from "../types/band";
 import type { Capability } from "../types/capability";
 import type { JobRole } from "../types/job-role";
 import type { JobRoleApiResponse } from "../types/job-role-api";
-import type { CreateJobRolePayload } from "../types/job-role-create";
 
 const authHeaders = (token: string) => ({
 	Authorization: `Bearer ${token}`,
 });
 
 export class JobRoleService {
-	constructor(private readonly mapper: JobRoleMapper) {}
+	constructor(
+		private readonly mapper: JobRoleMapper,
+		private readonly jobRoleCreateMapper: JobRoleCreateMapper,
+	) {}
 
 	async getBands(token: string): Promise<Band[]> {
 		const response = await apiURL.get<Band[]>("/bands", {
@@ -90,10 +94,9 @@ export class JobRoleService {
 		}
 	}
 
-	async createJobRole(
-		token: string,
-		payload: CreateJobRolePayload,
-	): Promise<void> {
+	async createJobRole(token: string, input: CreateJobRoleDto): Promise<void> {
+		const payload = this.jobRoleCreateMapper.toCreatePayload(input);
+
 		await apiURL.post("/job-roles", payload, {
 			headers: authHeaders(token),
 		});

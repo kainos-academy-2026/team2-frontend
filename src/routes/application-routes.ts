@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { ApplicationController } from "../controllers/application-controller";
+import { JobRoleCreateMapper } from "../mappers/job-role-create-mapper";
 import { JobRoleMapper } from "../mappers/job-role-mapper";
 import requireRole from "../middleware/auth-session";
 import { ApplicationService } from "../services/application-service";
@@ -7,7 +8,8 @@ import { JobRoleService } from "../services/job-role-service";
 import { Role } from "../types/role";
 
 const jobRoleMapper = new JobRoleMapper();
-const jobRoleService = new JobRoleService(jobRoleMapper);
+const jobRoleCreateMapper = new JobRoleCreateMapper();
+const jobRoleService = new JobRoleService(jobRoleMapper, jobRoleCreateMapper);
 const applicationService = new ApplicationService();
 const applicationController = new ApplicationController(
 	applicationService,

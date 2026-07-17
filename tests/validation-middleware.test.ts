@@ -18,6 +18,7 @@ describe("validateBody", () => {
 		middleware(req, res, next);
 
 		expect(res.locals.errors).toBeNull();
+		expect(res.locals.validatedBody).toEqual({ email: "person@example.com" });
 		expect(next).toHaveBeenCalledTimes(1);
 	});
 
@@ -35,6 +36,7 @@ describe("validateBody", () => {
 		expect(res.locals.errors).toEqual({
 			email: ["Invalid email address"],
 		});
+		expect(res.locals.validatedBody).toBeNull();
 		expect(next).toHaveBeenCalledTimes(1);
 	});
 
@@ -48,6 +50,7 @@ describe("validateBody", () => {
 		middleware(req, res, next);
 
 		expect(res.locals.errors).toEqual({});
+		expect(res.locals.validatedBody).toBeNull();
 		expect(next).toHaveBeenCalledTimes(1);
 	});
 
@@ -65,6 +68,7 @@ describe("validateBody", () => {
 		expect(res.locals.errors).toEqual({
 			email: ["Invalid input: expected string, received undefined"],
 		});
+		expect(res.locals.validatedBody).toBeNull();
 		expect(next).toHaveBeenCalledTimes(1);
 	});
 });

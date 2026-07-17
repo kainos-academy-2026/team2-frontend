@@ -2,6 +2,7 @@ import axios from "axios";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import apiURL from "../src/config/backend";
 import { ForbiddenError } from "../src/errors/forbidden-error";
+import { JobRoleCreateMapper } from "../src/mappers/job-role-create-mapper";
 import { JobRoleMapper } from "../src/mappers/job-role-mapper";
 import { JobRoleService } from "../src/services/job-role-service";
 import { JobRoleStatus } from "../src/types/job-role";
@@ -21,7 +22,10 @@ describe("JobRoleService", () => {
 	let service: JobRoleService;
 
 	beforeEach(() => {
-		service = new JobRoleService(new JobRoleMapper());
+		service = new JobRoleService(
+			new JobRoleMapper(),
+			new JobRoleCreateMapper(),
+		);
 		mockedApiURL.get.mockReset();
 		mockedApiURL.post.mockReset();
 		mockedApiURL.delete.mockReset();
@@ -76,7 +80,7 @@ describe("JobRoleService", () => {
 			closingDate: "2026-12-31",
 			description: "Lead technical delivery.",
 			sharepointUrl: "https://example.com/spec",
-			responsibilities: ["Lead delivery", "Mentor developers"],
+			responsibilities: "Lead delivery\n\nMentor developers",
 			numberOfOpenPositions: 1,
 		});
 
