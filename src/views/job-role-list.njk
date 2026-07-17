@@ -29,11 +29,11 @@
       </header>
 
       {% if roleCreated %}
-        <p style="color: green; padding: 0 24px;" role="status">New job role created successfully.</p>
+        <div class="alert alert-success" style="margin: 18px 24px 0;" role="status">New job role created successfully.</div>
       {% endif %}
 
       {% if user.isAdmin %}
-        <p style="padding: 0 24px;"><a href="/job-roles/add">Create role</a></p>
+        <p style="padding: 18px 24px 0;"><a href="/job-roles/add" class="btn-primary">Create role</a></p>
       {% endif %}
 
       {% if forbidden %}
