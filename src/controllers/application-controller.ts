@@ -47,9 +47,10 @@ export class ApplicationController {
 
 	getUploadUrl = async (req: Request, res: Response) => {
 		const user = res.locals.user;
+		const token = req.cookies?.authSession;
 
-		if (!user) {
-			return res.status(403).json({ error: "Forbidden." });
+		if (!user || !token) {
+			return res.status(401).json({ error: "Unauthorized." });
 		}
 
 		const { id } = req.params;
@@ -64,11 +65,15 @@ export class ApplicationController {
 		const { fileName, contentType } = parsedRequest.data;
 
 		try {
-			const uploadUrlResponse = await this.applicationService.getUploadUrl(id, {
-				userId: user.id,
-				fileName,
-				contentType,
-			});
+			const uploadUrlResponse = await this.applicationService.getUploadUrl(
+				id,
+				{
+					userId: user.id,
+					fileName,
+					contentType,
+				},
+				token,
+			);
 
 			return res.json(uploadUrlResponse);
 		} catch {
@@ -105,10 +110,14 @@ export class ApplicationController {
 		}
 
 		try {
-			await this.applicationService.createApplication(id, {
-				userId: user.id,
-				cvKey: cvKey.trim(),
-			});
+			await this.applicationService.createApplication(
+				id,
+				{
+					userId: user.id,
+					cvKey: cvKey.trim(),
+				},
+				token,
+			);
 
 			return res.redirect(`/job-roles/${id}/apply/confirmation`);
 		} catch {

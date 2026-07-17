@@ -136,9 +136,10 @@ describe("ApplicationController", () => {
 		});
 	});
 
-	it("getUploadUrl returns 403 when user is missing", async () => {
+	it("getUploadUrl returns 401 when user or token is missing", async () => {
 		const req = {
 			params: { id: "1" },
+			cookies: { authSession: "token" },
 			body: { fileName: "cv.pdf", contentType: "application/pdf" },
 		} as unknown as Request;
 		const res = createResponse();
@@ -146,12 +147,16 @@ describe("ApplicationController", () => {
 
 		await controller.getUploadUrl(req, res);
 
-		expect(res.status).toHaveBeenCalledWith(403);
-		expect(res.json).toHaveBeenCalledWith({ error: "Forbidden." });
+		expect(res.status).toHaveBeenCalledWith(401);
+		expect(res.json).toHaveBeenCalledWith({ error: "Unauthorized." });
 	});
 
 	it("getUploadUrl returns 400 when request body is incomplete", async () => {
-		const req = { params: { id: "1" }, body: {} } as unknown as Request;
+		const req = {
+			params: { id: "1" },
+			cookies: { authSession: "token" },
+			body: {},
+		} as unknown as Request;
 		const res = createResponse();
 		res.locals.user = { id: 2, role: "user" };
 
@@ -166,6 +171,7 @@ describe("ApplicationController", () => {
 	it("getUploadUrl returns generated upload url details", async () => {
 		const req = {
 			params: { id: "1" },
+			cookies: { authSession: "token" },
 			body: { fileName: "cv.pdf", contentType: "application/pdf" },
 		} as unknown as Request;
 		const res = createResponse();
@@ -177,11 +183,15 @@ describe("ApplicationController", () => {
 
 		await controller.getUploadUrl(req, res);
 
-		expect(applicationService.getUploadUrl).toHaveBeenCalledWith("1", {
-			userId: 22,
-			fileName: "cv.pdf",
-			contentType: "application/pdf",
-		});
+		expect(applicationService.getUploadUrl).toHaveBeenCalledWith(
+			"1",
+			{
+				userId: 22,
+				fileName: "cv.pdf",
+				contentType: "application/pdf",
+			},
+			"token",
+		);
 		expect(res.json).toHaveBeenCalledWith({
 			cvKey: "cvs/job-role-1/user-22/cv.pdf",
 			uploadUrl: "https://upload.example.com",
@@ -191,6 +201,7 @@ describe("ApplicationController", () => {
 	it("getUploadUrl returns 502 when upload url service fails", async () => {
 		const req = {
 			params: { id: "1" },
+			cookies: { authSession: "token" },
 			body: { fileName: "cv.pdf", contentType: "application/pdf" },
 		} as unknown as Request;
 		const res = createResponse();
@@ -269,10 +280,14 @@ describe("ApplicationController", () => {
 
 		await controller.postApply(req, res);
 
-		expect(applicationService.createApplication).toHaveBeenCalledWith("1", {
-			userId: 99,
-			cvKey: "cv-key",
-		});
+		expect(applicationService.createApplication).toHaveBeenCalledWith(
+			"1",
+			{
+				userId: 99,
+				cvKey: "cv-key",
+			},
+			"token",
+		);
 		expect(res.redirect).toHaveBeenCalledWith(
 			"/job-roles/1/apply/confirmation",
 		);

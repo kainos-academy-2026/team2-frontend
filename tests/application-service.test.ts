@@ -27,15 +27,20 @@ describe("ApplicationService", () => {
 				},
 			});
 
-			const result = await service.getUploadUrl("1", {
-				userId: 123,
-				fileName: "cv.pdf",
-				contentType: "application/pdf",
-			});
+			const result = await service.getUploadUrl(
+				"1",
+				{
+					userId: 123,
+					fileName: "cv.pdf",
+					contentType: "application/pdf",
+				},
+				"token",
+			);
 
 			expect(mockedApiURL.post).toHaveBeenCalledWith(
 				"/job-roles/1/applications/upload-url",
 				{ userId: 123, fileName: "cv.pdf", contentType: "application/pdf" },
+				{ headers: { Authorization: "Bearer token" } },
 			);
 			expect(result).toEqual({
 				cvKey: "cvs/job-role-1/user-123/cv.pdf",
@@ -47,11 +52,15 @@ describe("ApplicationService", () => {
 			mockedApiURL.post.mockRejectedValue(new Error("API error"));
 
 			await expect(
-				service.getUploadUrl("1", {
-					userId: 123,
-					fileName: "cv.pdf",
-					contentType: "application/pdf",
-				}),
+				service.getUploadUrl(
+					"1",
+					{
+						userId: 123,
+						fileName: "cv.pdf",
+						contentType: "application/pdf",
+					},
+					"token",
+				),
 			).rejects.toThrow("API error");
 		});
 	});
@@ -60,14 +69,19 @@ describe("ApplicationService", () => {
 		it("should POST to the correct endpoint with userId and cvKey", async () => {
 			mockedApiURL.post.mockResolvedValue({ data: {} });
 
-			await service.createApplication("1", {
-				userId: 123,
-				cvKey: "cvs/job-role-1/user-123/cv.pdf",
-			});
+			await service.createApplication(
+				"1",
+				{
+					userId: 123,
+					cvKey: "cvs/job-role-1/user-123/cv.pdf",
+				},
+				"token",
+			);
 
 			expect(mockedApiURL.post).toHaveBeenCalledWith(
 				"/job-roles/1/applications",
 				{ userId: 123, cvKey: "cvs/job-role-1/user-123/cv.pdf" },
+				{ headers: { Authorization: "Bearer token" } },
 			);
 		});
 
@@ -75,10 +89,14 @@ describe("ApplicationService", () => {
 			mockedApiURL.post.mockRejectedValue(new Error("Submission failed"));
 
 			await expect(
-				service.createApplication("1", {
-					userId: 123,
-					cvKey: "cvs/job-role-1/user-123/cv.pdf",
-				}),
+				service.createApplication(
+					"1",
+					{
+						userId: 123,
+						cvKey: "cvs/job-role-1/user-123/cv.pdf",
+					},
+					"token",
+				),
 			).rejects.toThrow("Submission failed");
 		});
 	});

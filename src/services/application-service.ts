@@ -5,15 +5,21 @@ import type {
 	UploadUrlResponse,
 } from "../types/application";
 
+const authHeaders = (token: string) => ({
+	Authorization: `Bearer ${token}`,
+});
+
 export class ApplicationService {
 	async getUploadUrl(
 		jobRoleId: string,
 		request: UploadUrlRequest,
+		token: string,
 	): Promise<UploadUrlResponse> {
 		try {
 			const response = await apiURL.post<UploadUrlResponse>(
 				`/job-roles/${jobRoleId}/applications/upload-url`,
 				request,
+				{ headers: authHeaders(token) },
 			);
 			return response.data;
 		} catch (error) {
@@ -26,9 +32,12 @@ export class ApplicationService {
 	async createApplication(
 		jobRoleId: string,
 		request: CreateApplicationRequest,
+		token: string,
 	): Promise<void> {
 		try {
-			await apiURL.post(`/job-roles/${jobRoleId}/applications`, request);
+			await apiURL.post(`/job-roles/${jobRoleId}/applications`, request, {
+				headers: authHeaders(token),
+			});
 		} catch (error) {
 			console.error("Failed to create application:", error);
 			throw error;
