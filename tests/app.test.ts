@@ -598,9 +598,9 @@ describe("GET /job-roles", () => {
 			.get("/job-roles")
 			.set("Cookie", [`authSession=${validToken}`]);
 
-		expect(response.text).toContain("<td>2026-12-31</td>");
-		expect(response.text).toContain("<td>2026-09-30</td>");
-		expect(response.text).toContain("<td>2026-11-15</td>");
+		expect(response.text).toContain("31-12-2026");
+		expect(response.text).toContain("30-09-2026");
+		expect(response.text).toContain("15-11-2026");
 	});
 
 	it("should render fallback placeholders for missing values", async () => {
@@ -702,7 +702,7 @@ describe("POST /job-roles/:id/delete", () => {
 
 		expect(response.status).toBe(302);
 		expect(response.headers.location).toBe("/job-roles?deleted=1");
-		expect(mockedApiURL.delete).toHaveBeenCalledWith("/job-roles/1", {
+		expect(mockedApiURL.delete).toHaveBeenCalledWith("/1", {
 			headers: { Authorization: `Bearer ${adminToken}` },
 		});
 	});

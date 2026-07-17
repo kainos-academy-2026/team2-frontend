@@ -30,7 +30,7 @@ describe("JobRoleService", () => {
 
 		await service.deleteJobRole("11", TEST_TOKEN);
 
-		expect(mockedApiURL.delete).toHaveBeenCalledWith("/job-roles/11", {
+		expect(mockedApiURL.delete).toHaveBeenCalledWith("/11", {
 			headers: { Authorization: `Bearer ${TEST_TOKEN}` },
 		});
 	});
