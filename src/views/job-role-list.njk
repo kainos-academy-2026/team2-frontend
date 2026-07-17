@@ -25,6 +25,9 @@
           />
         </div>
         <h1 id="job-role-title">Job Role List</h1>
+        {% if deletedMessage %}
+            <p class="success-banner" role="status">{{ deletedMessage }}</p>
+        {% endif %}
         <p class="intro">Browse the current open roles and closing dates.</p>
       </header>
 
@@ -39,47 +42,96 @@
         {% endif %}
       {% endfor %}
 
-        <p>Welcome, {{ user.name }}!</p>
-        <p>Your role: {{ user.role }}</p>
-        {% if user.isAdmin %}
-            <p>Admin: Yes</p>
-        {% else %}
-            <p>Admin: No</p>
-        {% endif %}
+      <div class="welcome-banner" role="status" aria-live="polite">
+        <p class="welcome-banner-title">Welcome back, {{ user.name }}!</p>
+        <p class="welcome-banner-meta">
+          Signed in as:
+          <span class="welcome-admin-pill">{{ "Admin" if user.isAdmin else "Applicant" }}</span>
+        </p>
+      </div>
 
       <div class="table-wrap" role="region" aria-label="Open job roles">
         <table>
-          <thead>
-            <tr>
-              <th scope="col">Role Name</th>
-              <th scope="col">Location</th>
-              <th scope="col">Capability</th>
-              <th scope="col">Band</th>
-              <th scope="col">Closing Date</th>
-              <th scope="col">Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% if hasOpenRoles %}
-              {% for jobRole in jobRoles %}
-                {% if (jobRole.status or "") | upper == "OPEN" %}
-                  <tr>
-                    <td><a href="/job-roles/{{ jobRole.id }}">{{ jobRole.name or "-" }}</a></td>
-                    <td>{{ jobRole.location or "-" }}</td>
-                    <td>{{ jobRole.capability or "-" }}</td>
-                    <td>{{ jobRole.band or "-" }}</td>
-                    <td>{{ jobRole.closingDate or "-" }}</td>
-                    <td><span class="status-pill">OPEN</span></td>
-                  </tr>
+            <thead>
+                <tr>
+                    <th scope="col">Role Name</th>
+                    <th scope="col">Location</th>
+                    <th scope="col">Capability</th>
+                    <th scope="col">Band</th>
+                    <th scope="col">Closing Date</th>
+                    <th scope="col">Status</th>
+                    {% if user.isAdmin %}
+                        <th scope="col">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            <tbody>
+                {% if hasOpenRoles %}
+                    {% for jobRole in jobRoles %}
+                        {% if (jobRole.status or "") | upper == "OPEN" %}
+                            <tr>
+                                <td>
+                                    {% if jobRole.id %}
+                                        <a href="/job-roles/{{ jobRole.id }}">{{ jobRole.name or "-" }}</a>
+                                    {% else %}
+                                        {{ jobRole.name or "-" }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ jobRole.location or "-" }}</td>
+                                <td>{{ jobRole.capability or "-" }}</td>
+                                <td>{{ jobRole.band or "-" }}</td>
+                                <td>
+                                  {% if jobRole.closingDate %}
+                                    {% set closingDateParts = (jobRole.closingDate | string).split("T")[0].split("-") %}
+                                    {% if closingDateParts.length == 3 %}
+                                      {{ closingDateParts[2] }}-{{ closingDateParts[1] }}-{{ closingDateParts[0] }}
+                                    {% else %}
+                                      {{ jobRole.closingDate }}
+                                    {% endif %}
+                                  {% else %}
+                                    -
+                                  {% endif %}
+                                </td>
+                                <td><span class="status-pill">OPEN</span></td>
+                                {% if user.isAdmin %}
+                                    <td>
+                                        <form id="delete-role-{{ jobRole.id }}" action="/job-roles/{{ jobRole.id }}/delete" method="POST" class="delete-role-form">
+                                            <button
+                                                type="button"
+                                            class="danger-cta danger-cta-compact"
+                                                data-delete-open
+                                                data-form-id="delete-role-{{ jobRole.id }}"
+                                                data-role-name="{{ jobRole.name or 'this role' }}"
+                                            >
+                                                Delete
+                                            </button>
+                                        </form>
+                                    </td>
+                                {% endif %}
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="{{ 6 if user.isAdmin else 5 }}">No open job roles are available right now.</td>
+                    </tr>
                 {% endif %}
-              {% endfor %}
-            {% else %}
-              <tr>
-                <td colspan="6" class="empty-state">No open job roles are available right now.</td>
-              </tr>
-            {% endif %}
-          </tbody>
+            </tbody>
         </table>
+
+        {% if user.isAdmin %}
+            <dialog id="delete-role-modal" class="brand-modal" aria-labelledby="delete-role-title" aria-describedby="delete-role-description">
+            <h2 id="delete-role-title" class="brand-modal-title">Confirm role deletion</h2>
+            <p id="delete-role-description" class="brand-modal-text">
+                    Are you sure you want to delete <strong id="delete-role-name">this role</strong>? This action cannot be undone.
+                </p>
+                <div class="dialog-actions">
+              <button type="button" id="delete-cancel-btn" class="modal-btn modal-btn-secondary">Cancel</button>
+              <button type="button" id="delete-confirm-btn" class="modal-btn modal-btn-danger">Delete role</button>
+                </div>
+            </dialog>
+        {% endif %}
+        <script src="/public/delete-role-modal.js"></script>
       </div>
     </section>
   </div>
