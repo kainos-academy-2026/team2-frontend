@@ -11,6 +11,12 @@
             <button type="submit">Log Out</button>
         </form>
         <h1>Job Role List</h1>
+        {% if roleCreated %}
+            <p style="color: green;" role="status">New job role created successfully.</p>
+        {% endif %}
+        {% if user.isAdmin %}
+            <p><a href="/job-roles/add">Create role</a></p>
+        {% endif %}
         {% if forbidden %}
             <p style="color: red;">You do not have permission to access that page.</p>
         {% endif %}

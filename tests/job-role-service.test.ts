@@ -8,6 +8,7 @@ import { JobRoleStatus } from "../src/types/job-role";
 vi.mock("../src/config/backend", () => ({
 	default: {
 		get: vi.fn(),
+		post: vi.fn(),
 	},
 }));
 
@@ -20,6 +21,79 @@ describe("JobRoleService", () => {
 	beforeEach(() => {
 		service = new JobRoleService(new JobRoleMapper());
 		mockedApiURL.get.mockReset();
+		mockedApiURL.post.mockReset();
+	});
+
+	it("should fetch bands from API endpoint with Authorization header", async () => {
+		mockedApiURL.get.mockResolvedValueOnce({
+			data: [
+				{ id: 1, name: "Band 1" },
+				{ id: 2, name: "Band 2" },
+			],
+		});
+
+		const bands = await service.getBands(TEST_TOKEN);
+
+		expect(mockedApiURL.get).toHaveBeenCalledWith("/bands", {
+			headers: { Authorization: `Bearer ${TEST_TOKEN}` },
+		});
+		expect(bands).toEqual([
+			{ id: 1, name: "Band 1" },
+			{ id: 2, name: "Band 2" },
+		]);
+	});
+
+	it("should fetch capabilities from API endpoint with Authorization header", async () => {
+		mockedApiURL.get.mockResolvedValueOnce({
+			data: [
+				{ id: 10, name: "Engineering" },
+				{ id: 20, name: "Design" },
+			],
+		});
+
+		const capabilities = await service.getCapabilities(TEST_TOKEN);
+
+		expect(mockedApiURL.get).toHaveBeenCalledWith("/capabilities", {
+			headers: { Authorization: `Bearer ${TEST_TOKEN}` },
+		});
+		expect(capabilities).toEqual([
+			{ id: 10, name: "Engineering" },
+			{ id: 20, name: "Design" },
+		]);
+	});
+
+	it("should post create role payload with Authorization header", async () => {
+		mockedApiURL.post.mockResolvedValueOnce({ data: {} });
+
+		await service.createJobRole(TEST_TOKEN, {
+			name: "Principal Engineer",
+			location: "Belfast",
+			capabilityId: 10,
+			bandId: 2,
+			closingDate: "2026-12-31",
+			description: "Lead technical delivery.",
+			sharepointUrl: "https://example.com/spec",
+			responsibilities: ["Lead delivery", "Mentor developers"],
+			numberOfOpenPositions: 1,
+		});
+
+		expect(mockedApiURL.post).toHaveBeenCalledWith(
+			"/job-roles",
+			{
+				name: "Principal Engineer",
+				location: "Belfast",
+				capabilityId: 10,
+				bandId: 2,
+				closingDate: "2026-12-31",
+				description: "Lead technical delivery.",
+				sharepointUrl: "https://example.com/spec",
+				responsibilities: ["Lead delivery", "Mentor developers"],
+				numberOfOpenPositions: 1,
+			},
+			{
+				headers: { Authorization: `Bearer ${TEST_TOKEN}` },
+			},
+		);
 	});
 
 	it("should fetch job roles from API endpoint with Authorization header", async () => {

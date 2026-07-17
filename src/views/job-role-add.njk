@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add Job Role</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <a href="/job-roles">Back to job roles</a>
+
+    <h1>Add a new role</h1>
+
+    <form method="post" action="/job-roles/add" novalidate>
+      <div class="field">
+        <label for="name">Job role name</label>
+        {% if errors and errors.name %}
+          {% for message in errors.name %}
+            <p class="field-error" id="name-error-{{ loop.index }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+        <input
+          id="name"
+          name="name"
+          type="text"
+          value="{{ values.name }}"
+          {% if errors and errors.name %}aria-invalid="true" aria-describedby="name-error-1"{% endif %}
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label for="description">Job spec summary</label>
+        {% if errors and errors.description %}
+          {% for message in errors.description %}
+            <p class="field-error" id="description-error-{{ loop.index }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+        <textarea
+          id="description"
+          name="description"
+          rows="4"
+          {% if errors and errors.description %}aria-invalid="true" aria-describedby="description-error-1"{% endif %}
+        >{{ values.description }}</textarea>
+      </div>
+
+      <div class="field">
+        <label for="sharepointUrl">SharePoint link</label>
+        {% if errors and errors.sharepointUrl %}
+          {% for message in errors.sharepointUrl %}
+            <p class="field-error" id="sharepointUrl-error-{{ loop.index }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+        <input
+          id="sharepointUrl"
+          name="sharepointUrl"
+          type="text"
+          value="{{ values.sharepointUrl }}"
+          {% if errors and errors.sharepointUrl %}aria-invalid="true" aria-describedby="sharepointUrl-error-1"{% endif %}
+        />
+      </div>
+
+      <div class="field">
+        <label for="responsibilities">Responsibilities (one per line)</label>
+        {% if errors and errors.responsibilities %}
+          {% for message in errors.responsibilities %}
+            <p class="field-error" id="responsibilities-error-{{ loop.index }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+        <textarea
+          id="responsibilities"
+          name="responsibilities"
+          rows="6"
+          {% if errors and errors.responsibilities %}aria-invalid="true" aria-describedby="responsibilities-error-1"{% endif %}
+        >{{ values.responsibilities }}</textarea>
+      </div>
+
+      <div class="field">
+        <label for="numberOfOpenPositions">Number of open positions</label>
+        {% if errors and errors.numberOfOpenPositions %}
+          {% for message in errors.numberOfOpenPositions %}
+            <p class="field-error" id="numberOfOpenPositions-error-{{ loop.index }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+        <input
+          id="numberOfOpenPositions"
+          name="numberOfOpenPositions"
+          type="number"
+          min="0"
+          step="1"
+          value="{{ values.numberOfOpenPositions }}"
+          {% if errors and errors.numberOfOpenPositions %}aria-invalid="true" aria-describedby="numberOfOpenPositions-error-1"{% endif %}
+        />
+      </div>
+
+      <div class="field">
+        <label for="location">Location</label>
+        {% if errors and errors.location %}
+          {% for message in errors.location %}
+            <p class="field-error" id="location-error-{{ loop.index }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+        <input
+          id="location"
+          name="location"
+          type="text"
+          value="{{ values.location }}"
+          {% if errors and errors.location %}aria-invalid="true" aria-describedby="location-error-1"{% endif %}
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label for="closingDate">Closing date</label>
+        {% if errors and errors.closingDate %}
+          {% for message in errors.closingDate %}
+            <p class="field-error" id="closingDate-error-{{ loop.index }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+        <input
+          id="closingDate"
+          name="closingDate"
+          type="date"
+          value="{{ values.closingDate }}"
+          {% if errors and errors.closingDate %}aria-invalid="true" aria-describedby="closingDate-error-1"{% endif %}
+          required
+        />
+      </div>
+
+      <div class="field">
+        <label for="bandId">Band</label>
+        {% if errors and errors.bandId %}
+          {% for message in errors.bandId %}
+            <p class="field-error" id="bandId-error-{{ loop.index }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+        <select
+          id="bandId"
+          name="bandId"
+          {% if errors and errors.bandId %}aria-invalid="true" aria-describedby="bandId-error-1"{% endif %}
+          required
+        >
+          <option value="">Select a band</option>
+          {% for band in bands %}
+            <option value="{{ band.id }}" {% if values.bandId == (band.id | string) %}selected{% endif %}>{{ band.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="capabilityId">Capability</label>
+        {% if errors and errors.capabilityId %}
+          {% for message in errors.capabilityId %}
+            <p class="field-error" id="capabilityId-error-{{ loop.index }}">{{ message }}</p>
+          {% endfor %}
+        {% endif %}
+        <select
+          id="capabilityId"
+          name="capabilityId"
+          {% if errors and errors.capabilityId %}aria-invalid="true" aria-describedby="capabilityId-error-1"{% endif %}
+          required
+        >
+          <option value="">Select a capability</option>
+          {% for capability in capabilities %}
+            <option value="{{ capability.id }}" {% if values.capabilityId == (capability.id | string) %}selected{% endif %}>{{ capability.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <button type="submit">Create role</button>
+    </form>
+  </body>
+</html>
