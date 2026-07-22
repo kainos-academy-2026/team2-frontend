@@ -4,21 +4,16 @@ import { pageObjectsFixture } from './pageObjectsFixture';
 
 /**
  * Common fixture that merges all framework fixtures.
- * 
+ *
  * This fixture serves as the central point for dependency injection.
  * All other fixtures created in the framework will be merged here.
- * 
- * Current fixtures:
- * - apiFixture: Provides API clients (userApi)
- * - pageObjectsFixture: Provides page objects (playwrightDevPage)
- * 
+ *
  * Usage in tests:
  *   import { test, expect } from '../fixtures/commonFixture';
- *   
- *   test('example test', async ({ page, userApi, playwrightDevPage }) => {
+ *
+ *   test('example test', async ({ page }) => {
  *     // page is automatically injected by Playwright
- *     // userApi is automatically injected by apiFixture
- *     // playwrightDevPage is automatically injected by pageObjectsFixture
+ *     // add your own fixtures to apiFixture and pageObjectsFixture
  *   });
  */
 

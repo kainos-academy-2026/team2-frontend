@@ -6,8 +6,10 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+/test-reports/
 
 # Environment configuration
 .env
 .env.*
 !.env.example
+

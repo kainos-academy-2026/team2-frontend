@@ -1,20 +1,13 @@
 import { test as base } from '@playwright/test';
-import { PlaywrightDevPage } from '../pages/playwrightDevPage';
 
 /**
  * Page Objects Fixture
- * 
- * Provides page object instances for use in tests.
- * Each test gets fresh instances of page objects.
+ *
+ * Add your page object fixtures here.
+ * Import your page objects and register them in the PageObjectsFixture type.
  */
 
-type PageObjectsFixture = {
-  playwrightDevPage: PlaywrightDevPage;
-};
+// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+type PageObjectsFixture = {};
 
-export const pageObjectsFixture = base.extend<PageObjectsFixture>({
-  playwrightDevPage: async ({ page }, use) => {
-    const playwrightDevPage = new PlaywrightDevPage(page);
-    await use(playwrightDevPage);
-  },
-});
+export const pageObjectsFixture = base.extend<PageObjectsFixture>({});
