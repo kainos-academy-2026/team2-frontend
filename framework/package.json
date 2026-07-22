@@ -1,21 +1,21 @@
 {
-  "name": "framework",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "playwright test",
-    "test:ui": "playwright test --ui",
-    "test:debug": "playwright test --debug",
-    "test:headed": "playwright test --headed",
-    "show:report": "playwright show-report test-reports"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@playwright/test": "^1.61.1",
-    "@types/node": "^26.1.1",
-    "dotenv": "^17.4.2"
-  }
+	"name": "framework",
+	"version": "1.0.0",
+	"description": "",
+	"main": "index.js",
+	"scripts": {
+		"test": "playwright test",
+		"test:ui": "playwright test --ui",
+		"test:debug": "playwright test --debug",
+		"test:headed": "playwright test --headed",
+		"show:report": "playwright show-report test-reports"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"devDependencies": {
+		"@playwright/test": "^1.61.1",
+		"@types/node": "^26.1.1",
+		"dotenv": "^17.4.2"
+	}
 }

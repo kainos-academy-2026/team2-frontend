@@ -1,6 +1,6 @@
-import { test as base, mergeTests } from '@playwright/test';
-import { apiFixture } from './apiFixture';
-import { pageObjectsFixture } from './pageObjectsFixture';
+import { test as base, mergeTests } from "@playwright/test";
+import { apiFixture } from "./apiFixture";
+import { pageObjectsFixture } from "./pageObjectsFixture";
 
 /**
  * Common fixture that merges all framework fixtures.
@@ -18,4 +18,4 @@ import { pageObjectsFixture } from './pageObjectsFixture';
  */
 
 export const test = mergeTests(base, apiFixture, pageObjectsFixture);
-export { expect } from '@playwright/test';
+export { expect } from "@playwright/test";
