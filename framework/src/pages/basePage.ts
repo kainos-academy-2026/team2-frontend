@@ -24,13 +24,6 @@ export abstract class BasePage {
 	}
 
 	/**
-	 * Expose page for tests that need direct access
-	 */
-	getPage(): Page {
-		return this.page;
-	}
-
-	/**
 	 * Get the current page title
 	 *
 	 * @returns Page title
