@@ -56,6 +56,8 @@ export abstract class BasePage {
 	 * @param name - Screenshot name/path
 	 */
 	async takeScreenshot(name: string): Promise<void> {
-		await this.page.screenshot({ path: `./test-reports/screenshots/${name}.png` });
+		await this.page.screenshot({
+			path: `./test-reports/screenshots/${name}.png`,
+		});
 	}
 }

@@ -6,4 +6,3 @@ export default defineConfig({
 		exclude: ["framework", "node_modules"],
 	},
 });
-

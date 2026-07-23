@@ -31,7 +31,9 @@ export class ApplyPage extends BasePage {
 	 * @param filePath - Path to the CV file
 	 */
 	async uploadCV(filePath: string): Promise<void> {
-		await this.page.getByRole("button", { name: /upload|cv|file/i }).setInputFiles(filePath);
+		await this.page
+			.getByRole("button", { name: /upload|cv|file/i })
+			.setInputFiles(filePath);
 	}
 
 	/**
