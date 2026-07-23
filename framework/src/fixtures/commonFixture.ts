@@ -1,4 +1,4 @@
-import { test as base, mergeTests } from "@playwright/test";
+import { mergeTests } from "@playwright/test";
 import { apiFixture } from "./apiFixture";
 import { pageObjectsFixture } from "./pageObjectsFixture";
 
@@ -17,5 +17,5 @@ import { pageObjectsFixture } from "./pageObjectsFixture";
  *   });
  */
 
-export const test = mergeTests(base, apiFixture, pageObjectsFixture);
+export const test = mergeTests(apiFixture, pageObjectsFixture);
 export { expect } from "@playwright/test";

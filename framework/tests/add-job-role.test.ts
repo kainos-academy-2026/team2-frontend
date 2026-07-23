@@ -1,9 +1,10 @@
+import type { Page } from "@playwright/test";
 import { expect, test } from "../src/fixtures/commonFixture";
 
 const ADMIN_EMAIL = "admin.seed@example.com";
 const ADMIN_PASSWORD = "Admin!12345";
 
-test("admin can add a new job role", async ({ page }: { page: any }) => {
+test("admin can add a new job role", async ({ page }: { page: Page }) => {
 	const roleName = `Playwright Role ${Date.now()}`;
 
 	await page.goto("http://localhost:3000/login");
