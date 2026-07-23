@@ -7,7 +7,7 @@ import { test as base } from "@playwright/test";
  * Import your API clients and register them in the APIFixture type.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
+// biome-ignore lint/complexity/noBannedTypes: fixture type will be extended with API clients
 type APIFixture = {};
 
 export const apiFixture = base.extend<APIFixture>({});

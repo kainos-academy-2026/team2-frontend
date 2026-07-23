@@ -17,6 +17,13 @@ export abstract class BasePage {
 	}
 
 	/**
+	 * Expose page for tests that need direct access
+	 */
+	getPage(): Page {
+		return this.page;
+	}
+
+	/**
 	 * Get the current page title
 	 *
 	 * @returns Page title
@@ -49,20 +56,8 @@ export abstract class BasePage {
 	 * @param name - Screenshot name/path
 	 */
 	async takeScreenshot(name: string): Promise<void> {
-		await this.page.screenshot({ path: `screenshots/${name}.png` });
-	}
-
-	/**
-	 * Accept browser alert
-	 */
-	async acceptAlert(): Promise<void> {
-		this.page.once("dialog", (dialog) => dialog.accept());
-	}
-
-	/**
-	 * Dismiss browser alert
-	 */
-	async dismissAlert(): Promise<void> {
-		this.page.once("dialog", (dialog) => dialog.dismiss());
+		await this.page.screenshot({
+			path: `./test-reports/screenshots/${name}.png`,
+		});
 	}
 }

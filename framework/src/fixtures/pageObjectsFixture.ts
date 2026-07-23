@@ -1,4 +1,5 @@
 import { test as base } from "@playwright/test";
+import { ApplyPage } from "../pages/applyPage";
 
 /**
  * Page Objects Fixture
@@ -7,7 +8,13 @@ import { test as base } from "@playwright/test";
  * Import your page objects and register them in the PageObjectsFixture type.
  */
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-type PageObjectsFixture = {};
+type PageObjectsFixture = {
+	applyPage: ApplyPage;
+};
 
-export const pageObjectsFixture = base.extend<PageObjectsFixture>({});
+export const pageObjectsFixture = base.extend<PageObjectsFixture>({
+	applyPage: async ({ page }, use) => {
+		const applyPage = new ApplyPage(page);
+		await use(applyPage);
+	},
+});

@@ -1,3 +1,4 @@
+import path from "node:path";
 import { defineConfig, devices } from "@playwright/test";
 import dotenv from "dotenv";
 
@@ -8,9 +9,10 @@ const uiBaseUrl = process.env.UI_BASE_URL || "http://localhost:3000";
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
  */
-// import dotenv from 'dotenv';
-// import path from 'path';
-// dotenv.config({ path: path.resolve(__dirname, '.env') });
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+dotenv.config({ path: path.resolve(__dirname, ".env.local") });
+dotenv.config({ path: path.resolve(__dirname, ".env") });
+dotenv.config({ path: path.resolve(__dirname, ".env.local") });
 
 /**
  * Generate report name based on date/time (YYYY-MM-DD_HH-mm-ss format)
@@ -44,8 +46,12 @@ export default defineConfig({
 		["json", { outputFile: `${reportDir}/${reportName}/results.json` }],
 	],
 	use: {
-		baseURL: uiBaseUrl,
+		/* Base URL to use in actions like `await page.goto('')`. */
+		baseURL: "http://localhost:3000",
+
+		/* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
 		trace: "on-first-retry",
+		/* Screenshot on failure */
 		screenshot: "only-on-failure",
 	},
 	projects: [
@@ -54,10 +60,20 @@ export default defineConfig({
 			use: { ...devices["Desktop Chrome"] },
 		},
 	],
-	webServer: {
-		command: "cd .. && MOCKED_AUTHENTICATION=true npm run dev",
-		url: uiBaseUrl,
-		reuseExistingServer: !process.env.CI,
-		timeout: 120_000,
-	},
+
+	/* Global setup hook - runs once before all tests */
+	globalSetup: require.resolve("./globalSetup.ts"),
+
+	/* Global teardown hook - runs once after all tests */
+	globalTeardown: require.resolve("./globalTeardown.ts"),
+
+	/* Run your local dev server before starting the tests */
+	webServer: [
+		{
+			command: "cd .. && npm run dev",
+			url: "http://localhost:3000/login",
+			reuseExistingServer: !process.env.CI,
+			timeout: 120 * 1000,
+		},
+	],
 });
