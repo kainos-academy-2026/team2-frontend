@@ -24,6 +24,13 @@ export abstract class BasePage {
 	}
 
 	/**
+	 * Expose page for tests that need direct access
+	 */
+	getPage(): Page {
+		return this.page;
+	}
+
+	/**
 	 * Get the current page title
 	 *
 	 * @returns Page title
@@ -56,8 +63,6 @@ export abstract class BasePage {
 	 * @param name - Screenshot name/path
 	 */
 	async takeScreenshot(name: string): Promise<void> {
-		await this.page.screenshot({
-			path: `./test-reports/screenshots/${name}.png`,
-		});
+		await this.page.screenshot({ path: `./test-reports/screenshots/${name}.png` });
 	}
 }
