@@ -43,5 +43,7 @@ test("admin can add a new job role", async ({ page }: { page: any }) => {
 	await expect(
 		page.getByText("New job role created successfully."),
 	).toBeVisible();
-	await expect(page.getByRole("link", { name: roleName }).first()).toBeVisible();
+	await expect(
+		page.getByRole("link", { name: roleName }).first(),
+	).toBeVisible();
 });
