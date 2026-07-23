@@ -1,5 +1,5 @@
 import type { Page } from "@playwright/test";
-import { expect, test } from "../src/fixtures/commonFixture";
+import { expect, test } from "@playwright/test";
 
 const ADMIN_EMAIL = "admin.seed@example.com";
 const ADMIN_PASSWORD = "Admin!12345";
