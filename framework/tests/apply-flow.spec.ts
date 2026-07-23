@@ -1,4 +1,4 @@
-import { test, expect } from "../src/fixtures/commonFixture";
+import { expect, test } from "../src/fixtures/commonFixture";
 
 // Smoke test for apply flow page
 
@@ -18,9 +18,9 @@ const getLoginCredentials = () => {
 	return { email, password };
 };
 
-const loginAsValidUser = async (
-	applyPage: { getPage: () => import("@playwright/test").Page },
-) => {
+const loginAsValidUser = async (applyPage: {
+	getPage: () => import("@playwright/test").Page;
+}) => {
 	const page = applyPage.getPage();
 	const credentials = getLoginCredentials();
 
