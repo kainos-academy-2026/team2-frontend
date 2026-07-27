@@ -1,0 +1,29 @@
+# Dependencies
+node_modules
+
+# Git metadata
+.git
+
+# Environment files
+.env
+.env.*
+
+# Documentation
+*.md
+
+# Tests
+tests/
+framework/tests/
+framework/test-results/
+framework/test-reports/
+
+# Build artifacts
+dist/
+coverage/
+*.tsbuildinfo
+
+# Misc local artifacts
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
