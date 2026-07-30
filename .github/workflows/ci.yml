@@ -158,12 +158,12 @@ jobs:
         run: terraform plan -input=false -out=tfplan
 
       - name: Terraform apply (main branch)
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/part5')
         working-directory: my-infrastructure
         run: terraform apply -input=false -auto-approve tfplan
 
       - name: Show deployed URL
-        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/part5')
         working-directory: my-infrastructure
         run: |
           echo "Deployed frontend URL:"
