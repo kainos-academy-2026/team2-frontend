@@ -149,6 +149,34 @@ jobs:
             -backend-config="key=${TFSTATE_KEY}" \
             -backend-config="use_azuread_auth=true"
 
+      - name: Import existing ACR role assignment into state
+        working-directory: my-infrastructure
+        run: |
+          az login --service-principal \
+            --username "$ARM_CLIENT_ID" \
+            --password "$ARM_CLIENT_SECRET" \
+            --tenant "$ARM_TENANT_ID" \
+            --output none
+
+          ACR_ID=$(az acr show --name acraiacademy26 --resource-group rg-ai-academy-26 --query id -o tsv)
+          PRINCIPAL_ID=$(az identity show \
+            --name team2-frontend-dev-identity \
+            --resource-group team2-frontend-dev-rg \
+            --query principalId -o tsv 2>/dev/null || echo "")
+
+          if [ -n "$PRINCIPAL_ID" ]; then
+            ROLE_ID=$(az role assignment list \
+              --scope "$ACR_ID" \
+              --role "AcrPull" \
+              --assignee "$PRINCIPAL_ID" \
+              --query "[0].id" -o tsv 2>/dev/null || echo "")
+
+            if [ -n "$ROLE_ID" ]; then
+              echo "Importing existing AcrPull role assignment: $ROLE_ID"
+              terraform import module.container_apps.azurerm_role_assignment.acr_pull "$ROLE_ID" || true
+            fi
+          fi
+
       - name: Terraform validate
         working-directory: my-infrastructure
         run: terraform validate
