@@ -84,7 +84,7 @@ jobs:
       - name: Set Docker image tags
         run: |
           echo "ACR_REGISTRY=acraiacademy26.azurecr.io" >> "$GITHUB_ENV"
-          echo "ACR_IMAGE=acraiacademy26.azurecr.io/team2-backend" >> "$GITHUB_ENV"
+          echo "ACR_IMAGE=acraiacademy26.azurecr.io/team2-frontend" >> "$GITHUB_ENV"
           echo "IMAGE_TAG_SHA=${GITHUB_SHA::8}" >> "$GITHUB_ENV"
           echo "IMAGE_TAG_CI=ci-${GITHUB_RUN_NUMBER}" >> "$GITHUB_ENV"
 
@@ -131,7 +131,7 @@ jobs:
     env:
       TF_IN_AUTOMATION: "true"
       TF_VAR_environment: dev
-      TF_VAR_project_name: team2-backend
+      TF_VAR_project_name: team2-frontend
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -139,7 +139,7 @@ jobs:
       TFSTATE_RG: ${{ secrets.TFSTATE_RESOURCE_GROUP_NAME || secrets.TFSTATE_RG }}
       TFSTATE_STORAGE: ${{ secrets.TFSTATE_STORAGE_ACCOUNT_NAME || secrets.TFSTATE_STORAGE }}
       TFSTATE_CONTAINER: ${{ secrets.TFSTATE_CONTAINER_NAME || secrets.TFSTATE_CONTAINER }}
-      TFSTATE_KEY: team2-backend-dev.tfstate
+      TFSTATE_KEY: team2-frontend-dev.tfstate
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
