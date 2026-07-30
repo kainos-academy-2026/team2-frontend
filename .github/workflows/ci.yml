@@ -123,6 +123,7 @@ jobs:
       TF_IN_AUTOMATION: "true"
       TF_VAR_environment: dev
       TF_VAR_project_name: team2-frontend
+      TF_VAR_acr_resource_group_name: rg-ai-academy-26
       ARM_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       ARM_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
       ARM_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
@@ -160,3 +161,10 @@ jobs:
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: my-infrastructure
         run: terraform apply -input=false -auto-approve tfplan
+
+      - name: Show deployed URL
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        working-directory: my-infrastructure
+        run: |
+          echo "Deployed frontend URL:"
+          terraform output -raw frontend_url

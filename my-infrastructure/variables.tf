@@ -50,3 +50,39 @@ variable "tags" {
     ManagedBy = "Terraform"
   }
 }
+
+variable "acr_name" {
+  description = "Name of the existing Azure Container Registry"
+  type        = string
+  default     = "acraiacademy26"
+}
+
+variable "acr_resource_group_name" {
+  description = "Resource group of the ACR. Defaults to the project resource group when null."
+  type        = string
+  default     = null
+  nullable    = true
+}
+
+variable "frontend_image" {
+  description = "Frontend image name and tag in ACR (e.g. team2-frontend:latest)"
+  type        = string
+  default     = "team2-frontend:latest"
+}
+
+variable "backend_url" {
+  description = "Full URL of the backend API — set once the backend is deployed"
+  type        = string
+  default     = "http://localhost:3001"
+}
+
+variable "mocked_authentication" {
+  description = "Set to 'true' to enable the mock authentication feature flag"
+  type        = string
+  default     = "false"
+
+  validation {
+    condition     = contains(["true", "false"], var.mocked_authentication)
+    error_message = "mocked_authentication must be 'true' or 'false'."
+  }
+}
