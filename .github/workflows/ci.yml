@@ -153,11 +153,6 @@ jobs:
         working-directory: my-infrastructure
         run: terraform validate
 
-      # Removes orphaned ACR role assignment from state so Terraform doesn't try to delete it (no delete perms on shared RG)
-      - name: Remove orphaned ACR role assignment from state
-        working-directory: my-infrastructure
-        run: terraform state rm module.container_apps.azurerm_role_assignment.acr_pull || true
-
       - name: Terraform plan
         working-directory: my-infrastructure
         run: terraform plan -input=false -out=tfplan
