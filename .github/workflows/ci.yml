@@ -170,7 +170,7 @@ jobs:
               echo "Already in state: $addr"
             else
               echo "Importing $addr"
-              terraform import "$addr" "$id"
+              terraform import "$addr" "$id" || echo "Skipping $addr (does not exist in Azure)"
             fi
           }
 
