@@ -161,13 +161,16 @@ jobs:
             --tenant "$ARM_TENANT_ID" \
             --output none
 
+          echo "=== State before import ==="
+          terraform state list || echo "(empty)"
+
           import_if_exists() {
             local addr=$1 id=$2
             if terraform state show "$addr" &>/dev/null; then
               echo "Already in state: $addr"
             else
               echo "Importing $addr"
-              terraform import "$addr" "$id" || true
+              terraform import "$addr" "$id"
             fi
           }
 
@@ -218,6 +221,9 @@ jobs:
               import_if_exists "module.key_vault.azurerm_role_assignment.secrets_user" "$KV_ROLE_ID"
             fi
           fi
+
+          echo "=== State after import ==="
+          terraform state list
 
       - name: Terraform validate
         working-directory: my-infrastructure
