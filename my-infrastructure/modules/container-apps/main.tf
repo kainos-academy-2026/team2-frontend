@@ -38,12 +38,6 @@ resource "azurerm_container_app" "frontend" {
     }
   }
 
-  secret {
-    name                = "session-secret-ref"
-    key_vault_secret_id = "${var.key_vault_vault_uri}secrets/SessionSecret"
-    identity            = var.managed_identity_id
-  }
-
   template {
     min_replicas = 1
     max_replicas = 2
@@ -67,11 +61,6 @@ resource "azurerm_container_app" "frontend" {
       env {
         name  = "MOCKED_AUTHENTICATION"
         value = var.mocked_authentication
-      }
-
-      env {
-        name        = "SESSION_SECRET"
-        secret_name = "session-secret-ref"
       }
     }
   }

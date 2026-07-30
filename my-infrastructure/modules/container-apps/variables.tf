@@ -43,11 +43,6 @@ variable "backend_url" {
   type        = string
 }
 
-variable "key_vault_vault_uri" {
-  description = "The URI of the Key Vault (used to construct Key Vault secret references)"
-  type        = string
-}
-
 variable "mocked_authentication" {
   description = "Value for the MOCKED_AUTHENTICATION feature flag environment variable"
   type        = string
