@@ -72,15 +72,6 @@ jobs:
       - name: Display build start message
         run: echo "Container build started"
 
-      - name: Create placeholder corporate cert for CI build context
-        run: |
-          mkdir -p docker/certs
-          openssl req -x509 -newkey rsa:2048 -sha256 -days 365 -nodes \
-            -keyout /tmp/ci-placeholder-ca.key \
-            -out docker/certs/corporate-ca-bundle.crt \
-            -subj "/CN=ci-placeholder-ca"
-          rm -f /tmp/ci-placeholder-ca.key
-
       - name: Set Docker image tags
         run: |
           echo "ACR_REGISTRY=acraiacademy26.azurecr.io" >> "$GITHUB_ENV"
@@ -168,4 +159,4 @@ jobs:
       - name: Terraform apply (main branch)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: my-infrastructure
-        run: terraform apply -input=false -auto-approve
+        run: terraform apply -input=false -auto-approve tfplan
