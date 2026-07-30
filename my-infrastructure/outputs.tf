@@ -12,3 +12,18 @@ output "location" {
   description = "The location of the resource group"
   value       = module.resource_group.location
 }
+
+output "key_vault_name" {
+  description = "Name of the Key Vault — add secrets manually in the Azure portal"
+  value       = module.key_vault.name
+}
+
+output "frontend_url" {
+  description = "Public URL of the frontend container app"
+  value       = "https://${module.container_apps.frontend_fqdn}"
+}
+
+output "backend_fqdn" {
+  description = "Internal FQDN of the backend container app"
+  value       = module.container_apps.backend_fqdn
+}
