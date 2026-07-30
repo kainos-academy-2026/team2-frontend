@@ -126,7 +126,7 @@ jobs:
   terraform:
     name: Terraform (plan/apply)
     runs-on: ubuntu-latest
-    if: (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) && hashFiles('my-infrastructure/*.tf') != ''
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
     needs: [build]
     env:
       TF_IN_AUTOMATION: "true"
