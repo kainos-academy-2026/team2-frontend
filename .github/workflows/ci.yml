@@ -5,7 +5,7 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
   push:
-    branches: ["main", "part5"]
+    branches: ["main"]
 
 jobs:
   lint:
@@ -90,7 +90,6 @@ jobs:
       - name: Log in to Azure Container Registry
         if: >
           (github.ref == 'refs/heads/main' && github.event_name == 'push') ||
-          (github.ref == 'refs/heads/part5' && github.event_name == 'push') ||
           (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
         uses: docker/login-action@v3
         with:
@@ -104,13 +103,6 @@ jobs:
           docker tag "${ACR_IMAGE}:${IMAGE_TAG_SHA}" "${ACR_IMAGE}:latest"
           docker push "${ACR_IMAGE}:${IMAGE_TAG_SHA}"
           docker push "${ACR_IMAGE}:${IMAGE_TAG_CI}"
-          docker push "${ACR_IMAGE}:latest"
-
-      - name: Push image to ACR (part5 branch)
-        if: github.ref == 'refs/heads/part5' && github.event_name == 'push'
-        run: |
-          docker tag "${ACR_IMAGE}:${IMAGE_TAG_SHA}" "${ACR_IMAGE}:latest"
-          docker push "${ACR_IMAGE}:${IMAGE_TAG_SHA}"
           docker push "${ACR_IMAGE}:latest"
 
       - name: Push PR image to ACR (same-repo PRs only)
@@ -157,82 +149,6 @@ jobs:
             -backend-config="key=${TFSTATE_KEY}" \
             -backend-config="use_azuread_auth=true"
 
-      - name: Import existing resources into state
-        working-directory: my-infrastructure
-        env:
-          RG: team2-frontend-dev-rg
-          SUB: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-        run: |
-          az login --service-principal \
-            --username "$ARM_CLIENT_ID" \
-            --password "$ARM_CLIENT_SECRET" \
-            --tenant "$ARM_TENANT_ID" \
-            --output none
-
-          echo "=== State before import ==="
-          terraform state list || echo "(empty)"
-
-          import_if_exists() {
-            local addr=$1 id=$2
-            if terraform state show "$addr" &>/dev/null; then
-              echo "Already in state: $addr"
-            else
-              echo "Importing $addr"
-              terraform import "$addr" "$id" || echo "Skipping $addr (does not exist in Azure)"
-            fi
-          }
-
-          BASE="/subscriptions/${SUB}/resourceGroups/${RG}"
-
-          import_if_exists \
-            "module.resource_group.azurerm_resource_group.this" \
-            "/subscriptions/${SUB}/resourceGroups/${RG}"
-
-          import_if_exists \
-            "module.managed_identity.azurerm_user_assigned_identity.this" \
-            "${BASE}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/team2-frontend-dev-identity"
-
-          import_if_exists \
-            "module.key_vault.azurerm_key_vault.this" \
-            "${BASE}/providers/Microsoft.KeyVault/vaults/team2-frontend-dev-kv"
-
-          import_if_exists \
-            "module.container_app_environment.azurerm_log_analytics_workspace.this" \
-            "${BASE}/providers/Microsoft.OperationalInsights/workspaces/team2-frontend-dev-logs"
-
-          import_if_exists \
-            "module.container_app_environment.azurerm_container_app_environment.this" \
-            "${BASE}/providers/Microsoft.App/managedEnvironments/team2-frontend-dev-env"
-
-          import_if_exists \
-            "module.container_apps.azurerm_container_app.frontend" \
-            "${BASE}/providers/Microsoft.App/containerApps/team2-frontend-dev-frontend"
-
-          ACR_ID=$(az acr show --name acraiacademy26 --resource-group rg-ai-academy-26 --query id -o tsv)
-          PRINCIPAL_ID=$(az identity show \
-            --name team2-frontend-dev-identity \
-            --resource-group "$RG" \
-            --query principalId -o tsv 2>/dev/null || echo "")
-          if [ -n "$PRINCIPAL_ID" ]; then
-            ROLE_ID=$(az role assignment list \
-              --scope "$ACR_ID" --role "AcrPull" --assignee "$PRINCIPAL_ID" \
-              --query "[0].id" -o tsv 2>/dev/null || echo "")
-            if [ -n "$ROLE_ID" ]; then
-              import_if_exists "module.container_apps.azurerm_role_assignment.acr_pull" "$ROLE_ID"
-            fi
-
-            KV_ID="${BASE}/providers/Microsoft.KeyVault/vaults/team2-frontend-dev-kv"
-            KV_ROLE_ID=$(az role assignment list \
-              --scope "$KV_ID" --role "Key Vault Secrets User" --assignee "$PRINCIPAL_ID" \
-              --query "[0].id" -o tsv 2>/dev/null || echo "")
-            if [ -n "$KV_ROLE_ID" ]; then
-              import_if_exists "module.key_vault.azurerm_role_assignment.secrets_user" "$KV_ROLE_ID"
-            fi
-          fi
-
-          echo "=== State after import ==="
-          terraform state list
-
       - name: Terraform validate
         working-directory: my-infrastructure
         run: terraform validate
@@ -242,12 +158,12 @@ jobs:
         run: terraform plan -input=false -out=tfplan
 
       - name: Terraform apply (main branch)
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/part5')
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: my-infrastructure
         run: terraform apply -input=false -auto-approve tfplan
 
       - name: Show deployed URL
-        if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/part5')
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         working-directory: my-infrastructure
         run: |
           echo "Deployed frontend URL:"
