@@ -149,8 +149,11 @@ jobs:
             -backend-config="key=${TFSTATE_KEY}" \
             -backend-config="use_azuread_auth=true"
 
-      - name: Import existing ACR role assignment into state
+      - name: Import existing resources into state
         working-directory: my-infrastructure
+        env:
+          RG: team2-frontend-dev-rg
+          SUB: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
         run: |
           az login --service-principal \
             --username "$ARM_CLIENT_ID" \
@@ -158,22 +161,61 @@ jobs:
             --tenant "$ARM_TENANT_ID" \
             --output none
 
+          import_if_exists() {
+            local addr=$1 id=$2
+            if terraform state show "$addr" &>/dev/null; then
+              echo "Already in state: $addr"
+            else
+              echo "Importing $addr"
+              terraform import "$addr" "$id" || true
+            fi
+          }
+
+          BASE="/subscriptions/${SUB}/resourceGroups/${RG}"
+
+          import_if_exists \
+            "module.resource_group.azurerm_resource_group.this" \
+            "/subscriptions/${SUB}/resourceGroups/${RG}"
+
+          import_if_exists \
+            "module.managed_identity.azurerm_user_assigned_identity.this" \
+            "${BASE}/providers/Microsoft.ManagedIdentity/userAssignedIdentities/team2-frontend-dev-identity"
+
+          import_if_exists \
+            "module.key_vault.azurerm_key_vault.this" \
+            "${BASE}/providers/Microsoft.KeyVault/vaults/team2-frontend-dev-kv"
+
+          import_if_exists \
+            "module.container_app_environment.azurerm_log_analytics_workspace.this" \
+            "${BASE}/providers/Microsoft.OperationalInsights/workspaces/team2-frontend-dev-logs"
+
+          import_if_exists \
+            "module.container_app_environment.azurerm_container_app_environment.this" \
+            "${BASE}/providers/Microsoft.App/managedEnvironments/team2-frontend-dev-env"
+
+          import_if_exists \
+            "module.container_apps.azurerm_container_app.frontend" \
+            "${BASE}/providers/Microsoft.App/containerApps/team2-frontend-dev-frontend"
+
           ACR_ID=$(az acr show --name acraiacademy26 --resource-group rg-ai-academy-26 --query id -o tsv)
           PRINCIPAL_ID=$(az identity show \
             --name team2-frontend-dev-identity \
-            --resource-group team2-frontend-dev-rg \
+            --resource-group "$RG" \
             --query principalId -o tsv 2>/dev/null || echo "")
-
           if [ -n "$PRINCIPAL_ID" ]; then
             ROLE_ID=$(az role assignment list \
-              --scope "$ACR_ID" \
-              --role "AcrPull" \
-              --assignee "$PRINCIPAL_ID" \
+              --scope "$ACR_ID" --role "AcrPull" --assignee "$PRINCIPAL_ID" \
               --query "[0].id" -o tsv 2>/dev/null || echo "")
-
             if [ -n "$ROLE_ID" ]; then
-              echo "Importing existing AcrPull role assignment: $ROLE_ID"
-              terraform import module.container_apps.azurerm_role_assignment.acr_pull "$ROLE_ID" || true
+              import_if_exists "module.container_apps.azurerm_role_assignment.acr_pull" "$ROLE_ID"
+            fi
+
+            KV_ID="${BASE}/providers/Microsoft.KeyVault/vaults/team2-frontend-dev-kv"
+            KV_ROLE_ID=$(az role assignment list \
+              --scope "$KV_ID" --role "Key Vault Secrets User" --assignee "$PRINCIPAL_ID" \
+              --query "[0].id" -o tsv 2>/dev/null || echo "")
+            if [ -n "$KV_ROLE_ID" ]; then
+              import_if_exists "module.key_vault.azurerm_role_assignment.secrets_user" "$KV_ROLE_ID"
             fi
           fi
 
