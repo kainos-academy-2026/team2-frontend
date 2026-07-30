@@ -10,54 +10,6 @@ resource "azurerm_role_assignment" "acr_pull" {
   principal_id         = var.managed_identity_principal_id
 }
 
-resource "azurerm_container_app" "backend" {
-  name                         = "${var.name}-backend"
-  container_app_environment_id = var.container_app_environment_id
-  resource_group_name          = var.resource_group_name
-  revision_mode                = "Single"
-  tags                         = var.tags
-
-  identity {
-    type         = "UserAssigned"
-    identity_ids = [var.managed_identity_id]
-  }
-
-  registry {
-    server   = "${var.acr_name}.azurecr.io"
-    identity = var.managed_identity_id
-  }
-
-  ingress {
-    external_enabled = false
-    target_port      = var.backend_port
-    transport        = "http"
-
-    traffic_weight {
-      percentage      = 100
-      latest_revision = true
-    }
-  }
-
-  template {
-    min_replicas = 1
-    max_replicas = 2
-
-    container {
-      name   = "backend"
-      image  = "${var.acr_name}.azurecr.io/${var.backend_image}"
-      cpu    = 0.5
-      memory = "1Gi"
-
-      env {
-        name  = "NODE_ENV"
-        value = "production"
-      }
-    }
-  }
-
-  depends_on = [azurerm_role_assignment.acr_pull]
-}
-
 resource "azurerm_container_app" "frontend" {
   name                         = "${var.name}-frontend"
   container_app_environment_id = var.container_app_environment_id
@@ -109,7 +61,7 @@ resource "azurerm_container_app" "frontend" {
 
       env {
         name  = "BACKEND_URL"
-        value = "https://${azurerm_container_app.backend.ingress[0].fqdn}"
+        value = var.backend_url
       }
 
       env {

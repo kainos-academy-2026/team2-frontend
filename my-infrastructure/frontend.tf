@@ -71,8 +71,7 @@ module "container_apps" {
   acr_name                      = var.acr_name
   acr_resource_group_name       = local.acr_resource_group
   frontend_image                = var.frontend_image
-  backend_image                 = var.backend_image
-  backend_port                  = var.backend_port
+  backend_url                   = var.backend_url
   key_vault_vault_uri           = module.key_vault.vault_uri
   mocked_authentication         = var.mocked_authentication
   tags                          = var.tags

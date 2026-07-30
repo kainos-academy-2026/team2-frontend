@@ -22,8 +22,3 @@ output "frontend_url" {
   description = "Public URL of the frontend container app"
   value       = "https://${module.container_apps.frontend_fqdn}"
 }
-
-output "backend_fqdn" {
-  description = "Internal FQDN of the backend container app"
-  value       = module.container_apps.backend_fqdn
-}

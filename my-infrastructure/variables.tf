@@ -70,16 +70,10 @@ variable "frontend_image" {
   default     = "team2-frontend:latest"
 }
 
-variable "backend_image" {
-  description = "Backend image name and tag in ACR (e.g. team2-backend:latest)"
+variable "backend_url" {
+  description = "Full URL of the backend API — set once the backend is deployed"
   type        = string
-  default     = "team2-backend:latest"
-}
-
-variable "backend_port" {
-  description = "Port the backend container listens on"
-  type        = number
-  default     = 3001
+  default     = "http://localhost:3001"
 }
 
 variable "mocked_authentication" {

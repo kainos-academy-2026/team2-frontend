@@ -38,14 +38,9 @@ variable "frontend_image" {
   type        = string
 }
 
-variable "backend_image" {
-  description = "Backend image name and tag in ACR (e.g. team2-backend:latest)"
+variable "backend_url" {
+  description = "Full URL of the backend API (e.g. https://team2-backend.example.azurecontainerapps.io)"
   type        = string
-}
-
-variable "backend_port" {
-  description = "Port the backend container listens on"
-  type        = number
 }
 
 variable "key_vault_vault_uri" {
