@@ -10,3 +10,14 @@
 .env. *
 !.env.example
 coverage/
+
+# Terraform Local Artifacts
+**/.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
